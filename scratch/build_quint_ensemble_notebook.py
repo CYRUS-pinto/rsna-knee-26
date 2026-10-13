@@ -6,8 +6,10 @@ dst_nb_path = 'scratch/kernels/r7_quint_ensemble/rsna-knee-quint-ensemble-r7-col
 with open(src_nb_path, 'r', encoding='utf-8') as f:
     nb = json.load(f)
 
-# 1. Update Cell 3 CANDIDATE_ARMS to include 224px multiscale model
+# 1. Update Cell 3
 c3 = ''.join(nb['cells'][3]['source'])
+
+# Replace candidate arms with complete 4-arm multi-scale + multi-architecture stack
 old_arms_block = '''CANDIDATE_ARMS = [
     {"file": "raptor_ft_alldata_t16_blendjev_oai_d96_r384_swa.pt", "arch": "coatnet_rmlp_2_rw_384.sw_in12k_ft_in1k", "res": 384, "w": 0.40},
     {"file": "colab_super_coatnet_0917_swa.pt", "arch": "coatnet_rmlp_2_rw_384.sw_in12k_ft_in1k", "res": 384, "w": 0.35},
@@ -16,13 +18,25 @@ old_arms_block = '''CANDIDATE_ARMS = [
 
 new_arms_block = '''CANDIDATE_ARMS = [
     {"file": "raptor_ft_alldata_t16_blendjev_oai_d96_r384_swa.pt", "arch": "coatnet_rmlp_2_rw_384.sw_in12k_ft_in1k", "res": 384, "w": 0.30},
-    {"file": "raptor_ft_alldata_t16_blendjev_oai_d96_c08_r224_swa.pt", "arch": "coatnet_rmlp_2_rw_384.sw_in12k_ft_in1k", "res": 384, "w": 0.15},
+    {"file": "raptor_ft_alldata_t16_blendjev_oai_d96_c08_r224_swa.pt", "arch": "coatnet_rmlp_2_rw_224.sw_in12k_ft_in1k", "res": 224, "w": 0.15},
     {"file": "colab_super_coatnet_0917_swa.pt", "arch": "coatnet_rmlp_2_rw_384.sw_in12k_ft_in1k", "res": 384, "w": 0.30},
     {"file": "colab_super_convnext_0917_swa.pt", "arch": "convnext_small.fb_in22k_ft_in1k_384", "res": 384, "w": 0.25},
 ]'''
 
 assert old_arms_block in c3, "Could not find old_arms_block in Cell 3"
 c3 = c3.replace(old_arms_block, new_arms_block)
+
+# Fix load_model to accept arbitrary checkpoint resolution (224 or 384)
+old_load_line = 'assert int(ck.get("res", res_default)) == 384, "Expected original 384 checkpoint"\n    ck_res = INPUT_RES'
+new_load_line = 'ck_res = int(ck.get("res", res_default))'
+assert old_load_line in c3, "Could not find old_load_line in Cell 3"
+c3 = c3.replace(old_load_line, new_load_line)
+
+# Fix build_backbone to adapt resolution for 224px backbones
+old_bb_kw = 'if not arch.startswith("convnext"):\n        kw["img_size"] = INPUT_RES'
+new_bb_kw = 'if not arch.startswith("convnext"):\n        kw["img_size"] = 224 if "224" in arch else INPUT_RES'
+assert old_bb_kw in c3, "Could not find old_bb_kw in Cell 3"
+c3 = c3.replace(old_bb_kw, new_bb_kw)
 
 # Ensure 224px hash check doesn't block loading
 old_hash_check = 'if "raptor_ft_alldata" in pt_path:'
@@ -49,4 +63,4 @@ nb['cells'][6]['source'] = [c6]
 with open(dst_nb_path, 'w', encoding='utf-8') as f:
     json.dump(nb, f, indent=1, ensure_ascii=False)
 
-print(f"Successfully generated Quint Ensemble notebook at {dst_nb_path}!")
+print(f"Successfully generated clean Quint Ensemble notebook at {dst_nb_path}!")
