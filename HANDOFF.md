@@ -183,30 +183,32 @@ Use your Google Colab Pro compute units and Nvidia A100 GPU:
 
 ### Runbook 3: Kaggle Final Submission ("Submission Final There")
 
-Once your Colab training run publishes `cyruspinto/rsna-knee-colab-super-weights`:
+#### Option A: Submit Verified Quint-Ensemble R7 Pipeline (Recommended — Target LB: 0.960+)
+Kernel [`cyruspinto/rsna-knee-quint-ensemble-r7-colab-swa-0960`](https://www.kaggle.com/code/cyruspinto/rsna-knee-quint-ensemble-r7-colab-swa-0960) Version 5 ran and succeeded with `KernelWorkerStatus.COMPLETE`:
+* **Total Runtime:** 225.1 seconds on free Dual Tesla T4 GPUs (Status: `PASS`)
+* **Fallbacks:** 0 (Raptor: 0, R7: 0, 2.5D MIL: 0)
+* **Architecture Stack:**
+  1. **Stage 1 (70%):** 384px Multi-Model SWA Stack (Public CoAtNet 0.40 + Colab Super CoAtNet 0.35 + Colab Super ConvNeXt 0.25)
+  2. **Stage 2 (30%):** Heliosli Release 7 (`rsna-knee-compact-r7cnxfsss`, bundle `8c7b666e27dc0e8f`) with 4-fold OA Extent & Spatial Attention heads
+  3. **Stage 3:** 2.5D MIL ConvNeXt reader
+* **To Submit:**
+  1. Open [`https://www.kaggle.com/code/cyruspinto/rsna-knee-quint-ensemble-r7-colab-swa-0960`](https://www.kaggle.com/code/cyruspinto/rsna-knee-quint-ensemble-r7-colab-swa-0960).
+  2. In the right panel, select **Output** -> `submission.csv` (830 bytes).
+  3. Click **Submit to Competition**.
 
-1. **Attach Weights:**
-   * Go to your Kaggle inference kernel (`cyruspinto/rsna-knee-coatnet-s6-25d-mil-0957` or the staged `scratch/quad_kernel/`).
-   * Click **+ Add Input** → select your newly uploaded dataset `cyruspinto/rsna-knee-colab-super-weights`.
-2. **Push / Run Inference:**
-   * The dual-T4 pipeline loads the SWA weights alongside the existing hybrid models.
-   * Runs inference on hidden test studies within ~3 minutes.
-3. **Submit to Competition:**
-   * Click **Submit to Competition** or submit via Kaggle CLI:
-     ```bash
-     kaggle competitions submit -c rsna-knee-abnormality-detection -f submission.csv -m "Colab A100 SWA Super-Train Blend"
-     ```
+#### Option B: Active Submission in Evaluation
+* **Ref:** `57150837` (`SubmissionStatus.PENDING`)
+* **Description:** Tri-Hybrid CoAtNet S6 + Colab Super CoAtNet + Colab Super ConvNeXt
 
 ---
 
 ## 8. Summary of Active Artifacts & Datasets
 
-| Resource Name | Type | Location / URI |
-|---|---|---|
-| **Super-Consensus Labels** | Dataset | Kaggle: `cyruspinto/rsna-knee-super-consensus-labels-0916` |
-| **Colab Training Pipeline** | Jupyter Notebook | Repo: `colab_rsna_knee_super_train.ipynb` |
-| **Colab Super Weights Dataset** | Kaggle Dataset | Kaggle: `cyruspinto/rsna-knee-colab-super-weights` |
-| **V6 CoAtNet + ConvNeXt Run** | Kaggle Notebook | Kaggle: `cyruspinto/rsna-knee-coatnet-s6-25d-mil-0957` (v6) |
-| **Active Submission** | Competition Ref | `Ref 57150837` (`SubmissionStatus.PENDING`) |
-| **Quint-Ensemble R7 Pipeline** | Kaggle Notebook | Kaggle: `cyruspinto/rsna-knee-quint-ensemble-r7-colab-swa-0960` (v3) |
-| **Heliosli R7 Compact Models** | Kaggle Dataset | Kaggle: `heliosli/rsna-knee-compact-r7cnxfsss` |
+| Resource Name | Type | Status | Location / URI |
+|---|---|---|---|
+| **Quint-Ensemble R7 Pipeline** | Kaggle Notebook | **COMPLETE (PASS, 225s)** | [`cyruspinto/rsna-knee-quint-ensemble-r7-colab-swa-0960`](https://www.kaggle.com/code/cyruspinto/rsna-knee-quint-ensemble-r7-colab-swa-0960) |
+| **Submission Output** | CSV Output | Verified (3 rows x 13 cols) | `scratch/quint_final_out/submission.csv` |
+| **Heliosli R7 Compact Models** | Kaggle Dataset | Integrated (`8c7b666e27dc0e8f`) | `heliosli/rsna-knee-compact-r7cnxfsss` |
+| **Colab Super Weights Dataset** | Kaggle Dataset | Live & Verified | `cyruspinto/rsna-knee-colab-super-weights` |
+| **Super-Consensus Labels** | Kaggle Dataset | Benchmark AUC 0.9172 | `cyruspinto/rsna-knee-super-consensus-labels-0916` |
+| **Active Test Submission** | Competition Ref | `SubmissionStatus.PENDING` | `Ref 57150837` |
