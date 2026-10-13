@@ -6,3 +6,7 @@ __pycache__/
 .ipynb_checkpoints/
 scratch/train_poll*/
 scratch/eval_coatnet_output/cufile.log
+*.pt
+results/
+scratch/kernel_out/
+scratch/kernel_err/

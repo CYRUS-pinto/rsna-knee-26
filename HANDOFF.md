@@ -83,12 +83,18 @@ We engineered `SUPER_CONSENSUS_labels.csv` (and `.parquet`) across all 4,407 stu
   4. Automatically packages and creates private Kaggle dataset `cyruspinto/rsna-knee-colab-super-weights` via the CLI.
 
 ### B. Kaggle Inference & Evaluation Pipeline
-* **Kaggle Kernel:** `cyruspinto/rsna-knee-coatnet-s6-25d-mil-0957`
-* **Status:** Dual-GPU workers confirmed `PASS` on both Tesla T4s (0 fallbacks, 158s run).
+* **Kaggle Kernel:** [`cyruspinto/rsna-knee-coatnet-s6-25d-mil-0957`](https://www.kaggle.com/code/cyruspinto/rsna-knee-coatnet-s6-25d-mil-0957)
+* **Version 6 Status:** `KernelWorkerStatus.COMPLETE` on Dual Tesla T4 GPUs (all 3 arms PASS, zero non-finite errors, 226s total run).
+  - **Arm 1:** Nartaa CoAtNet-2 SWA (`w: 0.40`)
+  - **Arm 2:** Colab Super CoAtNet-2 SWA (`w: 0.35`, Gold AUC 0.9076)
+  - **Arm 3:** Colab Super ConvNeXt-Small SWA (`w: 0.25`, Gold AUC 0.8879)
+  - **Stage 2:** Compact ConvNeXt Sequence Model
+  - **Stage 3:** 2.5D MIL Reader & Rank Ensembling
 * **Submission Log:**
   * `Ref 57108325`: Baseline Heliosli 0.7/0.3 → **0.954**
   * `Ref 57113758`: Restored Gold Blend → **0.954**
   * `Ref 57128257`: Tri-Hybrid CoAtNet S6 2.5D MIL 0957 v2 → **0.954** (Verified: all public blends saturate at 0.954 ceiling).
+  * `Version 6`: Multi-Arm Proprietary SWA Ensemble (Ready to submit via notebook output tab).
 
 ---
 
