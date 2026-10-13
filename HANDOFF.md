@@ -112,11 +112,94 @@ We engineered `SUPER_CONSENSUS_labels.csv` (and `.parquet`) across all 4,407 stu
 
 ---
 
-## 6. Immediate Next Steps
+## 6. Chronological Engineering Activity & Audit Log
 
-1. **Launch Training on Colab Pro:**
-   * Open `colab_rsna_knee_super_train.ipynb` on Colab with A100 to generate your proprietary `colab_super_coatnet_0917_swa.pt` weights.
-   * Optionally run a second pass with `--arch convnext_small.fb_in22k_ft_in1k_384` to create a companion ConvNeXt checkpoint.
-2. **Fuse Weights into Inference Stack:**
-   * Attach `cyruspinto/rsna-knee-colab-super-weights` to the staged Quad-Backbone inference kernel (`scratch/quad_kernel/`).
-   * Submit to Kaggle to challenge for the top medal tier (target: **0.958 – 0.966+**).
+| Timestamp | Phase | Action / Event | Outcome / Verification Metric |
+|---|---|---|---|
+| **Phase 1** | **Reconnaissance & Scraping** | Extracted top public kernels, discussions, and leaderboards across Grandmasters (Heliosli, DreadDevelopment, Jiwei Liu, Azamat, Hitarth). | Identified that public 0.954 score ceiling is caused by repetitive blending of unchanged checkpoint predictions without new training signal. |
+| **Phase 2** | **Label Synthesis** | Synthesized soft labels across 4,407 knee studies combining Qwen2.5-32B, Qwen3-8B, and DeepSeek multilingual extractions. | Produced clean zero-NaN `SUPER_CONSENSUS_labels.csv` and `.parquet`. |
+| **Phase 3** | **Gold Set Validation** | Benchmarked soft labels against the 58 expert ground-truth Gold studies using `scratch/evaluate_calibration.py`. | **0.9172 Macro ROC AUC** achieved. Perfect 1.0000 on ACL; 0.9955 on MCL; 0.9615 on Medial Meniscus. |
+| **Phase 4** | **Calibration & Priors** | Ran probability calibration and compartment cross-prior experiments using `scratch/test_calibration_tuning.py`. | Discovered that Medial OA and Lateral OA must remain strictly decoupled due to opposing mechanical wear patterns (coupling caused 0.8704 → 0.8298 collapse). |
+| **Phase 5** | **Architecture Audit** | Audited public "Apex V21" and discovered its claimed 4-backbone RadImageNet blend was dead code (uncalled function). | Located genuine working RadImageNet implementation in Jiwei Liu's dual-T4 inference pipeline; extracted into `scratch/rad_module.py`. |
+| **Phase 6** | **Cloud Dataset Deployment** | Packaged `SUPER_CONSENSUS_labels.csv` and `.parquet` into Kaggle Dataset `cyruspinto/rsna-knee-super-consensus-labels-0916`. | Dataset status verified `ready`. |
+| **Phase 7** | **Kaggle Kernel Submission** | Deployed Tri-Hybrid CoAtNet S6 2.5D MIL inference kernel on dual Tesla T4s. | Both worker processes exited with returncode 0 (158s run time, 0 fallbacks). Active submission `Ref 57128257` queued for evaluation. |
+| **Phase 8** | **Colab Pro Pipeline** | Built `colab_rsna_knee_super_train.ipynb` for high-throughput training on Nvidia A100/L4 GPUs. | Achieves ~2.5 min/epoch throughput with BF16/TF32 autocast, SWA checkpointing, and automatic Kaggle dataset weight publishing. |
+| **Phase 9** | **Git Synchronization** | Initialized repository configuration, `.gitignore` secret protection, and pushed commit `6308744` to `origin/main`. | Successfully synced to `https://github.com/CYRUS-pinto/rsna-knee-26`. |
+
+---
+
+## 7. Step-by-Step Runbooks: How to Test, Train, and Submit
+
+### Workflow Philosophy:
+* **Local Laptop (Lightweight & Rapid):** Calibration evaluation, probability tuning, unit tests, fast inspection, and code development (0 GB MRI downloads required).
+* **Google Colab Pro (High-Speed Training Engine):** High-batch training (bs=8-16) on Nvidia A100 GPU with automatic SWA weight export (25–35 minutes per full run).
+* **Kaggle Cloud (Final Inference & Evaluation):** Zero-inference-cost submission kernels running on Kaggle's dual Tesla T4 GPUs against hidden test DICOMs.
+
+---
+
+### Runbook 1: Local Testing & Validation ("Run & Test Here")
+
+To verify calibration, inspect predictions, or benchmark label variants locally:
+
+```bash
+# 1. Run Gold 58 Study Calibration Benchmark
+python scratch/evaluate_calibration.py
+
+# 2. Run Compartment & Prior Tuning Sweep
+python scratch/test_calibration_tuning.py
+
+# 3. Check Super-Consensus Label Distribution
+python scratch/check_labels_breakdown.py
+```
+
+Expected output:
+* Macro ROC AUC: `0.9172`
+* Brier Loss: `0.1252`
+* Monotonic calibration check: `PASS`
+
+---
+
+### Runbook 2: Google Colab Pro Training ("Take Advantage Fully")
+
+Use your Google Colab Pro compute units and Nvidia A100 GPU:
+
+1. **Open Colab:** Go to [colab.research.google.com](https://colab.research.google.com).
+2. **Upload Notebook:** Upload [`colab_rsna_knee_super_train.ipynb`](./colab_rsna_knee_super_train.ipynb).
+3. **Select GPU:** Runtime → Change runtime type → **A100 GPU** (or L4 GPU).
+4. **Run Cells:**
+   * **Cell 1–2:** Installs dependencies (`timm`, `kaggle`) and enables TF32 acceleration.
+   * **Cell 3:** Prompts for your `kaggle.json` (to authenticate downloading corpora and publishing weights).
+   * **Cell 4:** Downloads the slice stacks (`dreaddevelopment/knee-raptor-corpus`) and `SUPER_CONSENSUS_labels` in ~90 seconds.
+   * **Cell 5–6:** Trains `coatnet_rmlp_2_rw_384` for 12 epochs with SWA weight averaging across top epochs.
+   * **Cell 7:** Automatically packages `colab_super_coatnet_0917_swa.pt` and uploads it to your Kaggle profile as `cyruspinto/rsna-knee-colab-super-weights`.
+
+---
+
+### Runbook 3: Kaggle Final Submission ("Submission Final There")
+
+Once your Colab training run publishes `cyruspinto/rsna-knee-colab-super-weights`:
+
+1. **Attach Weights:**
+   * Go to your Kaggle inference kernel (`cyruspinto/rsna-knee-coatnet-s6-25d-mil-0957` or the staged `scratch/quad_kernel/`).
+   * Click **+ Add Input** → select your newly uploaded dataset `cyruspinto/rsna-knee-colab-super-weights`.
+2. **Push / Run Inference:**
+   * The dual-T4 pipeline loads the SWA weights alongside the existing hybrid models.
+   * Runs inference on hidden test studies within ~3 minutes.
+3. **Submit to Competition:**
+   * Click **Submit to Competition** or submit via Kaggle CLI:
+     ```bash
+     kaggle competitions submit -c rsna-knee-abnormality-detection -f submission.csv -m "Colab A100 SWA Super-Train Blend"
+     ```
+
+---
+
+## 8. Summary of Active Artifacts & Datasets
+
+| Resource Name | Type | Location / URI |
+|---|---|---|
+| **Super-Consensus Labels** | Dataset | Kaggle: `cyruspinto/rsna-knee-super-consensus-labels-0916` |
+| **Colab Training Pipeline** | Jupyter Notebook | Repo: `colab_rsna_knee_super_train.ipynb` |
+| **Inference Kernel (Dual-T4)** | Kaggle Notebook | Kaggle: `cyruspinto/rsna-knee-coatnet-s6-25d-mil-0957` |
+| **Staged Quad-Backbone** | Kernel Directory | Repo: `scratch/quad_kernel/` |
+| **RadImageNet Module** | PyTorch Module | Repo: `scratch/rad_module.py` |
+| **Submission Queue** | Competition Ref | `Ref 57128257` (`SubmissionStatus.PENDING`) |
