@@ -10,3 +10,6 @@ scratch/eval_coatnet_output/cufile.log
 results/
 scratch/kernel_out/
 scratch/kernel_err/
+scratch/kernel_err_v5/
+scratch/kernel_out_v6/
+scratch/intel/
