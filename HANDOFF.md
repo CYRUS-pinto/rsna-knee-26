@@ -88,7 +88,7 @@ We engineered `SUPER_CONSENSUS_labels.csv` (and `.parquet`) across all 4,407 stu
 * **Submission Log:**
   * `Ref 57108325`: Baseline Heliosli 0.7/0.3 → **0.954**
   * `Ref 57113758`: Restored Gold Blend → **0.954**
-  * `Ref 57128257`: Tri-Hybrid CoAtNet S6 2.5D MIL 0957 v2 → In final evaluation scoring queue.
+  * `Ref 57128257`: Tri-Hybrid CoAtNet S6 2.5D MIL 0957 v2 → **0.954** (Verified: all public blends saturate at 0.954 ceiling).
 
 ---
 
