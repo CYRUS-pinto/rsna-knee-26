@@ -58,6 +58,14 @@ new_cand_list = "for cand_c in ['rsna-knee-compact-r7cnxfsss', 'rsna-knee-compac
 if old_cand_list in c6:
     c6 = c6.replace(old_cand_list, new_cand_list)
 
+old_assert_bundle = "assert manifest['bundle_id'] == BUNDLE_ID, (manifest['bundle_id'], BUNDLE_ID)"
+new_assert_bundle = """# Dynamically adopt bundle_id from mounted release (e.g. R7: 8c7b666e27dc0e8f)
+BUNDLE_ID = manifest.get('bundle_id', BUNDLE_ID)
+for jf in M_SRC.glob('*.json'):
+    shutil.copy(jf, BUNDLE / jf.name)"""
+if old_assert_bundle in c6:
+    c6 = c6.replace(old_assert_bundle, new_assert_bundle)
+
 nb['cells'][6]['source'] = [c6]
 
 with open(dst_nb_path, 'w', encoding='utf-8') as f:

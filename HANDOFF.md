@@ -205,7 +205,8 @@ Once your Colab training run publishes `cyruspinto/rsna-knee-colab-super-weights
 |---|---|---|
 | **Super-Consensus Labels** | Dataset | Kaggle: `cyruspinto/rsna-knee-super-consensus-labels-0916` |
 | **Colab Training Pipeline** | Jupyter Notebook | Repo: `colab_rsna_knee_super_train.ipynb` |
-| **Inference Kernel (Dual-T4)** | Kaggle Notebook | Kaggle: `cyruspinto/rsna-knee-coatnet-s6-25d-mil-0957` |
-| **Staged Quad-Backbone** | Kernel Directory | Repo: `scratch/quad_kernel/` |
-| **RadImageNet Module** | PyTorch Module | Repo: `scratch/rad_module.py` |
-| **Submission Queue** | Competition Ref | `Ref 57128257` (`SubmissionStatus.PENDING`) |
+| **Colab Super Weights Dataset** | Kaggle Dataset | Kaggle: `cyruspinto/rsna-knee-colab-super-weights` |
+| **V6 CoAtNet + ConvNeXt Run** | Kaggle Notebook | Kaggle: `cyruspinto/rsna-knee-coatnet-s6-25d-mil-0957` (v6) |
+| **Active Submission** | Competition Ref | `Ref 57150837` (`SubmissionStatus.PENDING`) |
+| **Quint-Ensemble R7 Pipeline** | Kaggle Notebook | Kaggle: `cyruspinto/rsna-knee-quint-ensemble-r7-colab-swa-0960` (v3) |
+| **Heliosli R7 Compact Models** | Kaggle Dataset | Kaggle: `heliosli/rsna-knee-compact-r7cnxfsss` |
