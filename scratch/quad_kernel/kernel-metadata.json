@@ -1,0 +1,22 @@
+{
+  "id": "cyruspinto/rsna-knee-quad-backbone-0960",
+  "title": "rsna-knee-quad-backbone-0960",
+  "code_file": "rsna-knee-quad-backbone.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_gpu": true,
+  "enable_gpu": true,
+  "enable_internet": false,
+  "dataset_sources": [
+    "goodpjw2008/rsna-knee-2-5d-convnext-reader",
+    "heliosli/rsna-knee-compact-v1",
+    "nartaa/rsna-knee-publication-swa-weights-20261007",
+    "heliosli/rsna-orthofoundation-fold0-epoch7-20261004",
+    "marwanmath/resnet-50-radimagenet-marwan",
+    "antoinegg1/rsna-knee-e9-radimagenet-heads-v15",
+    "antoinegg1/rsna-knee-e11-diverse-heads-v20"
+  ],
+  "competition_sources": [
+    "rsna-knee-abnormality-detection"
+  ]
+}

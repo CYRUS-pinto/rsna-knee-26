@@ -1,0 +1,39 @@
+{
+ "weights": {
+  "raptor": 0.7,
+  "ours": 0.3
+ },
+ "rows": 3,
+ "raptor_failed": 0,
+ "ours_failed": 0,
+ "raptor_seconds": 42.5,
+ "total_seconds": 159.9,
+ "spearman_raptor_raw_vs_sub": {
+  "ACL": 1.0,
+  "MCL": 1.0,
+  "Medial Meniscus": 1.0,
+  "Lateral Meniscus": 1.0,
+  "Medial OA": 1.0,
+  "Lateral OA": 1.0,
+  "PF OA": 1.0,
+  "Effusion": 1.0,
+  "Synovitis": 1.0,
+  "Baker's": 1.0,
+  "Contusion": 1.0,
+  "Fracture": 1.0
+ },
+ "spearman_raptor_vs_ours": {
+  "ACL": -0.5,
+  "MCL": 1.0,
+  "Medial Meniscus": 1.0,
+  "Lateral Meniscus": 0.5,
+  "Medial OA": -0.5,
+  "Lateral OA": 0.5,
+  "PF OA": 1.0,
+  "Effusion": 1.0,
+  "Synovitis": 1.0,
+  "Baker's": 1.0,
+  "Contusion": 1.0,
+  "Fracture": 1.0
+ }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "cyruspinto/rsna-knee-super-train",
+  "title": "rsna-knee-super-train-0916",
+  "code_file": "rsna-knee-super-train.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_gpu": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": [
+    "dreaddevelopment/knee-raptor-corpus",
+    "dreaddevelopment/knee-raptor-corpus-ext",
+    "cyruspinto/rsna-knee-super-consensus-labels-0916"
+  ],
+  "competition_sources": [
+    "rsna-knee-abnormality-detection"
+  ]
+}

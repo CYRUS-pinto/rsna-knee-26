@@ -1,0 +1,35 @@
+[{"stream_name":"stderr","time":7.151355393,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.151395026,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.151400861,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.151404593,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":7.749845847,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.749876092,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.749879239,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.749881649,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":29.871423126,"data":"timm version: 1.0.29\n"}
+,{"stream_name":"stdout","time":29.896761048,"data":"train_knee.py ready.\n"}
+,{"stream_name":"stdout","time":36.53706183,"data":"device cuda | res 384 | k 12/24 | bs 4 | tag super_coatnet_0916 | roi=False(compartment)\r\n"}
+,{"stream_name":"stdout","time":554.992612311,"data":"\r\n"}
+,{"stream_name":"stdout","time":554.992666457,"data":"No training labels found, so there is nothing to train against.\r\n"}
+,{"stream_name":"stdout","time":554.992673245,"data":"\r\n"}
+,{"stream_name":"stdout","time":554.992678513,"data":"The competition labels only 58 of the 4,407 studies. The other 4,349 carry a free-text\r\n"}
+,{"stream_name":"stdout","time":554.992684061,"data":"radiology report instead, so before this can train you have to turn those reports into\r\n"}
+,{"stream_name":"stdout","time":554.992689738,"data":"twelve probabilities per study and pass the result with --labels.\r\n"}
+,{"stream_name":"stdout","time":554.992695165,"data":"\r\n"}
+,{"stream_name":"stdout","time":554.992700209,"data":"Expected format: a parquet with a StudyInstanceUID column plus the columns\r\n"}
+,{"stream_name":"stdout","time":554.992705382,"data":"  ACL, MCL, Medial Meniscus, Lateral Meniscus, Medial OA, Lateral OA, PF OA, Effusion, Synovitis, Baker's, Contusion, Fracture\r\n"}
+,{"stream_name":"stdout","time":554.992710928,"data":"with values between 0 and 1. Soft values work better than hard 0/1 here: the loss is built\r\n"}
+,{"stream_name":"stdout","time":554.992716238,"data":"for them, and hedged reports are common.\r\n"}
+,{"stream_name":"stdout","time":554.992721235,"data":"\r\n"}
+,{"stream_name":"stdout","time":554.992726001,"data":"Everything else in this notebook is ready to run once that file exists.\r\n"}
+,{"stream_name":"stdout","time":554.992731229,"data":"\r\n"}
+,{"stream_name":"stdout","time":559.154588116,"data":"ls: cannot access 'raptor_ft_super_coatnet_0916*': No such file or directory\r\n"}
+,{"stream_name":"stderr","time":562.855128918,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":562.855155226,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":563.027797791,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":563.027825708,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":563.842634889,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":563.920724494,"data":"[NbConvertApp] Writing 44761 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":566.539858623,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":567.060262409,"data":"[NbConvertApp] Writing 375150 bytes to __results__.html\n"}
+]

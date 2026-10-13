@@ -1,0 +1,886 @@
+[
+  {
+    "id": 733343,
+    "title": "Knee Abnormality Detection AI Challenge Overview",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3509546,
+        "date": "2026-08-06 15:54:27.877000",
+        "votes": 100,
+        "text": "**Courtesy of Dr. Jacob Kazam**\n\n## Overview of the Clinical Problem\n\nThe 2026 RSNA Knee Abnormality Detection AI Challenge asks participants to build machine learning models that detect a defined set of clinically important abnormalities on knee MRI examinations. It is the first RSNA AI Challenge to pair every imaging study with the text of its original radiology report, and to do so across a large, multilingual, international dataset. Models may learn from both the images and the report text, reflecting how knee MRI is actually interpreted and communicated in clinical practice.\n\nThe knee is one of the most frequently injured and most frequently imaged joints in the body. Knee disorders are a major and growing cause of pain and disability worldwide, affecting athletes, manual workers, and older adults alike. The knee is the most common site of osteoarthritis, which affects nearly a quarter of adults aged 40 and older, an estimated 654 million people worldwide. Acute injuries are also common: knee injuries account for an estimated 15 to 40 percent of all sports-related injuries.\n\nSeveral structures are commonly involved. Anterior cruciate ligament (ACL) tears are among the most frequent sports injuries, often occurring during sudden pivots or changes of direction and leading to immediate instability. Medial collateral ligament (MCL) injuries typically result from outward (valgus) stress on the knee and frequently accompany other structural damage. Meniscal tears, which may be traumatic or degenerative, disrupt the joint’s shock absorption and mechanics, producing pain, locking, and functional limitation. Cartilage loss, joint effusion, synovitis, bone contusions, fractures, and Baker (popliteal) cysts are additional findings that cause symptoms and influence management.\n\nMRI is central to evaluating the knee because it depicts all of these structures, including ligaments, menisci, articular cartilage, and bone, without ionizing radiation, providing a comprehensive whole-joint assessment that other modalities cannot match. However, MRI interpretation varies across readers and practice settings, and access to subspecialty-trained musculoskeletal (MSK) radiologists is limited in many parts of the world. Reliable, consistent automated detection of knee abnormalities could help extend expert-level interpretation, reduce variability, and support more timely care.\n\nThe goal of this competition is to develop machine learning models that detect twelve clinically important knee abnormalities, learning from a large international dataset of knee MRI examinations paired with their original, multilingual radiology reports.\n\n## Anatomical Overview\n\nThe knee is a synovial hinge joint formed by three bones: the femur (thigh bone) above, the tibia (shin bone) below, and the patella (kneecap) in front. The ends of these bones are covered by articular cartilage, a smooth layer that allows near-frictionless motion and distributes load. The joint is enclosed by a capsule lined with synovium, which produces lubricating fluid; an abnormal excess of this fluid is termed a joint effusion, and inflammation of the synovium is termed synovitis.\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F413040%2Fe6095eef091115d6f20f3d5c071dd72e%2Fimage1.jpg?generation=1786032010214772&alt=media)\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F413040%2Fc6429a733527b6dd080a84a472a6a34c%2Fimage2.jpg?generation=1786032025815728&alt=media)\n\n*Knee anatomy: anterior view (top) and lateral view (bottom), showing the femur, tibia, patella, cruciate ligaments, and meniscus. Illustrations by BruceBlaus, CC BY 3.0, via Wikimedia Commons.*\n\nFor the purposes of this challenge, the knee is considered in three compartments. The medial compartment lies between the medial femoral condyle and the medial tibial plateau, on the inner side of the knee. The lateral compartment lies between the lateral femoral condyle and the lateral tibial plateau, on the outer side. The patellofemoral compartment lies between the patella and the femoral trochlea, the groove on the front of the femur. Osteoarthritis, or cartilage loss, is assessed separately in each of these three compartments.\n\nFour ligaments stabilize the knee. The anterior cruciate ligament (ACL) and posterior cruciate ligament (PCL) lie within the joint, in the intercondylar notch, and control front-to-back stability and rotation. The medial collateral ligament (MCL) and lateral collateral ligament (LCL) run along the inner and outer sides of the knee and resist side-to-side stress. This challenge focuses on tears of the ACL and the MCL.\n\nBetween the femur and tibia sit two menisci, the medial meniscus and the lateral meniscus, C-shaped wedges of fibrocartilage that cushion the joint, absorb shock, and improve the fit between the rounded femur and the relatively flat tibia. Tears of the medial and lateral meniscus are evaluated separately.\n\nOther relevant structures include the bone marrow within the femur, tibia, and patella, where a bruise from impact is called a bone contusion (or bone marrow edema) and a break in the bone is a fracture; and the soft tissues behind the knee, where a fluid-filled outpouching of the joint lining is called a Baker, or popliteal, cyst.\n\n## Imaging Overview\n\nSeveral modalities can image the knee. Radiographs (X-rays) show bones and joint-space narrowing but cannot directly visualize ligaments, menisci, or cartilage. Ultrasound and CT have specific roles but offer limited soft-tissue contrast for the internal structures of the joint. Magnetic resonance imaging (MRI) is the reference standard for evaluating internal derangement of the knee because it provides excellent soft-tissue contrast, depicts ligaments, menisci, cartilage, and bone marrow simultaneously, and does not use ionizing radiation.\n\nA knee MRI examination is not a single image but a set of series, each acquired with a particular pulse sequence and in a particular imaging plane. The three standard planes are axial (cross-sectional, viewed as if looking up through the leg), coronal (a front-facing, side-to-side view), and sagittal (a side-profile, front-to-back view). Different structures are best seen in different planes; for example, the cruciate ligaments and menisci are well evaluated on sagittal and coronal images, and the patellofemoral cartilage on axial images.\n\nSequences differ in how they weight tissue signal. Fluid-sensitive sequences, such as proton-density or T2-weighted images, often with fat suppression, make edema, effusion, and tears appear bright and are central to detecting most abnormalities; a meniscal tear, for instance, appears as abnormally increased signal that reaches the surface of the meniscus on more than one image. Other sequences emphasize anatomy or cartilage detail. Interpreting a study therefore requires integrating information across multiple series, planes, and slices for the same knee, an inherently three-dimensional task.\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F413040%2F055d8dc92fe53e98325b81b9eae26dee%2Fimage3.jpg?generation=1786032046408361&alt=media)\n\n*Sagittal proton-density, fat-suppressed (fluid-sensitive) MRI of the knee, the type of sequence on which most abnormalities are detected. Image by Ptrump16, CC BY-SA 4.0, via Wikimedia Commons.*\n\nFor the purpose of the 2026 Knee Abnormality Challenge, a “fluid sensitive” sequence refers to one in which edema, hemorrhage, and other types of fluid appear bright and fat is suppressed in some way.\n\nBecause findings can be subtle and the criteria for what counts as clinically significant are nuanced, interpretation varies between readers. This variability, combined with limited access to subspecialty MSK radiologists, motivates the development of consistent automated tools.\n\n## Label Description\n\nModels are evaluated on twelve binary labels, each indicating the presence or absence of a specific finding in the imaged knee. The labels, and the criteria used by the annotating radiologists, are summarized below. In each case, ambiguous or borderline findings (“on the fence”) were graded as negative to favor specificity.\n\nACL tear: A high-grade partial or full-thickness tear of the anterior cruciate ligament, meaning complete discontinuity of the ligament, or more than 50 percent of fibers disrupted, with or without secondary signs such as characteristic pivot-shift bone contusions. Mild signal change, degeneration, or thickening without discontinuity is graded negative.\n\nMCL tear: A high-grade partial or complete acute tear of the medial collateral ligament, with disrupted fibers and edema within and adjacent to the ligament. Low-grade sprains and chronic or remote stress changes are graded negative.\n\nMedial meniscus tear: Abnormal signal that definitely contacts the meniscal surface on at least two images, or a morphologic abnormality such as a truncated, diminutive, or displaced fragment, involving the medial meniscus. Intrasubstance degeneration that does not reach the surface is negative.\n\nLateral meniscus tear: The same criteria applied to the lateral meniscus.\n\nMedial compartment osteoarthritis: A moderate or large area (roughly 1 cm or greater) of high-grade cartilage loss, defined as greater than 50 percent of cartilage thickness, in the medial compartment, with or without underlying subchondral marrow changes.\n\nLateral compartment osteoarthritis: The same criteria applied to the lateral compartment.\n\nPatellofemoral compartment osteoarthritis: The same criteria applied to the patellofemoral compartment.\n\nJoint effusion: A moderate or large amount of fluid distending the joint.\n\nSynovitis: Inflammation and thickening of the synovial lining of the joint.\n\nBaker (popliteal) cyst: A moderate or large fluid collection in the characteristic location behind the knee.\n\nContusion: A bone contusion, seen as bone marrow edema-like signal from impact, without a discrete fracture line.\n\nAcute fracture: An acute cortical break or fracture line.\n\nEach study in the annotated reference set was independently labeled by two subspecialty-trained MSK radiologists, with disagreements adjudicated by a third radiologist to produce a single consensus ground truth. Labels are assigned at the level of the whole examination, for a single knee.\n\n## Examples\n\nThe following annotated examples, drawn from the challenge’s image annotation guidelines, illustrate representative positive and negative cases for several of the labels. In each figure, yellow arrows and arrowheads mark the findings described in the caption.\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F413040%2Fffa3eef262fb5e7d930af5977835e348%2F1n.png?generation=1786031398436425&alt=media)\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F413040%2F72315329db3196042e507da265c5c5a0%2F1p.png?generation=1786031402755514&alt=media)\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F413040%2F02e12a96962914c53a984278c8710bd1%2F2n.png?generation=1786031407998401&alt=media)\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F413040%2F9b2477692c6cb65dfe412b0e84e4e54c%2F2n2.png?generation=1786031412122917&alt=media)\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F413040%2F3ca890a0dd86b59acfaee1dfe80d1f42%2F2p.png?generation=1786031416545147&alt=media)\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F413040%2Fbc1bda64b7ddd42dca2c82e38a9ed688%2F2p2.png?generation=1786031421281409&alt=media)\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F413040%2F064beb3b6c9c0fd333714640a8ea609b%2F3n%20(2).png?generation=1786031426950658&alt=media)\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F413040%2F59aa2791484d8ea557310a7bd8cf06e6%2F3n.png?generation=1786031439268501&alt=media)\n\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F413040%2F0ed8b17ee998a01621ccab7b386c27fa%2F3p.png?generation=1786031524108353&alt=media)\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F413040%2F101f250c5b898b919f866d341d6a1520%2F4n.png?generation=1786031536699757&alt=media)\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F413040%2Fc0497ed5a69b2851731ed7652ee57e79%2F4n2.png?generation=1786031554221628&alt=media)\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F413040%2Ffc254271a446b9c159539c24e07ae202%2F4p.png?generation=1786031624514519&alt=media)\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F413040%2F826e3f821e06a4c58635339f4459c4ee%2F4p2.png?generation=1786031636743915&alt=media)\n"
+      },
+      {
+        "id": 3511105,
+        "date": "2026-08-10 12:14:23.900000",
+        "votes": 7,
+        "text": "For the train.csv. It contains only 58 flagged labels. Rest are NaN.\nThose flags do not reflect what is the report. \nDoes the reports are the GT?"
+      },
+      {
+        "id": 3511315,
+        "date": "2026-08-10 21:41:22.047000",
+        "votes": 4,
+        "text": "Thanks for the overview! For anyone getting started, the key insight is that this is a multi-label classification problem — each study can have multiple abnormalities present simultaneously. The 12 abnormality categories each need their own probability prediction."
+      },
+      {
+        "id": 3537203,
+        "date": "2026-10-12 05:49:54.863000",
+        "votes": 0,
+        "text": "When the winner announced "
+      },
+      {
+        "id": 3533980,
+        "date": "2026-10-07 05:17:51.717000",
+        "votes": 0,
+        "text": "Hi study organizers: can you comment on how to deal with bilateral knee mri's in which both left and right side are within the same studyid? If there is only one label per studyid then how should this be resolved? Just report every positive in either knee? For example if left knee ACL is torn but right knee ACL is normal then how should it be labeled if both studies are within same studyid?"
+      },
+      {
+        "id": 3520674,
+        "date": "2026-09-03 21:34:49.027000",
+        "votes": 0,
+        "text": "this details are very important. Thank you"
+      },
+      {
+        "id": 3520341,
+        "date": "2026-09-03 06:53:18.723000",
+        "votes": 0,
+        "text": "Hi @javaduke95 - thank you offering such clear explanation to competitors. can i clarify the below in the label description section: should \"the same criteria applied\" read medial meniscus rather than lateral meniscus?\n\n> Medial meniscus tear: Abnormal signal that definitely contacts the meniscal surface on at least two images, or a morphologic abnormality such as a truncated, diminutive, or displaced fragment, involving the medial meniscus. Intrasubstance degeneration that does not reach the surface is negative.\n>\n> Lateral meniscus tear: The same criteria applied to the lateral meniscus."
+      },
+      {
+        "id": 3514025,
+        "date": "2026-08-18 09:20:21.520000",
+        "votes": 0,
+        "text": "Great overview. The combination of multi-label MRI classification, multilingual reports, and clinically adjudicated labels makes this a particularly interesting multimodal challenge. Has anyone found the report text to add a clear advantage over image-only models?"
+      },
+      {
+        "id": 3510901,
+        "date": "2026-08-09 20:03:03.927000",
+        "votes": 0,
+        "text": "Gracias por los conocimientos!"
+      },
+      {
+        "id": 3510626,
+        "date": "2026-08-09 05:44:24.423000",
+        "votes": 0,
+        "text": "many Thanks !"
+      },
+      {
+        "id": 3510554,
+        "date": "2026-08-08 21:26:43.573000",
+        "votes": 0,
+        "text": "thank you so much for the detailed anatomical explanations!"
+      },
+      {
+        "id": 3537202,
+        "date": "2026-10-12 05:49:21.363000",
+        "votes": 0,
+        "text": ""
+      },
+      {
+        "id": 3523462,
+        "date": "2026-09-11 16:24:51.620000",
+        "votes": 0,
+        "text": "many Thanks !\n\n\n"
+      },
+      {
+        "id": 3523356,
+        "date": "2026-09-11 09:10:34.307000",
+        "votes": 0,
+        "text": "Thank you for the details."
+      },
+      {
+        "id": 3510882,
+        "date": "2026-08-09 18:36:30.903000",
+        "votes": 0,
+        "text": "Thank you for sharing this knowledge."
+      },
+      {
+        "id": 3510482,
+        "date": "2026-08-08 16:36:50.503000",
+        "votes": 0,
+        "text": "Many thanks"
+      }
+    ]
+  },
+  {
+    "id": 730709,
+    "title": "How to get started + Competition's Official Discord",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3505387,
+        "date": "2026-07-30 03:29:19.177000",
+        "votes": 11,
+        "text": "### Information for newbies\n**New to machine learning and data science?** No question is too basic or too simple. Feel free to start your own thread, or use this thread as a place to post any first-timer clarifying questions for the Kaggle community to help you with!\n\n**New to Kaggle?** Take a look at a few videos to learn a bit more about [site etiquette](https://www.youtube.com/watch?v=aIus8si_Et0), [Kaggle lingo](https://www.youtube.com/watch?v=sEJHyuWKd-s), and [how to enter a competition using Kaggle Notebooks](https://www.youtube.com/watch?&v=GJBOMWpLpTQ). Publish and share your [models on Kaggle Models](https://www.kaggle.com/docs/models#publishing-a-model)!\n\n**Looking for a team?** Express your interest in joining a team through our [Team Up](https://www.kaggle.com/discussions/product-feedback/341195) feature.\n\n**Remember**: Kaggle is for everyone. Whether you're teaming up or sharing tips in the competition forum, we expect everyone to follow our Kaggle community guidelines.\n\n### Competition's Official Discord\nIn addition to this competition forum, you can continue the discussion in our official Kaggle Discord Server here:\n# [discord.gg/kaggle](http://discord.gg/kaggle)\n \nThe Discord is a great place to ask getting started questions, chat about the nuances of this competition, and connect with potential team mates. Learn more about Discord at our [announcement here](https://www.kaggle.com/discussions/general/429933). Here are a few things to keep in mind though:\n\n**1. Discord Competition Channels are 'Public' - Don't Share Private Information**\n\nDiscord channels for specific competitions are considered 'public' spaces where you are allowed to talk about competition details. Please remember that private sharing of competition code or data outside of your team is, as always, not permitted. Code sharing must always be done publicly through the Kaggle forums/notebooks.\n\n**2. Discord Competition Channels are Not Monitored by Staff - Keep Important Information on the Kaggle Forums**\n\nKaggle Staff and Hosts running competitions will not monitor Discord or be available to answer questions in Discord. This is intended to be a more casual space to discuss competitions and help each other. Please keep important questions, insights, writeups, and other valuable conversation on the Kaggle forums. \n\nHappy modeling! "
+      },
+      {
+        "id": 3509587,
+        "date": "2026-08-06 17:00:15.157000",
+        "votes": 0,
+        "text": "Thank you for the helpful introduction and resources! I'm excited to join this competition and learn from the community. The multimodal nature of this challenge looks both interesting and challenging. Looking forward to experimenting with different approaches, following the discussions, and improving my skills throughout the competition. Best of luck to everyone participating!\n"
+      },
+      {
+        "id": 3531229,
+        "date": "2026-10-01 14:11:45.400000",
+        "votes": 0,
+        "text": "Thanks @macruzbar!!!!"
+      }
+    ]
+  },
+  {
+    "id": 733965,
+    "title": "Use of Commercially Hosted LLMs",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3527445,
+        "date": "2026-09-23 20:31:07.657000",
+        "votes": -1,
+        "text": "Thanks for the clarification! Just one quick question: if LLM-generated labels/embeddings from the reports are allowed, would it also be okay to use an external LLM to extract structured features like findings, laterality, or severity and combine those with MRI features?\n\nAnd would this be allowed at inference time only if those same features can be generated from the information available at inference?\n"
+      },
+      {
+        "id": 3510692,
+        "date": "2026-08-09 09:52:50.447000",
+        "votes": 25,
+        "text": "Use of commercially hosted LLMs and other external inference services is permitted, provided that the service and method of use otherwise comply with the Competition Rules, including requirements that external data, models, software, and associated tools be reasonably accessible to all participants and of minimal cost. \n\nIn other words, for purposes of this competition, submitting Competition Data, including report text, to an external LLM or API for inference or other computational processing (for example, extracting labels from reports) will not, by itself, be considered prohibited **PRIVATE SHARING** of Competition Data outside the Team.\n\nPlease refer to the [RSNA Knee Abnormality Detection Competition Rules](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/rules).  This is in accordance to Section 2.6.b, **EXTERNAL DATA AND TOOLS**.\n\nThe **PRIVATE SHARING** restriction is intended to prohibit sharing Competition Data, code, or competition-specific work product with other participants, teams, or third parties for collaboration or competitive use outside the registered Team.\n\nParticipants remain responsible for ensuring that any external service complies with all applicable Competition Rules and the service's terms of use, including the requirements for reasonable accessibility and minimal cost.\n\nThe Competition Host reserves the right to determine whether a particular service, model, or configuration is reasonably accessible, is prohibitively costly, or otherwise creates an unfair competitive advantage."
+      },
+      {
+        "id": 3515499,
+        "date": "2026-08-21 21:48:19.597000",
+        "votes": 1,
+        "text": "Ok, by the sentence: *\"(for example, extracting labels from reports) will not, by itself, be considered prohibited PRIVATE SHARING of Competition Data outside the Team.\"* i can conclude that i can use LLM API (i.e. openAI) to read the reports, which are actually in diifferent languages, to generate the labels, so i don't have to struggle?\nI know that the answer may be abvious but i just want to make 100% sure i can save me so much trouble and focus on model not in getting the target labels without been kicked out from the competence.\nThanks!"
+      },
+      {
+        "id": 3512977,
+        "date": "2026-08-14 21:30:30.767000",
+        "votes": 3,
+        "text": "To make the dataset question above concrete: the Osteoarthritis Initiative (OAI) is free of charge and open to any researcher after a click-through data use agreement, but the agreement limits use to non-commercial research. The same access pattern covers MRNet, fastMRI+ and SKM-TEA, so a ruling on the category would settle it for essentially every public knee-MRI resource. Given the prize money, could the host confirm whether external datasets under research-only agreements are permitted, and if so whether the winners' open-source obligation is affected? Teams need this before committing pretraining work ahead of the entry deadline. Thank you."
+      },
+      {
+        "id": 3521660,
+        "date": "2026-09-06 16:59:14.213000",
+        "votes": -1,
+        "text": "This is a very welcome clarification from the organizers. Allowing the use of commercially hosted LLMs (like OpenAI, Anthropic, or Google APIs) for tasks like text parsing, label extraction, or metadata enrichment really opens up creative pipeline designs especially for handling the report text efficiently.It’s great to see the rules explicitly state that API inference doesn't count as prohibited private sharing, provided the tools remain lowcost and accessible to everyone. It gives teams the green light to leverage state-of-the-art text processing without the fear of accidental disqualification. Thanks for highlighting this section!"
+      },
+      {
+        "id": 3510701,
+        "date": "2026-08-09 10:23:11.330000",
+        "votes": 4,
+        "text": "\"Participants remain responsible for ensuring that any external service complies with all applicable Competition Rules and the service's terms of use, including the requirements for reasonable accessibility and minimal cost.\n\nThe Competition Host reserves the right to determine whether a particular service, model, or configuration is reasonably accessible, is prohibitively costly, or otherwise creates an unfair competitive advantage.\"\n\n\n\nCould you give us your assessment regarding the use of common public MRI datasets for this challenge? Many of them only allow research (and no commercial) use, and getting a price to me could be classified as commercial use (I'm not a lawyer though so I don't know).\n\nFor example, [this dataset](https://stanford.redivis.com/datasets/4a2c-4cpkzrn2c?access&requirement=474) specifically states: \"Permission is granted to view and use the Dataset without charge for personal, **non-commercial research purposes only**. Any commercial use, sale, or **other monetization is prohibited**.\"\n\nI understand these restrictions are describing external datasets, so we should probably get in contact with those databases. But I was wondering what your independent assessment would be. Thanks!\n\n"
+      },
+      {
+        "id": 3521208,
+        "date": "2026-09-05 07:20:15.053000",
+        "votes": -1,
+        "text": "Thank you for the Use of Commercially Hosted LLMs info @javaduke95 "
+      },
+      {
+        "id": 3511329,
+        "date": "2026-08-10 21:45:23.640000",
+        "votes": 1,
+        "text": "The rules about commercially hosted LLMs are important here. Since knee MRI interpretation requires domain expertise, it's tempting to use an LLM to help with reasoning. But the competition rules likely restrict this to ensure the solutions are based on the image data, not external reasoning. Check the rules page carefully before incorporating any LLM-based features."
+      },
+      {
+        "id": 3521200,
+        "date": "2026-09-05 06:31:11.090000",
+        "votes": 0,
+        "text": "@javaduke95 Thanks for all the clarifications.\n\nWould it be allowed to publish a Kaggle Dataset like the one below if it contains the original radiology report text from the competition data, or fragments/excerpts of that text?\n\nhttps://www.kaggle.com/datasets/laymond/rsna-knee-abnormality-qwen3-8b-weak-labels\n\nI’m specifically wondering whether including either the full report text or extracted portions of it in a public dataset would be considered redistribution of Competition Data under the competition rules."
+      },
+      {
+        "id": 3514027,
+        "date": "2026-08-18 09:26:21.707000",
+        "votes": 0,
+        "text": "Thanks for clarifying this. Allowing hosted LLMs opens some interesting possibilities for extracting structured labels or features from the reports. Would using LLM-derived labels or embeddings from the report text be fully acceptable as model inputs at both training and inference time? Thanks in advance\n"
+      }
+    ]
+  },
+  {
+    "id": 733375,
+    "title": "Welcome to Knee Abnormality Detection Challenge!",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3509601,
+        "date": "2026-08-06 17:17:57.863000",
+        "votes": 18,
+        "text": "The knee is the largest joint in the human body, and MRI is central to diagnosing major sports injuries, trauma, and degenerative disease, but interpretation is demanding and access to subspecialty musculoskeletal expertise is uneven. \n\nThis challenge invites the RSNA and Kaggle community to build models that detect 12 clinically important knee abnormalities, spanning ligament and meniscal tears, osteoarthritis, effusion, synovitis, fracture, and more.\n\nThis is also RSNA’s first AI Challenge to pair MRI examinations with original multilingual radiology reports. We hope that combination encourages creative, rigorous work that reflects the **real **clinical task: connecting images, language, and meaningful patient care.\n\nAnd don't forget the efficiency prizes!   \"Real world\" here also means striking a balance between label-level accuracy and efficient use of resources.\n\nA challenge dataset can make a large collaborative effort look deceptively simple. We are deeply grateful to the contributing institutions, radiologists, data and privacy teams, RSNA colleagues, and Kaggle team who made this possible.  \n\nAbove all, we owe it to you... every participant who will bring curiosity, technical skill, and healthy skepticism to the work. Whether this is your first Kaggle competition or your hundredth, we hope you will share reproducible ideas, learn from one another, and help move imaging AI forward thoughtfully. \n\nGood luck, and welcome.\n\nLearn more about the challenge and [RSNA’s AI Challenge program](https://www.rsna.org/artificial-intelligence/ai-image-challenge)."
+      },
+      {
+        "id": 3515482,
+        "date": "2026-08-21 20:27:28.497000",
+        "votes": 0,
+        "text": "It was great to read about it but i difinetly dont have any idea how to start with 500 gb dataset and 300 gb ssd drive). I would be glad if you can remove me from competition lists and thank you for great opportunity to read about ml medical research since it was just was partly covered by med engineering course in my university... "
+      }
+    ]
+  },
+  {
+    "id": 745861,
+    "title": "Tricks for the competition ",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3537303,
+        "date": "2026-10-12 10:46:49.020000",
+        "votes": 1,
+        "text": "I made a mistake in using JEV!\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F113660%2Feb61b0c47696d4276d7406e1f2bcb9a6%2FSelection_5202.png?generation=1791802007559291&alt=media)"
+      },
+      {
+        "id": 3536923,
+        "date": "2026-10-11 14:14:48.770000",
+        "votes": 2,
+        "text": "![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F113660%2F79b51131acf859dbb32f1d3b66008635%2FSelection_5192.png?generation=1791728086295814&alt=media)"
+      },
+      {
+        "id": 3536367,
+        "date": "2026-10-10 08:09:06.137000",
+        "votes": 3,
+        "text": "How to get good training labels? One way to look at this Kaggle competition is to create soft/hard study-level labels to train an image MRI model.  \n \n1) we start with Claude Opus 4.5 labels : https://github.com/NTejas-1/RSNA-Knee-Abnormality-Detection  \n2) we use non-gold 4.3k labels to train mri and text models  \n3) we blend them : local cv on gold58 = 0.938   \n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F113660%2Fba0c65b0c737533e01fc3ca07a3b4564%2FSelection_5146.png?generation=1791619623246016&alt=media)  "
+      },
+      {
+        "id": 3536312,
+        "date": "2026-10-10 05:00:07.207000",
+        "votes": 0,
+        "text": "if you do use external data, rememer the trick is kaggle annotation(hihest score) >external annotation> negative (least score)"
+      },
+      {
+        "id": 3532856,
+        "date": "2026-10-04 22:58:11.227000",
+        "votes": 29,
+        "text": "Show chatgpt the medical report and image. Ask him to label the roi."
+      },
+      {
+        "id": 3534604,
+        "date": "2026-10-07 20:52:27.357000",
+        "votes": 0,
+        "text": "```\none of the 58 gold label\n1.2.826.0.1.3680043.8.498.12606657226568558340797193167488111973\n\"In the medial compartment, the meniscus is not torn and there is no focal chondrosis or chondral injury. \n The lateral compartment, there is longitudinal vertical oblique tear at the posterior horn of the lateral meniscus. There is no focal chondrosis or chondral injury. \n The patellofemoral joint, the patellar and trochlear cartilage appears congruent without chondral lesion. The medial patellofemoral ligament is intact.  \n In the intercondylar notch, there is complete tear of the anterior cruciate ligament, at mid substance. The posterior cruciate ligament is intact.  \n There is grade II ligamentous sprain (partial tear) of the medial collateral ligament. The posteromedial oblique ligament is intact. The lateral collateral ligament complexes are intact. The extensor mechanism is normal.  \n No knee effusion is present. The surrounding musculature is normal. There is no fracture or bone contusion. - Longitudinal vertical oblique tear at the posterior horn of the lateral meniscus. \n - Complete tear of the anterior cruciate ligament, at mid substance. \n - Grade II ligamentous sprain (partial tear) of the medial collateral ligament.\"\n\nbut the label is\n\"Effusion\": 1,\n\n\nquote from report \"No knee effusion is present.\"\n```"
+      },
+      {
+        "id": 3535273,
+        "date": "2026-10-08 15:14:18.030000",
+        "votes": -1,
+        "text": "don't only download OAI; search for papers that use it. The quality of the data is very good. when  you have good data, you see results like this:    \n[paper] \"Deep Learning Predicts Total Knee Replacement from Magnetic Resonance Images\"   \n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F113660%2Ff70d85fc7431aad1f7448b11f337d32a%2FSelection_5129.png?generation=1791472404715137&alt=media)"
+      },
+      {
+        "id": 3533416,
+        "date": "2026-10-06 03:01:57.073000",
+        "votes": 1,
+        "text": "Using gpt-6-astra for labeling instantly burned through 100% of my quota, 2 resets, and about 50,000 out of free 62,500 credits\n \nI regret this so much. sooooooooooo expansive\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F992596%2F0d80503e0b3d13c1b3a90d368408d29e%2Fburn.png?generation=1791256066327536&alt=media)"
+      },
+      {
+        "id": 3533535,
+        "date": "2026-10-06 10:22:35.360000",
+        "votes": 0,
+        "text": "adaptive sampling of slices?   \n\n```\nvolume, slice pos, view --> model --> prob, change slice pos, etc ...\nif prob is confidence, break\nelse apply change and try again\n\n````\n"
+      },
+      {
+        "id": 3533437,
+        "date": "2026-10-06 04:40:07.603000",
+        "votes": 1,
+        "text": "there hasn't beem much discussion on how to extract labels from medical report, which is actually the main objective of the competition\n\ni called this controlled COT. I want to Google for knee MRI interpretation rubrics or a rulebook or bible, then create Qand A and turn them into grading. These q and a can also be labels used to train image encoder\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F113660%2F61d87d0fb3cbc8898452599d2522ba0b%2FSelection_5097.png?generation=1791261605772411&alt=media)"
+      },
+      {
+        "id": 3533430,
+        "date": "2026-10-06 04:13:08.527000",
+        "votes": -1,
+        "text": "Can JEV help?\n\nI joined the competition late. I apologize if the information below is repeated (I haven't got time to go through all the posts in the forum yet) \n\n[1] Can Jev Judge Radiology Reports? Evaluating a System One Model for Clinical Factuality  \nhttps://arxiv.org/html/2609.27607v1  \n\n[2] KJD-25K: A 3D Multi-modal Dataset and Benchmark for Knee Joint Diagnosis  \nhttps://papers.miccai.org/miccai-2026/0534-Paper0576.html  \n- text and mri  \n\nthis dataset has everything thing i need\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F113660%2F6bf0995d50bbdba00847d14ad147ed7d%2FSelection_5102.png?generation=1791268719733435&alt=media)\n"
+      },
+      {
+        "id": 3532865,
+        "date": "2026-10-04 23:59:43.050000",
+        "votes": 1,
+        "text": "This is a good idea. I thought about showing the images and reports to a multi-modal LLM. The challenge is: what images do we show them? Do we give them a few middle images of each view? Do we give them all 100+ images? There are decisions to make here."
+      },
+      {
+        "id": 3533150,
+        "date": "2026-10-05 15:49:06.133000",
+        "votes": 1,
+        "text": "I used Claude to generate the labels, and a single vision model achieved a maximum score of 0.942 on the leaderboard. Then I tried fine-tuning or probing MedGemma, but that didn’t help much either :') I guess I will stick with the Claude labels."
+      },
+      {
+        "id": 3533436,
+        "date": "2026-10-06 04:38:49.607000",
+        "votes": -4,
+        "text": "Did you try it? @hengck23 "
+      },
+      {
+        "id": 3532905,
+        "date": "2026-10-05 03:27:57.837000",
+        "votes": -1,
+        "text": "well... haha"
+      },
+      {
+        "id": 3537612,
+        "date": "2026-10-12 20:07:07.407000",
+        "votes": 0,
+        "text": "segmentation label\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F113660%2F5ad65127d9a0d5f28a65f64ac6583004%2FSelection_5212.png?generation=1791835624580364&alt=media)"
+      },
+      {
+        "id": 3537534,
+        "date": "2026-10-12 18:32:50.130000",
+        "votes": 0,
+        "text": "i miss a very important point when designing LLM prompt to label medical report. the roghts to say \"i don't know\". these will be excluded from training 4.3k mri\n\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F113660%2Fbb76c4baa676020353a676a042629480%2FSelection_5205.png?generation=1791829900480092&alt=media)"
+      },
+      {
+        "id": 3537299,
+        "date": "2026-10-12 10:26:05.933000",
+        "votes": 0,
+        "text": "let me tell you a trick when i work with X-ray images at work. Sometimes, positive samples are scarce. Hence, during training model will give high score to \"unfamiliar object\" to hack the metric. Hence random images  (definitely negative) helps to suppress FP in the ROC graph. Also, mri from other body parts are also definite negative samples."
+      },
+      {
+        "id": 3532858,
+        "date": "2026-10-04 23:27:51.990000",
+        "votes": 0,
+        "text": "Idk, i did this for 800 of them, it got only around 80-90% correct, not good enough, im trying to get to around >97% on pseudolabelling so its not enough"
+      }
+    ]
+  },
+  {
+    "id": 748181,
+    "title": "Kaggle could we please start doing something about the public notebooks? ",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3537433,
+        "date": "2026-10-12 15:06:05.307000",
+        "votes": 3,
+        "text": "Hi @cody11null,\n\nThank you for sharing your concerns. Seeing low-effort notebooks getting rewarded is indeed frustrating and not something that we want either. We have spent considerable time internally discussing this.\n\nUnfortunately, it's been difficult to come up with a policy that's able to discriminate reliably between low-effort copying or blending and something that meaningfully builds off of the ideas of others. You're right too that the system incentivizes marginal (and often meaningless) improvements to the public leaderboard, because the public leaderboard score is often seen (erroneously) as the best judge of the quality of a notebook. You might take consolation in knowing that low-effort ensembles like this usually suffer from optimism bias from overfitting and tend to drop on the private leaderboard (perhaps because the score is just from a lucky random seed, as you pointed out).\n\nWe do though still have a notebook publishing lock (one week, in this competition) before the submission deadline. And please do report verbatim copies with scrubbed attribution so we can act on them; whatever the case, people should be getting credit for their work. Use **Report** on the notebook and link the original."
+      },
+      {
+        "id": 3536678,
+        "date": "2026-10-11 02:15:53.030000",
+        "votes": 76,
+        "text": "Yet again, we have another competition where low-effort public ensembles are being released with less than two weeks remaining, potentially allowing participants to secure medals through copy-paste submissions rather than their own work or understanding.\n\nI fully expect this to continue as the deadline approaches and based on the past year or more, I expect that Kaggle will do absolutely nothing to address it.\n\nPersonally, I expect to be fine. My concern is for the participants who may end up hundreds of places below where they otherwise would have finished, despite putting in significantly more work and developing their own solutions. I am equally concerned about those who have shared genuinely valuable notebooks and helped others learn, only to see that work receive little recognition because the current code-tier structure disproportionately rewards marginal leaderboard improvements, often effectively meaningless (or outright duplicates), driven by a random seed rather than a meaningful contribution.\n\nWhat I find most frustrating is not simply that this problem persists, but that it continues despite repeated forum discussions and substantial community support highlighting the issue. **Why have we received so little meaningful explanation from Kaggle about why this remains unresolved, what trade-offs are preventing a solution, or whether there is any concrete plan to address it?**\n\nNo system will be perfect, and I recognize that solutions involve trade-offs. But leaving participants without meaningful explanation while the same concerns recur competition after competition is difficult to justify.\n\nKaggle should be a place where competitive performance, original work, and meaningful contributions are rewarded. Right now, the incentives are increasingly misaligned with those goals, and I would genuinely like to understand why."
+      },
+      {
+        "id": 3536908,
+        "date": "2026-10-11 13:44:51.900000",
+        "votes": 5,
+        "text": "dw i'll be releasing '🚨🤯🔥 [ORIGINAL] NOVEL HYPER MEGA ULTRA-BLEND (DUAL GRANDMASTER SOTA BLEND) MULTI-EXPERT QUANTUM  NEURO SYNTHESIS ⭐⭐⭐⭐⭐✅✅👍' tomorrow that (hopefully) scores 0.956"
+      },
+      {
+        "id": 3537087,
+        "date": "2026-10-11 20:35:24.570000",
+        "votes": 0,
+        "text": "Personally, I don't see a problem with sharing, even this late. I shared my best single model (0.949) because I was stuck and hoped to get new ideas from others once they adapted it, and that's exactly what happened. And of course, I was also hoping for some votes.\n\nDid I lose my rank on the leaderboard? Yes. By the next day I was already down by 500, and others combined it with ensembles and picked up most of the votes. But I was so stuck that I was willing to sacrifice that just to find out how on earth everyone else was climbing so high. I honestly didn't expect an ensemble to give such a big boost."
+      },
+      {
+        "id": 3536956,
+        "date": "2026-10-11 15:02:40.343000",
+        "votes": 3,
+        "text": "It is genuinely sad to think about how the vast majority of hardworking participants’ work suddenly means nothing."
+      },
+      {
+        "id": 3536805,
+        "date": "2026-10-11 09:25:02.810000",
+        "votes": 8,
+        "text": "I think a better approach would be to freeze all notebook achievements as of a certain date. All achievements earned before that cutoff would be retained—medals, titles, the fancy GM profile frames—but no new notebook achievements would be added after that date. This change should be implemented in a way that makes players who have genuinely contributed to Kaggle's open-source ecosystem feel respected.\nFive years ago, earning a Notebook GM title carried real weight, but today it's worth re-examining. Kaggle has already removed the discussion achievements and titles, yet nowadays, some widely recognized contributions—insightful comments, healthy commentary that guides the direction of competitions—are actually more valuable than AI-generated code, or code that farms scores and undermines leaderboard fairness."
+      },
+      {
+        "id": 3536773,
+        "date": "2026-10-11 07:57:44.060000",
+        "votes": 6,
+        "text": "With almost 100% code being generated with coding agents lately, are notebook medals still relevant @cody11null? I think Kaggle could simply scrap off datasets and kernels tiers and resort to competitions only, like older times. If anyone wishes to share code, he/ she could do it in good faith and such public sharing could be put to rest (people deliberately sharing code like this are doing it just for votes and have no interest in competing anyway. With no votes and medals, these bad actors will naturally move off)."
+      },
+      {
+        "id": 3536702,
+        "date": "2026-10-11 03:50:56.317000",
+        "votes": 8,
+        "text": "people posting high public notebook at the final leg of competition is ALWAYS the worst, it kills the soul of the competition :'(\n\nwith this speed i think soon we will see .960 notebook :p"
+      },
+      {
+        "id": 3536905,
+        "date": "2026-10-11 13:36:42.197000",
+        "votes": 2,
+        "text": "I saw a suggestion to add downvotes to notebooks -- but if that happens, bots\nwill just end up downvoting every notebook LOL."
+      },
+      {
+        "id": 3536709,
+        "date": "2026-10-11 04:27:17.713000",
+        "votes": 6,
+        "text": "With the advancement of coding agents, the current rules are no longer as appropriate as they used to be."
+      },
+      {
+        "id": 3537118,
+        "date": "2026-10-11 22:49:14.773000",
+        "votes": 0,
+        "text": "yep. so fair."
+      },
+      {
+        "id": 3537091,
+        "date": "2026-10-11 20:42:26.217000",
+        "votes": -1,
+        "text": ""
+      }
+    ]
+  },
+  {
+    "id": 748295,
+    "title": "Stuck at .954 is there anyway to bypass it ?",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3537134,
+        "date": "2026-10-12 00:38:28.273000",
+        "votes": 3,
+        "text": "Let me share just one of my best-kept secrets: don't use external data. Hope this helps!"
+      },
+      {
+        "id": 3536890,
+        "date": "2026-10-11 13:12:54.563000",
+        "votes": 11,
+        "text": "don't worry, tommorow a new mega hyper super ultra blend at 95.5 will appear in the public section "
+      },
+      {
+        "id": 3536880,
+        "date": "2026-10-11 12:56:31.137000",
+        "votes": -18,
+        "text": "Stuck at .954 and the PF OA , lateral OA and Synovitis are showing poor results consistently is there any way to solve it better labels? Or any different architecture is there any way to reach to .964 or further any hidden trick."
+      }
+    ]
+  },
+  {
+    "id": 748575,
+    "title": "Notebook queued up for more than 1 hr",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3537485,
+        "date": "2026-10-12 16:51:17.700000",
+        "votes": 0,
+        "text": "I've been queueing for one hour as well right now, T4 x2."
+      },
+      {
+        "id": 3537451,
+        "date": "2026-10-12 15:44:20.370000",
+        "votes": 0,
+        "text": "It started running now!"
+      },
+      {
+        "id": 3537440,
+        "date": "2026-10-12 15:23:35.443000",
+        "votes": 0,
+        "text": "Anybody else facing the same issue?"
+      }
+    ]
+  },
+  {
+    "id": 748536,
+    "title": "Team invite — MackLiu (~0.954) looking for aastikrajan15",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3537373,
+        "date": "2026-10-12 12:56:43.433000",
+        "votes": -7,
+        "text": "Hi @aastikrajan15 — your `knee-s75-w50` notebook/comments look unavailable on my side. I’m MackLiu (solo, Public ~0.954). Would love to team before the merge deadline (Oct 16). Happy to share what’s working on my end and combine. DM me if easier — thanks!"
+      }
+    ]
+  },
+  {
+    "id": 748535,
+    "title": "Why are people even upvoting public notebooks that use private datasets?",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3537372,
+        "date": "2026-10-12 12:54:17.090000",
+        "votes": -2,
+        "text": "A bunch of geniuses are using private datasets in public notebooks. To find the highest-scoring one that's actually fully public, I have to check the leaderboard rankings one ID at a time."
+      }
+    ]
+  },
+  {
+    "id": 746792,
+    "title": "Reaching 0.949 with one CoAtNet: labels, native crops, and anatomical mirroring",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3534536,
+        "date": "2026-10-07 19:34:51.060000",
+        "votes": 35,
+        "text": "Our best single-model submission scores **0.949 public AUC**. We are sharing the accuracy recipe, our smaller 0.945 model for the efficiency track, and several changes that did not help.\n\nThe accuracy result uses one CoAtNet checkpoint trained at 384 pixels. At inference we take a native 320-pixel center crop and average probabilities from the original view and an anatomical left/right mirror. It is one learned model evaluated twice. The checkpoint itself averages three selected epochs from one training run, called SWA in our code.\n\n## The score history\n\nThese are ordinary, full twelve-finding public leaderboard scores. Rows describe successive pipeline configurations; their differences are not all isolated causal effects.\n\n| Configuration | Public AUC | Change |\n|---|---:|---:|\n| Our all-data CoAtNet, 80 slices and 78 windows | 0.939 | Starting point |\n| 96 slices, native 384-pixel cache, 94 windows | 0.940 | +0.001 |\n| Blend + JEV labels | 0.942 | +0.002 |\n| Smaller 224-pixel crop model with epoch weight averaging | 0.940 | −0.002 |\n| Add external OAI knee examples with masked labels | 0.945 | +0.005 |\n| 384-pixel, full-field external-data recipe | 0.948 | +0.003 |\n| Same weights, native 320-pixel inference crop | 0.948 | 0.000 |\n| Same weights and crop, anatomical mirror probability averaging | **0.949** | **+0.001** |\n\nThe first density change also changed cached resolution and window count. Adding external examples increased training rows and optimizer updates, and the serving precision path changed. The 224-to-384 step also changed training crop geometry and the pretrained architecture variant. Those rows should be read as recipe comparisons rather than additive gains from individual factors.\n\n## Training and labels\n\nThe model is a timm CoAtNet backbone with finding-specific multiple-instance attention pooling. We trained on 4,349 report-labeled competition studies; the 58 expert-labeled studies were excluded from training but reused for selection. The weak targets combine our report-derived soft labels with the public label sources credited below. In the external-data recipe, 2,399 OAI knees brought the training set to 6,748 rows. PF OA, Lateral OA and Synovitis received external supervision; unavailable finding cells were masked rather than treated as negatives. Positive class weights remained based on RSNA labels.\n\nBoth released candidates use seed 42, 16 epochs, backbone learning rate 4.01e−5, head learning rate 0.00195 and weight decay 0.0588. Training used 12 windows per study, batch size 1 and gradient accumulation over 16 studies; gold evaluation used 24 windows. The smaller model averages epochs 15, 13 and 12; the accuracy model averages epochs 14, 11 and 12. These selected averages are called SWA in our code. Adding external examples increased the scheduled optimizer updates from 4,336 to 6,736, so that comparison is not compute-matched.\n\n## The final inference recipe\n\nEach study has 96 preprocessed slices across five sagittal, coronal, and axial series slots. We evaluate 94 three-slice windows, process them in chunks of 16, and use finding-specific attention over the complete window bag.\n\nFor the accuracy model, native 384×384 windows are cropped to pixels `[32:352, 32:352]`. No resize is applied. Sagittal left/right mirroring reverses the three slice channels; coronal and axial mirroring flips image width. We use the center slice to determine the window plane and apply the transform before normalization. We average the two sigmoid probability vectors equally. The existing final per-finding percentile ranking preserves their ordering.\n\nThe smaller model uses a 307-pixel center crop resized to 224 pixels, the same 94-window policy, FP16 autocast, and one view. It scores 0.945. Recorded submit-to-score turnaround was about 7.2 minutes for that entry and 26.1 minutes for the mirrored accuracy entry. These include queueing and orchestration; they are **not official inference runtimes or efficiency ranks**.\n\n## What did not help\n\n| Tested change | Public AUC, reference → result |\n|---|---:|\n| Older model: 94 windows reduced to 24 | 0.940 → 0.934 |\n| Older model: width-flip TTA across every imaging plane | 0.940 → 0.939 |\n| Current weights: native crop reduced from 320 to 304 pixels | 0.948 → 0.947 |\n| Current weights: native crop reduced from 320 to 288 pixels | 0.948 → 0.946 |\n| Epoch 14 instead of averaged weights, same 320-pixel inference | 0.948 → 0.947 |\n| Fresh training with corrected batch-normalization checkpoint replay | 0.948 → 0.944 |\n| Fresh native 320-pixel crop training, anatomical mirror inference | 0.949 → 0.946 |\n\nThe all-plane width flip is different from anatomical mirroring, and it was tested on an older checkpoint. Its failure does not establish a controlled comparison between the mirror implementations. The new crop-trained model also failed to replace the incumbent despite encouraging gold diagnostics.\n\nOur 58 labeled studies were reused for checkpoint selection and development. They are useful diagnostics, not independent cross-validation. For example, epoch 14 improved gold AUC while losing on the public board. Rounded public-score differences, especially +0.001, do not establish statistical significance or a private-test gain.\n\n## Credits and release references\n\nThanks to [dreaddevelopment for the public Raptor CoAtNet/MIL recipe and baseline weights](https://www.kaggle.com/datasets/dreaddevelopment/raptor-knee-widedense). That public checkpoint scored 0.924 in our baseline read; it is context, rather than a controlled starting point for the table. Our selected checkpoints were retrained. The public weak-label contributions include [stevenleehans](https://www.kaggle.com/datasets/stevenleehans/rsna-knee-llm-report-labels), [pilkwang](https://www.kaggle.com/datasets/pilkwang/rsna-knee-llm-labels), and [riadmohamed42's JEV labels and verification](https://www.kaggle.com/code/riadmohamed42/jev-knee-labels-verification). We thank RSNA and the competition data contributors.\n\nReproducibility notebooks: [accuracy, 0.949](https://www.kaggle.com/code/nartaa/rsna-knee-0949-anatomical-mirror) and [efficiency, 0.945](https://www.kaggle.com/code/nartaa/rsna-knee-0945-efficient-224crop). The [selected learned weights](https://www.kaggle.com/datasets/nartaa/rsna-knee-publication-swa-weights-20261007) are a separate minimal dependency. Both notebooks preserve the exact scored scientific inference source and checkpoint hashes, include hardware/environment requirements, and are saved statically without running inference. No OAI images, identifiers, records, raw reports, subject-level labels or predictions are distributed.\n\nBoth models used the same 2,399 baseline OAI knees; the unsuccessful 12-month arm is excluded from these release models. The public Study describes aggregate methods/results while its exact-input linkage manifest remains restricted to qualified researchers.\n\nData and/or research tools used in the preparation of this manuscript were obtained and analyzed from the controlled access datasets distributed from the Osteoarthritis Initiative (OAI), a data repository housed within the NIMH Data Archive (NDA). OAI is a collaborative informatics system created by the National Institute of Mental Health and the National Institute of Arthritis, Musculoskeletal and Skin Diseases (NIAMS) to provide a worldwide resource to quicken the pace of biomarker identification, scientific investigation and OA drug development. Dataset identifier(s): 10.15154/0hcg-f676.\n\n[Shared NDA Study](https://nda.nih.gov/study.html?id=3407) · [DOI: 10.15154/0hcg-f676](https://doi.org/10.15154/0hcg-f676). Official acknowledgement source: [NDA manuscript preparation](https://nda.nih.gov/nda/manuscript-preparation).\n\nWhat worked for your models, and what looked promising locally but failed on the leaderboard? Please share useful negative results as well as improvements—especially experiences with weak labels, crop geometry, and plane-aware augmentation."
+      },
+      {
+        "id": 3535771,
+        "date": "2026-10-09 07:33:46.803000",
+        "votes": 2,
+        "text": "Thanks for the detailed write-up and for releasing the weights and notebooks. The anatomical mirroring explanation and the “what did not help” table were especially useful."
+      },
+      {
+        "id": 3534591,
+        "date": "2026-10-07 20:34:16.957000",
+        "votes": 6,
+        "text": "Be careful - OAI may not be an allowed external data source. I’d read the host comments about dataset accessibility and then OAI’s own rules before risking using it in model training. "
+      },
+      {
+        "id": 3535081,
+        "date": "2026-10-08 09:34:57.393000",
+        "votes": 1,
+        "text": "Haven't seen such detailed and useful work in a long time."
+      },
+      {
+        "id": 3534842,
+        "date": "2026-10-08 03:15:34.613000",
+        "votes": 1,
+        "text": "great job for the work, still hoping for the best, my journey is in the same way but without any OAI, the high risk and low reward"
+      },
+      {
+        "id": 3535050,
+        "date": "2026-10-08 08:40:11.277000",
+        "votes": 1,
+        "text": "i end up using chatgpt to teach me how to download data from OAI ...i cannot imagine how long i would take without agent help ... the signup, login ... what and how to download is pretty complicated!!! Now i understand why several singapore gov projects aim to simplify data access using AI."
+      },
+      {
+        "id": 3536815,
+        "date": "2026-10-11 09:48:35.460000",
+        "votes": 0,
+        "text": "Hi Danial, thanks for the great write-up! Could you share how you turned MOAKS into labels? Which fields and thresholds did you use for PF OA, Lateral OA and Synovitis? Were the targets hard 0/1 or soft? And was the masked loss averaged over the observed cells of each row, or over all 12 cells? Thanks!"
+      },
+      {
+        "id": 3536416,
+        "date": "2026-10-10 10:41:11.333000",
+        "votes": 0,
+        "text": "我们无法把你登入你的帐户。请拨打（844）875-6446 致电我们的联系中心并提供出错代码 LG22。\nDose any body slove this?"
+      },
+      {
+        "id": 3534698,
+        "date": "2026-10-07 22:24:01.300000",
+        "votes": 0,
+        "text": ""
+      }
+    ]
+  },
+  {
+    "id": 748111,
+    "title": "Single sub 0.960! Wow!",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3537269,
+        "date": "2026-10-12 09:06:57.357000",
+        "votes": 1,
+        "text": "He posted on Rednote and said this sub is basically a single model."
+      },
+      {
+        "id": 3536559,
+        "date": "2026-10-10 17:05:56.933000",
+        "votes": 16,
+        "text": "![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F190923%2F61347552e70ba1e07fc4637cac6db5d5%2FScreenshot%20from%202026-10-10%2019-00-49.png?generation=1791651721987761&alt=media)\n\nHats off!"
+      },
+      {
+        "id": 3536591,
+        "date": "2026-10-10 18:29:40.183000",
+        "votes": 6,
+        "text": "one-shot learning"
+      },
+      {
+        "id": 3536730,
+        "date": "2026-10-11 05:33:44.027000",
+        "votes": -3,
+        "text": "what's your approach?\n"
+      },
+      {
+        "id": 3536577,
+        "date": "2026-10-10 17:58:25.763000",
+        "votes": 1,
+        "text": "The writeups for this competition are going to be insane"
+      },
+      {
+        "id": 3536576,
+        "date": "2026-10-10 17:56:02.720000",
+        "votes": -3,
+        "text": "tanks mr for the comment."
+      },
+      {
+        "id": 3536578,
+        "date": "2026-10-10 18:00:30.663000",
+        "votes": 0,
+        "text": "Perhaps there is a gold labels secret thread somewhere?"
+      },
+      {
+        "id": 3536575,
+        "date": "2026-10-10 17:53:35.250000",
+        "votes": 0,
+        "text": "AWA\nDidn't see that coming either."
+      },
+      {
+        "id": 3536570,
+        "date": "2026-10-10 17:35:25.747000",
+        "votes": 0,
+        "text": ""
+      }
+    ]
+  },
+  {
+    "id": 745091,
+    "title": "Looking for teammates: 0.942 solo, own 5-fold models + a GPU to share",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3536885,
+        "date": "2026-10-11 13:04:15.253000",
+        "votes": -3,
+        "text": "Kalyan, Adel, Pand: solo here (0.949 public, but that is the public nartaa notebook as is, so no credit claimed), happy to merge before Oct 15.\n\nWhat I bring that is built differently from the public notebooks: my own LLM-read labels for all 4,407 reports (12 findings, three reads, stored as calibrated probabilities), a 5-fold CoAtNet-2 @384 trained on them (0.937 public alone, OOF ready), and careful validation: one change per submission, gold kept out of every choice, bootstrap check on each new blend member. Plus a rented RTX 4090 for extra seeds/folds.\n\nIf one of you is open to it, send me a team request or reply here and I'll accept the same day."
+      },
+      {
+        "id": 3531605,
+        "date": "2026-10-02 07:34:46.417000",
+        "votes": 0,
+        "text": "Hello, I'm looking for a team to merge with before the Oct 15 deadline.\nI'm at 0.942 solo. My own models are a CoAtNet @384 (0.935), a ConvNeXt-T (0.930) and a RadImageNet ResNet-50 trained on my own report labels (0.924); two of them have 5-fold OOF. I also have my own LLM label sets, an RTX 5070 and spare Kaggle GPU hours, so I can run training for the team.\nWould especially like to team up with someone whose model is built differently from the public notebooks. If you are interested reply here with your Discord/Email ID. Thanks!"
+      },
+      {
+        "id": 3533084,
+        "date": "2026-10-05 12:39:46.380000",
+        "votes": 0,
+        "text": "Hey  I currently have a 93.4 ViT small pretrained with DINOv2 and a ResNet-50 w RadImageNet at 92.8, and I'm also looking for a team"
+      },
+      {
+        "id": 3532981,
+        "date": "2026-10-05 07:49:53.950000",
+        "votes": 0,
+        "text": "Hey I am looking to team up (solo). Currently have LLM labels and trained Dino and radimagenet and got 0.92 on single model. I have got some online compute units. \nDiscord:  tnshp4162"
+      },
+      {
+        "id": 3531863,
+        "date": "2026-10-02 18:01:32.797000",
+        "votes": 0,
+        "text": ""
+      }
+    ]
+  },
+  {
+    "id": 748480,
+    "title": "Clarification on external datasets that require an access application",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3537258,
+        "date": "2026-10-12 08:43:28.933000",
+        "votes": 0,
+        "text": "Hi, thanks for the earlier guidance on external data (click-through registration generally fine, institution-specific approval generally not).\n\nCould you confirm whether the following would be permitted under rules 2.6.a/b?\n\n1. **Osteoarthritis Initiative (OAI)** imaging and its associated scores, accessed through the NIMH Data Archive. Access requires creating an NDA account (via Login.gov or eRA Commons) and agreeing to the OAI data access terms.\n2. **fastMRI / fastMRI+**, which requires an application listing an institution and intended use, and whose agreement restricts redistribution of derived files.\n\nIn particular:\n\n- Does an account-plus-terms process like NDA's count as \"reasonably accessible to all participants at minimal cost\", given that some participants may be unable to register?\n- Would models trained with such data be compatible with the requirement to publish winning weights publicly?\n\nThanks!"
+      },
+      {
+        "id": 3537271,
+        "date": "2026-10-12 09:10:40.687000",
+        "votes": 0,
+        "text": "there was a topic dedicated to this bro, read the discussion"
+      }
+    ]
+  },
+  {
+    "id": 748403,
+    "title": "Submission Stuck for Over 24 Hours",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3537083,
+        "date": "2026-10-11 20:11:52.430000",
+        "votes": 1,
+        "text": "Hi Kaggle Team!\n\nOne of our submissions has been stuck in a running state for over 24 hours. It seems to be a bug.\n\nCould you please look into this and terminate the stuck submission?\n\nThanks in advance for your help!\n\nFYI @macruzbar\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F1690820%2F55a978a9b9acc076e2a63275a266e8de%2FScreenshot%20from%202026-10-11%2023-05-32.png?generation=1791749379034785&alt=media)"
+      },
+      {
+        "id": 3537095,
+        "date": "2026-10-11 21:01:32.180000",
+        "votes": 0,
+        "text": "From your screenshot, it doesn't seem it reached scoring, this looks like your notebook is stuck so you can just cancel it."
+      },
+      {
+        "id": 3537088,
+        "date": "2026-10-11 20:40:04.413000",
+        "votes": 0,
+        "text": ""
+      }
+    ]
+  },
+  {
+    "id": 748011,
+    "title": "Local CV or Public LB: which one can we trust?",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3536374,
+        "date": "2026-10-10 08:37:48.763000",
+        "votes": 11,
+        "text": "In this competition, the only expert-labelled data available for local validation are the 58 gold training studies. That makes local validation unusually challenging.\n\nI compared two local validation scores against the public LB across 15 of my own submissions, each based on five-fold CV:\n\n![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F3858775%2Fa49d8034870b2413899e6f01816b9ba9%2F2026-10-10%2017.32.37.png?generation=1791621169971924&alt=media)\n\n* AUC on the 58 gold studies vs. public LB: r = 0.66.\n* AUC on ~4,300 studies with LLM-extracted labels vs. public LB: r = 0.87.\n\nFor my submissions, higher CV scores on the LLM-extracted (weak) labels have generally gone hand in hand with higher public LB scores. AUC on the 58 gold studies tracked the public LB less closely.\n\nMy current thinking:\n\n* The public LB uses ~30% of the test set, which is much larger than 58 studies. It may therefore provide a more reliable signal, though sample size alone doesn't guarantee that.\n* For local validation, evaluating out-of-fold predictions against the LLM-extracted labels across the training set might be the most practical option after all.\n\nI'd love to hear how others are approaching validation here, and whether you've seen similar patterns. I'm also curious how much of a leaderboard shake-up people expect at the end.\n\nSlightly off-topic, but since the metric is AUC: submitting 1 − p instead of p gives you 1 − AUC on the public LB. Because the leaderboard only displays each team's best score, a team could use this to track improvements without revealing its actual performance, then flip the predictions back at the end.\n\nSo there may be some strong teams flying under the radar. It'll be interesting to watch the LB in the final days. \n\n([yu4u](https://www.kaggle.com/ren4yu) and [tattaka](https://www.kaggle.com/tattaka) did very well in past RSNA competitions, yet their team is sitting at just 0.949 on the public LB right now, which feels a little suspicious 👀)"
+      },
+      {
+        "id": 3536505,
+        "date": "2026-10-10 14:55:28.467000",
+        "votes": 1,
+        "text": "I think both tell a story but neither is trustworthy. Extracted labels are .9 at best which isnt terribly representative of the data. Then gold is representative but its so so small that it almost doesnt matter. "
+      },
+      {
+        "id": 3536400,
+        "date": "2026-10-10 10:16:04.057000",
+        "votes": 1,
+        "text": "for me, i trust cv local.\n\nmy best pb is 0.961 with oof (5 fold) 0.937 and god58: 0.938"
+      },
+      {
+        "id": 3536380,
+        "date": "2026-10-10 08:58:48.670000",
+        "votes": -1,
+        "text": "submit classwise. you should see something\n"
+      },
+      {
+        "id": 3537244,
+        "date": "2026-10-12 08:02:42.690000",
+        "votes": 0,
+        "text": "i want to say it depends on your OOF , your fold , the score will be different for everyone , for me up to the scorer , the most trustworthy judge will be the LB, we might be unable to know the test splitting data. but both OOF and gold tell something , some rules you must follow"
+      },
+      {
+        "id": 3537173,
+        "date": "2026-10-12 04:03:10.757000",
+        "votes": -1,
+        "text": ""
+      }
+    ]
+  },
+  {
+    "id": 747613,
+    "title": "The core to reach top score without any ensemble",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3535850,
+        "date": "2026-10-09 10:38:52.640000",
+        "votes": -1,
+        "text": "there are some classes that has more error than others. and these classes have external data with eternal label"
+      },
+      {
+        "id": 3535717,
+        "date": "2026-10-09 05:05:07.320000",
+        "votes": -7,
+        "text": "Our team reached 0,95+ with single fold single model, I just want to discuss what is the limitation of the label, it can be improved over the period over time, but running and experiment may lead to the shortage of time when the competition is coming to the end. Hopefully someone with the top score can suggest me \"The AUC peak when it come to the label only\", and \"the main model that u trained on\" mine is RESNET, I would be really appreciate with even small suggestion. (just like the best single model like that) \nBy the way, would really like to ask if any suggestion about the training process to utilize all the sources of the data to have the best score that it can reach (the config of some specific models that can utilize it peak learning rates (Resnet, DINO, in what size, what crop, the slices, the window , escpecially the cache ? ...). I saw 0,96+ is crazy, those seem to be having the techniques or the data that no one could have which is distinctive, however, I can see no reply about the OAI pretrained models rules, but I have never experienced that before even believing it will be helpful to improve the score. Up to date, the limitation is about the GPU limitations, the time, and the frustrating effort to try any available way to improve a model score sometimes it just about, improving a tiny adjustment can help use improve a tiny step. Wanting to hear all the great contestants opinions. "
+      }
+    ]
+  },
+  {
+    "id": 743416,
+    "title": "Please clarify which external knee MRI datasets are allowed",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3537177,
+        "date": "2026-10-12 04:13:39.680000",
+        "votes": -2,
+        "text": "Are the external knee MRI datasets safe? @yosukeyama "
+      },
+      {
+        "id": 3535226,
+        "date": "2026-10-08 13:52:21.413000",
+        "votes": 12,
+        "text": "Hope this reply from NDA regarding intended accessibility of OAI dataset helps![](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F4379159%2Fa2d23bb7a3e71f51b42db249f94db22c%2FScreenshot%202026-10-08%20095205.png?generation=1791467540572386&alt=media)"
+      },
+      {
+        "id": 3534883,
+        "date": "2026-10-08 04:04:15.933000",
+        "votes": 4,
+        "text": "@javaduke95 Following your Aug 27 guidance (straightforward registration or click-through data-use agreements are generally acceptable; institution-specific approvals are not), could you give a yes/no on two specific points before final selections on Oct 22?\n\n1. OAI through the NIMH Data Archive (login.gov account + click-through data-use terms): is it allowed as external training data? Some participants report that NIH country restrictions block access from their location (e.g. China), which seems relevant to \"reasonably accessible to all\".\n2. Publicly released checkpoints trained partly on OAI (for example the checkpoint behind the public 0.949 notebook, shared under Apache 2.0): may other teams use them in their submissions?\n\nMany teams are now building on public notebooks that use such a checkpoint, so a clear answer would keep the leaderboard fair for everyone. Thank you!"
+      },
+      {
+        "id": 3534071,
+        "date": "2026-10-07 09:35:08.100000",
+        "votes": 8,
+        "text": "I would like to follow up on this question, as the status of several commonly used knee MRI datasets is still unclear.\n\n| Resource | Host status | Access / licensing issue |\n|---|---|---|\n| **KneeCoT** | **Prohibited** ([host ruling](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/734109)) | Download is technically easy, but the dataset card requires a **formal ethical-use agreement with the affiliated hospital** |\n| **Stanford MRNet** | Unclear | Stanford AIMI / Redivis access; subject to research-use terms and dataset-specific access requirements |\n| **Stanford SKM-TEA** | Unclear | Stanford AIMI / Redivis access; registration and dataset-specific access requirements |\n| **NYU fastMRI / fastMRI+** | Unclear | **Application required**, including institutional affiliation and proposed use; Data Sharing Agreement |\n| **OAI** | Unclear | NDA registration / controlled-access process; not simply an unrestricted public download |\n| **KneeMRI** | Unclear | Public download, but **CC BY-NC-ND 4.0**; unclear whether training/releasing model weights is compatible with the NoDerivatives clause |\n| **KneeXNet-2.5D** | Unclear | Publicly released OAI-derived annotations/models; repository says research/educational use, but no explicit repository license identified |\n\nGiven that **KneeCoT is prohibited because of its institutional agreement requirement**, could the hosts clarify whether datasets requiring comparable or more substantial access procedures are also prohibited?\n\nAt minimum, could the **KneeCoT prohibition be pinned**? Although the dataset card explicitly requires a formal ethical-use agreement with the affiliated hospital, the files themselves are relatively easy to access, and this requirement may easily be overlooked in practice. Given the dataset’s large scale and its inclusion of knee MRI examinations, diagnostic reports, labels, VQA data, and reasoning annotations that closely overlap with this competition’s tasks, its use could potentially lead to substantial score gains. A pinned notice would help prevent inadvertent use and ensure that all teams are operating under the same rules.\n\n@javaduke95"
+      },
+      {
+        "id": 3534909,
+        "date": "2026-10-08 04:42:45.703000",
+        "votes": 1,
+        "text": "I find the calls for a strict external-data ban in the name of “fairness” pretty LAUGHABLE 😀. How exactly is this supposed to be enforced, and what level playing field are we pretending exists?\n\nWe can use LLMs from Google, OpenAI, or Anthropic to extract labels from radiology reports or help annotate knee MRIs. We don’t know their complete pretraining and post-training datasets. I’m not claiming they were trained on any particular knee MRI dataset, but if these teachers are allowed, how do we establish that their labels contain no benefit from external data? Where exactly is the boundary?\n\nIn my experience, datasets such as fastMRI, fastMRI+, OAI, and MRNet are readily accessible because:\n1. You don't need an academic institution email\n2. You don't have to sign any agreement and wait for human approval\n\nHow would organizers verify that a winning model never used them? Rerunning an inference notebook verifies its predictions, not its training history. Independently reproducing the full training pipeline requires substantial time and compute that most participants cannot spare.\n\nAnd if the argument is equal opportunity, what about participants working with two T4 GPUs and Kaggle’s limited weekly quota while others train on clusters of H200s/ B200s/ B300s ? An external-data ban leaves that disparity intact. If equal resources are the principle, apply it to compute too. "
+      },
+      {
+        "id": 3528387,
+        "date": "2026-09-26 01:52:06.163000",
+        "votes": 94,
+        "text": "Thank you to the hosts for organizing this challenge and for taking the time to answer questions throughout the competition. I appreciate that assessing third-party datasets individually is difficult, especially when their access requirements and licenses differ.\n\nQuestions about external knee MRI data are spread across several threads. Without a clear answer for commonly used datasets, teams may train under different assumptions about what is permitted, which makes it difficult to ensure a level playing field.\n\nI have read the [original question](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/733652), the [registration-gated dataset question](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/735497), and the [institutional-agreement follow-up](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/737950). There are also separate questions about [pretrained weights](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/735121) and [research-use agreements](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/738111).\n\nThe host has [explicitly ruled that KneeCoT is not allowed](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/734109) because its formal institutional agreement may create unequal access. The host has also [explained](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/733965) that non-commercial terms alone do not exclude a dataset, while straightforward registration and substantial institutional approval may be treated differently. It remains unclear to me how these principles apply to the following resources:\n\n| Resource | Relevant access or licensing issue |\n| --- | --- |\n| [Stanford MRNet](https://aimi.stanford.edu/datasets/mrnet-knee-mris) | Research-use agreement |\n| [Stanford SKM-TEA](https://aimi.stanford.edu/datasets/skm-tea-knee-mri) | Registration and data-use terms |\n| [NYU fastMRI](https://fastmri.med.nyu.edu/) and [fastMRI+](https://github.com/microsoft/fastmri-plus) | Data-sharing agreement for images; separately released annotations |\n| [Osteoarthritis Initiative (OAI)](https://nda.nih.gov/oai) | Data Use Certification ~~and institutional requirements~~ |\n| [KneeMRI](https://zenodo.org/records/14789903) | CC BY-NC-ND 4.0 |\n| [KneeXNet-2.5D](https://github.com/pitthexai/Knee_MRI_Segmentation_2.5D) | Public OAI-derived annotated images and pretrained weights; no explicit repository license that I could identify |\n\nCould the hosts give a **yes or no for each resource** under this competition's external-data rules? If the answer differs between training on the images and fine-tuning publicly released weights, please state that separately. It would also help to know whether using each resource is compatible with the winner's requirement to release the final model. I understand that teams remain responsible for complying with the original providers' terms.\n\nBecause the same question keeps appearing in different threads, could the hosts **pin the answer in the Discussion** so all teams can find and follow the same guidance?\n\n@javaduke95"
+      },
+      {
+        "id": 3530838,
+        "date": "2026-09-30 22:59:48.650000",
+        "votes": 5,
+        "text": "I also think this is only going to get worse, largely due to the widespread adoption/use of LLM agents. They insist on finding and using external data, basically ignoring the fine print, to improve CV/LB score. I guess it's their reward training - you tell a LLM to \"improve the score\" and that is what it will try to do. \n\nIf people are minimally \"in the loop\" or fully out of it, it is hard to catch. I've had to paste verbatim the host comments and the content of the Rules tab multiple times for LLMs to finally accept that most of these sources do not strictly comply with usage requirements, either from the host's perspective, Kaggle's perspective, or the data owner's perspective...\n\nNot sure what the solution is but the host has no reason to check solutions other than the prize eligible ones, the data providers themselves are unlikely to respond, so what to do? \"Cheat\" and hope you don't place in top 10 but otherwise secure a medal? Play it safe and wonder if the people that placed above you weren't as conservative?"
+      },
+      {
+        "id": 3530730,
+        "date": "2026-09-30 19:10:33.850000",
+        "votes": 5,
+        "text": "Based on all my past kaggle experience, the most 'safe' action of host is to ignore the dataset clearance questions competely. \nSince to do it \"the right way\" requires involvement of legal department and I imagine it's tedious process.  I would be happy to proven wrong and get clear answer. But before that the best course of action is to use common sense: public registration is ok, non-commerial/research license is ok; gated dataset _requiring_ academia email - probably less ok, but if top 10 solutions will end up using it - also ok ;) "
+      },
+      {
+        "id": 3530459,
+        "date": "2026-09-30 08:03:51.747000",
+        "votes": 3,
+        "text": "4 days and still no answer. is that a yes?"
+      },
+      {
+        "id": 3530726,
+        "date": "2026-09-30 19:08:19.573000",
+        "votes": 2,
+        "text": "MRNet’s user agreement says we’re not allowed to modify, reverse engineer, decompile, or create derivative works from the dataset, so that might be an issue too."
+      },
+      {
+        "id": 3531046,
+        "date": "2026-10-01 07:56:26.583000",
+        "votes": 1,
+        "text": "Have you seen improvements by using external data? I haven't tried yet but this discussion makes me want to give it a try..."
+      },
+      {
+        "id": 3528398,
+        "date": "2026-09-26 03:25:50.803000",
+        "votes": 7,
+        "text": "This is quite pressing and could really throw off the leaderboard. I could be wrong, but it's only the winning solutions (top 10) that would be audited thoroughly enough that training on external data sources that are not allowed would even get \"caught\" and disqualified. Basically everyone else could probably get away with it. This is a problem as it can totally reshape the final non top 10 rankings. I think external data, even small amounts of it, can substantially increase score in this competition so the impact of this could be extreme."
+      },
+      {
+        "id": 3529114,
+        "date": "2026-09-27 11:19:57.487000",
+        "votes": 2,
+        "text": "This is really important. I have a similar question for the hosts. Can we use publicly released pretrained models (MIT license and all) that were trained on OAI-derived data? "
+      },
+      {
+        "id": 3536285,
+        "date": "2026-10-10 03:23:13.330000",
+        "votes": 0,
+        "text": ""
+      },
+      {
+        "id": 3535769,
+        "date": "2026-10-09 07:33:14.323000",
+        "votes": 0,
+        "text": ""
+      },
+      {
+        "id": 3530682,
+        "date": "2026-09-30 17:25:08.863000",
+        "votes": 2,
+        "text": ""
+      }
+    ]
+  },
+  {
+    "id": 748310,
+    "title": "Could you display a few more decimal places for the scores?",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3536914,
+        "date": "2026-10-11 13:52:53.487000",
+        "votes": 2,
+        "text": "I used to think that if your score matches a public notebook, you can make your own notebook public too. Then you could sort the public notebooks by score to see which one actually ranks higher.\n\nBut now something seems off. My submission with modified weights clearly ranks higher on the leaderboard than a submission using the original public notebook without any changes. However, my published notebook actually ranks lower in the public notebook rankings.\n\nSo I'm wondering: is it because public notebooks with the same displayed score aren't necessarily ranked by their actual underlying scores, or could this be caused by floating-point variations in GPU computations?"
+      }
+    ]
+  },
+  {
+    "id": 748276,
+    "title": "Clarification on eligibility of OAI dataset",
+    "total_comments": 0,
+    "messages": [
+      {
+        "id": 3536841,
+        "date": "2026-10-11 10:31:46.743000",
+        "votes": 15,
+        "text": "In [this topic thread](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/741819) it was stated that ` OAI is fine as long as it's \"generally accessible to all participants\" without institutional sign-off and free of charge`.\n\nBut several people in [this topic thread](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/746792) say they can't register at all from China.\n\nThere is also an [NDA notice](https://nda.nih.gov/nda/enhancing-dar-security-measures) which clearly states that since Aprlil 4 2025, NIH prohibits access to \"NDA data by researchers and institutions located in countries of concern, including China (including Hong Kong and Macau), Russia, Iran, North Korea, Cuba, and Venezuela\".\n\nOAI is hosted on NDA.\n\nChina isn't on the competition's excluded list (Rule 3.1), and Rule 2.6.b mentions \"geo restrictions\" as something that can make external data not \"reasonably accessible to all\". That sounds a lot like the uneven-access reason KneeCoT was ruled out for in [this topic thread](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/discussion/734109)\n\nIs OAI allowed, given that participants in some eligible countries can't access it?"
+      }
+    ]
+  }
+]

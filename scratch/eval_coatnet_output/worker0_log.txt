@@ -1,0 +1,10 @@
+MODEL_READY {"gpu": "Tesla T4", "amp": "fp16", "models": 4, "models2": 0, "spatial_models": 4, "extent_models": 4, "studies": 2, "seconds": 7.2}
+/tmp/probe/mainline_code/training/vendor_runtime/monai060/monai/utils/module.py:190: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  pkg = __import__(module)  # top level module
+/tmp/probe/mainline_code/training/vendor_runtime/monai060/monai/utils/module.py:190: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  pkg = __import__(module)  # top level module
+get_mempolicy: Operation not permitted
+get_mempolicy: Operation not permitted
+{"done": 1, "of": 2, "scored": 1, "fallback": 0, "elapsed_s": 72.3, "s_per_study": 72.29, "decode_s": 37.8, "render_s": 2.4, "gpu_s": 20.6, "anchor_s": 1.4, "anchors": {"slab_prior": 1}, "windows": 574}
+{"done": 2, "of": 2, "scored": 2, "fallback": 0, "elapsed_s": 90.8, "s_per_study": 45.39, "decode_s": 70.9, "render_s": 4.2, "gpu_s": 39.1, "anchor_s": 3.4, "anchors": {"slab_prior": 1, "skm_tea_joint_avg2": 1}, "windows": 1084}
+WORKER_DONE {"studies": 2, "scored": 2, "timed_out": false, "seconds": 93.6, "amp": "fp16"} fallback 0
