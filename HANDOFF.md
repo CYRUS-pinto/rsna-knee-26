@@ -31,6 +31,7 @@ Top competitors (including @yosukeyama and Grandmaster Tucker Arrants) achieve >
 | **57152208** | Quint Ensemble R7 Colab SWA v5 | `0.932` | **Severe 22-point drop.** Fatal cause: Inherited Hitarth's unverified "Part B" reader (`own_src`). Lacked offline `pylibjpeg-libjpeg` C-bindings and sorted slices by filename. **Effusion correlation inverted to $r = -0.740$**, poisoning the final submission. |
 | **57165672** | Quint Ensemble R7 Colab SWA v6 | **`0.956`** | **Succeeded.** Verified baseline restored. Excised Part B, removed brittle asserts, restored clean dual-engine baseline. |
 | **57172886** | Quint Ensemble R7 Colab SWA v7 | `0.955` | **Succeeded.** Tested domain-driven anatomical asymmetry (CoAtNet 65% on tears, ConvNeXt 70% on OA). Result proves uniform 50/50 blend (v6 at 0.956) is mathematically optimal for these two models; confirms that exceeding 0.956 requires Engine 3 model diversity rather than weight shifting. |
+| **Kernel v8** | Tri-Engine Ensemble (Raptor CoAtNet + Cyrus SWA 0.9167 + ConvNeXt R7) | `Running` | **Deployed.** Engine 3 connected. Colab A100 training completed 12 epochs with SWA Macro-AUC **0.9167** on Gold-58 anchor. Stage 1 now runs dual CoAtNet arms (Raptor + Cyrus SWA); Stage 3 fuses with ConvNeXt R7. Target: 0.958–0.962+. |
 
 
 
