@@ -38,6 +38,19 @@ Top competitors (including @yosukeyama and Grandmaster Tucker Arrants) achieve >
 ## 3. Core Architecture & Verified Components
 
 ### Pipeline Stages (7-Cell Standard)
+
+```mermaid
+graph LR
+    DICOM["Raw DICOMs"] --> Pre["C++ fastread (POSIX pread) & 3D Normal Sort"]
+    Pre --> Stack["5-Slot 96-Slice Stack"]
+    Stack --> CNet["Stage 1: CoAtNet-384 SWA<br/>(42 2.5D windows + 12 heads)"]
+    Stack --> CNx["Stage 2: ConvNeXt-S6 R7<br/>(4-fold + M4 OA ext_u)"]
+    CNx --> Vol["Fluid Volumetry & State Stacker"]
+    CNet & CNx & Vol --> Fusion["Stage 3: Asymmetric Rank Fusion<br/>(CoAtNet tears + ConvNeXt OA)"]
+    Fusion --> Guard["Safe Runtime Guard (min_rho ≥ 0.30)"]
+    Guard --> Sub["submission.csv"]
+```
+
 * **Stage 1 (Cells 2–3)**: Raptor CoAtNet-384 SWA (`raptor_ft_alldata_t16_blendjev_oai_d96_r384_swa.pt`).
   - Threaded posix `pread` C++ fastread DICOM loader.
   - 5-slot standardized stack (96 slices: Sagittal fluid 26, Sagittal non-fluid 22, Coronal fluid 18, Coronal non-fluid 12, Axial 18).
@@ -48,6 +61,8 @@ Top competitors (including @yosukeyama and Grandmaster Tucker Arrants) achieve >
   - 3D Sagittal Fluid Volumetry (`fluid_stacker.json`) + 6-class state router (`state_stacker.json`).
 * **Stage 3 (Cell 6)**: Monotonic Percentile Rank Fusion:
   $$r = \text{rank}(p) / N, \quad \text{Blend} = W \cdot r_{\text{raptor}} + (1 - W) \cdot r_{\text{convnext}}$$
+  - V7 Asymmetric Anatomical Weights: CoAtNet 65% on ACL, 60% on MCL & Contusion; ConvNeXt 70% on Medial/Lateral/PF OA.
+
 
 ---
 

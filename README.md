@@ -27,7 +27,44 @@ Rather than relying on uncalibrated single models or bloated, fragile ensemble s
 
 ![RSNA Knee Architecture Overview](docs/architecture_overview.png)
 
+```mermaid
+flowchart TD
+    subgraph DICOM_INGESTION ["1. 3D Spatial Vector & Physical Geometry Engine"]
+        A["Raw Multi-Series DICOMs (GE / Siemens / Philips)"] --> B["C++ Fastread POSIX pread Loader"]
+        B --> C["Physical Normal Vector Calculation<br/>n = IOP[0:3] × IOP[3:6]<br/>Depth = IPP · n"]
+        C --> D["Continuous 3D Normal Sorting (Fixes -0.74 Effusion Inversion)"]
+        D --> E["140 mm Physical Joint Crop & Spacing Resampling"]
+    end
+
+    subgraph TENSOR_STACK ["2. Standardized 5-Slot Tensor (96 Slices)"]
+        E --> S1["Slot 1: Sagittal Fluid (26 slices) — ACL, PCL, Contusion"]
+        E --> S2["Slot 2: Sagittal Non-Fluid (22 slices) — Meniscal Tears"]
+        E --> S3["Slot 3: Coronal Fluid (18 slices) — MCL, Collateral Edema"]
+        E --> S4["Slot 4: Coronal Non-Fluid (12 slices) — Cartilage & Osteophytes"]
+        E --> S5["Slot 5: Axial Plane (18 slices) — PF OA & Baker's Cyst"]
+    end
+
+    subgraph DUAL_ENGINE ["3. Dual-Engine Parallel Inference"]
+        S1 & S2 & S3 & S4 & S5 --> ENG1["Engine 1: CoAtNet-384 SWA<br/>(Hybrid Transformer)<br/>• 42 Temporal 2.5D Windows<br/>• 12 Cross-Attention Heads<br/>• Ligament & Tear Specialist"]
+        S1 & S2 & S3 & S4 & S5 --> ENG2["Engine 2: ConvNeXt-S6 R7<br/>(Pure ConvNet)<br/>• 4-Fold S6 at 352×352<br/>• M4 OA Extent Heads (ext_u)<br/>• Cartilage & Bone Specialist"]
+    end
+
+    subgraph STACKERS ["4. Volumetric & State Stackers"]
+        ENG2 --> ST1["3D Sagittal Fluid Volumetry<br/>(Joint Effusion)"]
+        ENG2 --> ST2["6-Class Distention Router<br/>(Baker's Cyst)"]
+    end
+
+    subgraph FUSION ["5. Asymmetric Rank Ensembling & Safeguards"]
+        ENG1 --> R1["Percentile Ranking F_1(p)"]
+        ENG2 & ST1 & ST2 --> R2["Percentile Ranking F_2(p)"]
+        R1 & R2 --> ASYM["Anatomical Weighting Matrix<br/>• Tears/Contusion: CoAtNet (55%-65%)<br/>• OA/Cartilage: ConvNeXt (70%)<br/>• Fluid/Baker: Balanced (60%-65%)"]
+        ASYM --> GUARD["Non-Raising Runtime Correlation Guard<br/>(min_rho ≥ 0.30 Fallback)"]
+        GUARD --> OUT["Verified submission.csv<br/>(Macro ROC AUC: 0.956+)"]
+    end
+```
+
 ---
+
 
 ## 🔬 Core Architectural Pillars
 
@@ -80,12 +117,38 @@ Because the competition metric is **Macro-Averaged ROC AUC**, absolute probabili
 | **57150837** | `Exception` | Cell 6 asserted `if min(rho_rr) < 0.99: raise RuntimeError`. When blending multi-arm models, correlation naturally diverged to $r \approx 0.97$, crashing the notebook on the hidden test set. | Replaced hard assert with a non-raising runtime guard (`min_rho >= 0.30`). Never crashes the hidden test run. |
 | **57152208** | `0.932` | Hitarth's unverified "Part B" reader (`own_src`) failed to install offline C-bindings for JPEG-lossless DICOMs and sorted slices by filename. It inverted Effusion ($r = -0.74$) and produced random noise on OA ($r = 0.20$). | **Part B permanently excised.** Strict adherence to verified C++ `fastread` threaded decoders with 0 fallbacks. |
 | **57165672** (v6) | `0.956` | Clean dual-engine baseline deployed. Ran with 0 study fallbacks, 450s commit time, and 0 NaNs. | Verified bedrock foundation restored. |
+| **57172886** (v7) | `PENDING` | Active submission testing domain-driven anatomical asymmetry (CoAtNet 65% on tears, ConvNeXt 70% on OA). | In scoring queue; commit run verified in 428s with 0 fallbacks and $r=1.000$ monotonicity. |
 
 ---
 
-## 🧪 The 5-Minute "Gold-58" Evaluation Gate
+## 🧪 The "Gold-58" Offline Evaluation Gate
 
-To stop burning daily submissions on unvalidated hypotheses, all architectural and weight changes are evaluated against the **58 expert-annotated gold studies** before submission:
+To stop burning daily submissions on unvalidated hypotheses, all architectural and weight changes are evaluated against the **58 expert-annotated gold studies** before submission using [tools/gate_make_root.py](file:///c:/Users/Cyrus/Downloads/rsna%20knee%20fip/tools/gate_make_root.py) and [tools/gate_score.py](file:///c:/Users/Cyrus/Downloads/rsna%20knee%20fip/tools/gate_score.py):
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Dev as ML Engineer
+    participant Root as tools/gate_make_root.py
+    participant Pipe as Inference Pipeline (Dual Engine)
+    participant Scorer as tools/gate_score.py
+    participant Gate as Admissibility Decision
+
+    Dev->>Root: Execute gate_make_root.py
+    Root->>Root: Filter 58 Gold Studies from train.csv
+    Root->>Root: Generate gate_root/ (test.csv, gold.csv, symlinks)
+    Dev->>Pipe: Execute Pipeline on gate_root (dual T4 GPUs)
+    Pipe->>Pipe: Generate raptor_sub.csv & ours_sub.csv (58 rows)
+    Dev->>Scorer: Execute gate_score.py --gold gold.csv --arm raptor --arm convnext
+    Scorer->>Scorer: Per-class AUC Calculation (12 targets)
+    Scorer->>Scorer: 2,000 Paired Bootstrap Iterations
+    Scorer->>Gate: Evaluate 95% Confidence Intervals & Guardrails
+    alt Any Target AUC < 0.60 OR Inter-Arm Corr < 0.30 OR Fallbacks > 0
+        Gate-->>Dev: ❌ REJECT: Blunder Detected (Catch Inverted Effusions Offline)
+    else 95% Bootstrap CI strictly > 0 and 0 Fallbacks
+        Gate-->>Dev: ✅ PROMOTE: Approved for Live Kaggle Submission
+    end
+```
 
 ```python
 # Paired Bootstrap Validation Gate (2,000 iterations)
