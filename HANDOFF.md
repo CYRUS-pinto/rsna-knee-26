@@ -89,12 +89,16 @@ Because public checkpoints (Raptor and Heliosli R7) carry pre-training exposure 
 ├── docs/
 │   ├── architecture_overview.png   # Full system architecture diagram
 │   └── finding_breakdown.png       # Finding-by-finding orthogonality matrix
+├── tools/                          # Gold-58 Offline Validation Gate
+│   ├── gate_make_root.py           # Mock test root generator for 58 gold studies
+│   └── gate_score.py               # 2,000 paired bootstrap validation engine
 ├── scratch/
 │   ├── clean_r7_kernel/            # Version 6 baseline kernel (LB 0.956)
-│   ├── v7_asymmetric_kernel/       # Version 7 asymmetric weight kernel
+│   ├── v7_asymmetric_kernel/       # Version 7 asymmetric weight kernel (PENDING)
 │   ├── generate_architecture_visuals.py
 │   └── test_v7_blend.py            # Local blend simulation engine
 ├── .gitignore
 ├── HANDOFF.md                      # Complete audit log and execution milestones
 └── README.md                       # Master documentation
 ```
+

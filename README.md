@@ -126,17 +126,38 @@ To maximize competition performance while eliminating any audit risk, two distin
 
 ```
 ├── docs/
-│   ├── architecture_overview.png   # Full system architecture diagram
+│   ├── architecture_overview.png   # Full system architecture diagram (300 DPI)
 │   └── finding_breakdown.png       # Finding-by-finding orthogonality matrix
+├── tools/                          # Gold-58 Offline Validation Gate
+│   ├── gate_make_root.py           # Mock test root generator for 58 gold studies
+│   └── gate_score.py               # 2,000 paired bootstrap validation engine
 ├── scratch/
 │   ├── clean_r7_kernel/            # Version 6 baseline kernel (LB 0.956)
-│   ├── v7_asymmetric_kernel/       # Version 7 asymmetric weight kernel
+│   ├── v7_asymmetric_kernel/       # Version 7 asymmetric weight kernel (PENDING)
 │   ├── generate_architecture_visuals.py
 │   └── test_v7_blend.py            # Local blend simulation engine
 ├── .gitignore
 ├── HANDOFF.md                      # Complete audit log and execution milestones
 └── README.md                       # Master documentation
 ```
+
+---
+
+### ⚙️ How to Run the Gold-58 Offline Gate
+
+```bash
+# Step 1: Create mock test root inside Kaggle environment
+python tools/gate_make_root.py
+
+# Step 2: Score candidate arms with paired bootstrap (2,000 iterations)
+python tools/gate_score.py \
+  --gold /kaggle/working/gate_root/gold.csv \
+  --arm raptor=raptor_sub.csv \
+  --arm convnext=ours_sub.csv \
+  --log run.log \
+  --cw "A=0.6,B=0.4,C=0.5"
+```
+
 
 ---
 
