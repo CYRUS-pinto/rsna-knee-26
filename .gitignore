@@ -10,17 +10,6 @@ __pycache__/
 *.log
 results/
 
-# Scratch temporary outputs and experiment runs
-scratch/train_poll*/
-scratch/eval_coatnet_output/
-scratch/kernel_out/
-scratch/kernel_err/
-scratch/kernel_err_v5/
-scratch/kernel_out_v6/
-scratch/intel/
-scratch/quint_err*/
-scratch/quint_final_out/
-scratch/quint_v6_out/
-scratch/r7/
-scratch/*.txt
-scratch/*.csv
+# Scratch directory
+scratch/
+

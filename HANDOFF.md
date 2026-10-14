@@ -29,7 +29,7 @@ Top competitors (including @yosukeyama and Grandmaster Tucker Arrants) achieve >
 | **57128257** | Tri-Hybrid CoAtNet S6 2.5D MIL v2 | `0.954` | Succeeded. Longtime baseline ceiling. |
 | **57150837** | CoAtNet S6 25D MIL v6 | `Exception` | **FAILED on hidden test set.** Fatal cause: single-model assertion in Cell 6: `if min(rho_rr) < 0.99: raise RuntimeError(...)`. Blending multi-arm SWA naturally diverged to $r \approx 0.97$, tripping the assert. |
 | **57152208** | Quint Ensemble R7 Colab SWA v5 | `0.932` | **Severe 22-point drop.** Fatal cause: Inherited Hitarth's unverified "Part B" reader (`own_src`). Lacked offline `pylibjpeg-libjpeg` C-bindings and sorted slices by filename. **Effusion correlation inverted to $r = -0.740$**, poisoning the final submission. |
-| **57165672** | Quint Ensemble R7 Colab SWA v6 | `PENDING` | **Running on hidden test set.** Excised Part B, replaced hard asserts with non-raising runtime guards, restored clean dual-engine baseline. Verified in 450s commit run with 0 study fallbacks. |
+| **57165672** | Quint Ensemble R7 Colab SWA v6 | **`0.956`** | **Succeeded.** Verified baseline restored. Excised Part B, removed brittle asserts, restored clean dual-engine baseline. |
 
 ---
 
