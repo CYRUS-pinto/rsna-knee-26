@@ -39,11 +39,13 @@ gantt
 - [x] Multi-Plane Slice-Transformer Head (`training/engine3_slice_transformer/model_multiplane.py`) verified with tensor shape unit tests.
 - [x] High-speed percentile rank fusion kernel (`submissions/v13_tri_hybrid_aligned/submission.py`) benchmarked: 100 studies in 0.0023s.
 
-### Milestone 2: Cloud Model Training [IN PROGRESS]
+### Milestone 2: Cloud Model Training [IN PROGRESS - EPOCH 3/6]
 - [x] Standalone trainer (`train_script.py`) created with dynamic mount discovery.
 - [x] T4 hardware guardrails applied: gradient checkpointing, native FP16 with GradScaler, `batch_size=2`, `accum_steps=2`.
 - [x] Pushed to Kaggle cloud kernel: `cyruspinto/rsna-knee-multiplane-engine3-train`.
-- [ ] Active training completion (6 epochs $\approx 80$ minutes).
+- [x] **Epoch 1/6**: Loss: 0.5863 | Val OOF AUC: **0.59477** (Saved best checkpoint `engine3_multiplane_fold0_best.pth`).
+- [x] **Epoch 2/6**: Loss: 0.5724 | Val OOF AUC: **0.67339** (+0.07862 gain, updated best checkpoint).
+- [ ] Active training completion (Epochs 3 to 6 in progress; total runtime ~7.5 hours, well under the 9-hour ceiling).
 - [ ] Checkpoint artifact extraction: `/kaggle/working/engine3_multiplane_fold0_best.pth`.
 
 ### Milestone 3: Local Gate & Final V13 Submission [PENDING TRAINING]
