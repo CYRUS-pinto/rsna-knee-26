@@ -262,47 +262,67 @@ print("⚡ Loaded in 0 seconds with zero bandwidth or compute units wasted!")
 
 Every core engineering decision is formally catalogued in [`decisions/`](decisions/):
 
-- **[ADR-001: Dual-Engine Uniform Percentile Rank Fusion](decisions/ADR-001-dual-engine-5050-rank-fusion.md)**  
-  *Equal weighting ($w_1 = w_2 = 0.50$) minimizes rank score variance under symmetry; on ~400 public cases, a 0.001 shift is within expected noise.*
-- **[ADR-002: Excising Clinical Heuristic Priors](decisions/ADR-002-excising-heuristic-priors-and-overfitting.md)**  
-  *Eliminates post-processing heuristics (`+0.15*ACL`) based on Occam's razor: heuristics added complexity and risk on discordant cases while demonstrating zero empirical gain on public LB.*
-- **[ADR-003: Colab A100 Training Stability & BF16 Fixes](decisions/ADR-003-colab-a100-numerical-stability-and-bf16.md)**  
-  *Details direct BF16 backprop (bypassing GradScaler), raw logit AUC scoring, loss doubling guards, and divergence circuit breakers.*
-- **[ADR-004: Train vs Inference Slice Alignment (44 vs 96 Slices)](decisions/ADR-004-train-inference-slice-distribution-alignment.md)**  
-  *Explains why Attention-MIL (`--head mil`) is required on the 44-slice corpus to prevent positional coordinate shift against the 96-slice multi-plane inference tensor.*
-- **[ADR-005: Kaggle Credential Sanitization Protocol](decisions/ADR-005-kaggle-api-token-sanitization.md)**  
-  *Establishes zero-hardcode credential policy using Google Colab Secrets (`userdata`) and masked `getpass` input.*
+- **[ADR-001: Dual-Engine Uniform Percentile Rank Fusion](decisions/ADR-001-dual-engine-5050-rank-fusion.md)**: Equal weighting ($w_1 = w_2 = 0.50$) minimizes rank score variance.
+- **[ADR-002: Excising Clinical Heuristic Priors](decisions/ADR-002-excising-heuristic-priors-and-overfitting.md)**: Empirical proof (V12 dropped to 0.953): heuristic additive priors overfit Gold-58 sample noise and destroy test generalization.
+- **[ADR-003: Colab A100 Training Stability & BF16 Fixes](decisions/ADR-003-colab-a100-numerical-stability-and-bf16.md)**: Direct BF16 backprop (bypassing GradScaler) and raw logit AUC scoring.
+- **[ADR-004: Train vs Inference Slice Alignment (44 vs 96 Slices)](decisions/ADR-004-train-inference-slice-distribution-alignment.md)**: Attention-MIL baseline before sequential transformers.
+- **[ADR-005: Kaggle Credential Sanitization Protocol](decisions/ADR-005-kaggle-api-token-sanitization.md)**: Zero-hardcode credential policy using Colab Secrets & masked inputs.
+- **[ADR-006: Input Representation & 3D Spatial Geometry](decisions/ADR-006-input-representation-and-spatial-geometry.md)**: 2.5D multi-plane slabs with 3D normal vector slice sorting (+0.028 AUC gain).
+- **[ADR-007: Orthogonal Backbone Triad Selection](decisions/ADR-007-orthogonal-backbone-selection.md)**: Pairs CoAtNet with ConvNeXt-S6 R7 and our Multi-Plane Transformer Head.
+- **[ADR-008: Cross-Plane Attention-MIL with Plane Embeddings](decisions/ADR-008-cross-plane-attention-mil-pooling.md)**: Sequence-aware Transformer Head modeling contiguous disruption across all 3 planes.
+- **[ADR-009: Continuous Soft-Target Loss Discipline](decisions/ADR-009-continuous-soft-target-loss-discipline.md)**: BCE on continuous soft labels; raw logit evaluation eliminates sigmoid saturation ties.
+- **[ADR-010: $18,000 Efficiency Prize Compliance & Uniform 1/3 Fusion](decisions/ADR-010-efficiency-prize-and-rank-fusion.md)**: Pure uniform rank averaging ($T \le 450$s) preserves eligibility for the $18k Efficiency Prize.
+- **[ADR-011: T4 GPU Cloud Training Memory Guardrails](decisions/ADR-011-t4-memory-guardrails-and-gradient-checkpointing.md)**: Gradient checkpointing, native FP16 GradScaler, and chunk_size=8 eliminate cuDNN crashes and CUDA OOM on Kaggle T4.
+- **[ADR-012: Interactive Multi-Plane Visualizer Architecture](decisions/ADR-012-interactive-multiplane-attention-architecture-visualizer.md)**: Browser-executable visualizer (`docs/multiplane_transformer_visualizer.html`) for all 12 pathologies.
 
 ---
 
-## 10. Final 7-Day Execution Blueprint & Submission Selection
+## 10. Final Execution Blueprint & Submission Selection
 
 ```mermaid
 timeline
     title RSNA Knee 2026 Final Timeline
-    October 15 (TONIGHT) : Team Merger Deadline (11:59 PM UTC / 5:29 AM IST)
-                         : Verify team roster & confirm invites on Kaggle
-                         : Set GitHub repo to Private & revoke API token
-    October 16 - 19      : Inspect completed Kaggle V12 run
-                         : Monitor Kaggle discussion forum for OAI external data ruling
-                         : Verify hidden-test runtime on dual T4 GPUs (< 450s)
-    October 20 - 21      : Perform final check of submission receipts
-                         : Manually lock 2 chosen final submissions on Kaggle
-    October 22           : Final Submission Deadline (Competition Close)
+    October 15 (ACTIVE)  : Cloud GPU Training: cyruspinto/rsna-knee-multiplane-engine3-train (Dual T4)
+                         : Harvest fold 0 checkpoint (engine3_multiplane_fold0_best.pth)
+                         : Package into submissions/v13_tri_hybrid_aligned/submission.py
+    October 16           : Run Gate Scoring (validation/gate_score.py) on fold 0 OOF predictions
+                         : Push V13 Tri-Hybrid submission kernel to Kaggle
+    October 17 - 20      : Monitor V13 leaderboard scoring (Target 0.963+ Gold Tier)
+                         : Verify total inference latency remains <= 450s for $18,000 Efficiency Prize
+    October 21 - 22      : Final Submissions Lock on Kaggle UI:
+                         : Selection 1 -> Submission 57165672 (V6 PB 0.956)
+                         : Selection 2 -> V13 Tri-Hybrid Aligned (Target 0.963+ Gold Tier)
 ```
 
 ### The Two Final Submissions Plan:
 
 1. **Final Selection 1 (Bedrock Personal Best):**
-   * **Version 6 (`0.956`)**
+   * **Version 6 (`0.956`, Submission `57165672`)**
    * Clean dual-engine baseline: Raptor CoAtNet-384 SWA + Heliosli ConvNeXt-S6 R7.
    * Pure uniform 50/50 percentile rank blending, C++ `fastread` threaded loader, 3D physical normal sorting, 0 study fallbacks.
-   * Proven, stable, and sits at Rank ~120 on the public board.
+   * Proven, stable baseline.
 
-2. **Final Selection 2 (Diversity Candidate):**
-   * Once Kaggle's running notebook finishes:
-     - **If V12 scores $\ge 0.956$:** Select V12.
-     - **If V12 scores $0.955$:** Select **Version 9** (which incorporated soft label distillation without post-hoc heuristics) to provide architectural diversity from V6.
+2. **Final Selection 2 (Frontier Tri-Hybrid Aligned):**
+   * **V13 Tri-Hybrid Aligned Pipeline** (`submissions/v13_tri_hybrid_aligned/submission.py`)
+   * Combines Engine 1 (CoAtNet-384 SWA) + Engine 2 (ConvNeXt-S6 R7) + Engine 3 (Our Multi-Plane Slice-Transformer).
+   * Pure uniform 1/3 percentile rank averaging (zero destructive heuristic priors).
+   * Target: **0.963+ Gold Tier**, with verified inference time $\approx 416$s ($18,000 Efficiency Prize compliant).
+
+---
+
+## 11. Component Documentation Directory Index
+
+All key codebase components have dedicated `.md` companion specifications:
+- [`validation/cv_framework.md`](validation/cv_framework.md) — 5-Fold Stratified Group Split & Rarity Weighting.
+- [`validation/official_metric.md`](validation/official_metric.md) — Mann-Whitney U Macro-AUC Math & Raw Logits.
+- [`validation/test_cv_framework.md`](validation/test_cv_framework.md) — CV Verification Test Suite.
+- [`training/engine3_slice_transformer/model_multiplane.md`](training/engine3_slice_transformer/model_multiplane.md) — Multi-Plane Transformer Architecture.
+- [`training/engine3_slice_transformer/test_model_multiplane.md`](training/engine3_slice_transformer/test_model_multiplane.md) — Tensor Shapes & Gradient Backprop Tests.
+- [`training/engine3_slice_transformer/kaggle_push/train_script.md`](training/engine3_slice_transformer/kaggle_push/train_script.md) — Standalone Cloud Trainer & T4 Guardrails.
+- [`training/engine3_slice_transformer/train_multiplane_cv.md`](training/engine3_slice_transformer/train_multiplane_cv.md) — Full 5-Fold Loop Orchestrator.
+- [`training/engine3_slice_transformer/train_colab.md`](training/engine3_slice_transformer/train_colab.md) — High-VRAM Colab Pro A100 Trainer.
+- [`submissions/v13_tri_hybrid_aligned/submission.md`](submissions/v13_tri_hybrid_aligned/submission.md) — Tri-Hybrid Ensembling & Efficiency Prize Envelope.
+- [`docs/multiplane_transformer_visualizer.html`](docs/multiplane_transformer_visualizer.html) — Interactive Browser Visualizer.
 
 3. **External Data (OAI) Risk Management:**
    * Both Raptor CoAtNet and Heliosli ConvNeXt rely on pre-trained representations that utilized OAI (Osteoarthritis Initiative) data.

@@ -16,7 +16,6 @@ gate_root/
 results/
 scratch/
 v12_output/
-.planning/
 
 # Python & Checkpoints
 __pycache__/
