@@ -381,8 +381,12 @@ python validation/gate_score.py \
    - Generates: `submission.csv` with 0 fallbacks and execution time $< 480$s.
 
 2. **Proprietary Engine 4 Training (Google Colab Pro A100 / Kaggle)**:
-   - Source: [`training/engine4/train_engine4.py`](training/engine4/train_engine4.py).
-   - Multi-Plane Dataset: [`src/data/multiplane_dataset.py`](src/data/multiplane_dataset.py).
-   - ConvNeXt MIL Backbone: [`src/models/engine4_convnext_mil.py`](src/models/engine4_convnext_mil.py).
-   - Supervised by: `data/SUPER_CONSENSUS_labels.parquet`.
+   - Turnkey Colab Notebook: [`training/engine4/colab_train_engine4_a100.ipynb`](training/engine4/colab_train_engine4_a100.ipynb).
+   - Training Guide: [`training/engine4/README.md`](training/engine4/README.md).
+   - Architectural Decision Record: [`decisions/ADR-014-engine4-multiplane-convnext-mil-training.md`](decisions/ADR-014-engine4-multiplane-convnext-mil-training.md).
+   - Source Script: [`training/engine4/train_engine4.py`](training/engine4/train_engine4.py).
+   - Multi-Plane Physical Dataset: [`src/data/multiplane_dataset.py`](src/data/multiplane_dataset.py).
+   - ConvNeXt-Small MIL Backbone: [`src/models/engine4_convnext_mil.py`](src/models/engine4_convnext_mil.py).
+   - Continuous Supervision: `data/SUPER_CONSENSUS_labels.parquet` (4,407 studies).
+
 
