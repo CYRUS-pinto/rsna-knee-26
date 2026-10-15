@@ -186,24 +186,76 @@ To maximize competition performance while eliminating any audit risk, two distin
 
 ---
 
-## 📂 Repository Structure
+## 📂 Repository Structure & Version Registry
 
 ```
-├── docs/
-│   ├── architecture_overview.png   # Full system architecture diagram (300 DPI)
-│   └── finding_breakdown.png       # Finding-by-finding orthogonality matrix
-├── tools/                          # Gold-58 Offline Validation Gate
-│   ├── gate_make_root.py           # Mock test root generator for 58 gold studies
-│   └── gate_score.py               # 2,000 paired bootstrap validation engine
-├── scratch/
-│   ├── clean_r7_kernel/            # Version 6 baseline kernel (LB 0.956)
-│   ├── v7_asymmetric_kernel/       # Version 7 asymmetric weight kernel (PENDING)
-│   ├── generate_architecture_visuals.py
-│   └── test_v7_blend.py            # Local blend simulation engine
-├── .gitignore
-├── HANDOFF.md                      # Complete audit log and execution milestones
-└── README.md                       # Master documentation
+rsna-knee-26/
+├── README.md                               # Master technical documentation & architecture
+├── HANDOFF.md                              # Engineering journal, audit trails, and hardware specs
+├── .gitignore                              # Production gitignore (filters raw DICOMs, caches, large data)
+│
+├── submissions/                            # Version-controlled Kaggle inference pipelines
+│   ├── v06_pb_baseline/                    # [LB 0.956 PB] Clean Uniform 50/50 Dual Engine Baseline
+│   │   ├── rsna-knee-quint-ensemble-r7-colab.ipynb
+│   │   ├── kernel-metadata.json
+│   │   └── README.md
+│   ├── v07_asymmetric/                     # [LB 0.955] Anatomical finding-specific weights experiment
+│   │   ├── rsna-knee-quint-ensemble-r7-colab.ipynb
+│   │   ├── kernel-metadata.json
+│   │   └── README.md
+│   ├── v08_tta/                            # [LB 0.955] Test-Time Augmentation (TTA) experiment
+│   │   ├── rsna-knee-quint-ensemble-r7-colab.ipynb
+│   │   ├── kernel-metadata.json
+│   │   └── README.md
+│   └── v12_clean_offline/                  # [LB 0.956 Target] Pure uniform blend (all priors excised)
+│       ├── rsna-knee-quint-ensemble-r7-colab.ipynb
+│       ├── blend_receipt.json
+│       ├── submission_receipt.json
+│       └── README.md
+│
+├── training/                               # Model training engines (A100 Cloud & Local)
+│   ├── engine3_slice_transformer/          # 3D Slice-Transformer MIL (Zero-Divergence BF16)
+│   │   ├── colab_rsna_knee_super_train.ipynb
+│   │   ├── train_colab.py
+│   │   └── README.md
+│   └── label_extraction/                   # Qwen-2.5 72B report LLM distillation (Rule 4.b compliant)
+│       ├── colab_rsna_knee_report_llm_extractor.ipynb
+│       └── README.md
+│
+├── validation/                             # Gold-58 Offline Bootstrap Gate & Official Metric
+│   ├── official_metric.py                  # Macro-Averaged ROC AUC competition metric
+│   ├── gate_make_root.py                   # 58-study mock environment generator
+│   ├── gate_score.py                       # 2,000 paired bootstrap validation engine
+│   └── README.md
+│
+├── forensics/                              # Clinical proofs and mathematical post-mortems
+│   ├── report-20261015-score-plateau.md    # Autopsy on 0.955 plateau vs 0.967 top leaderboard
+│   └── README.md
+│
+├── data/                                   # Distilled soft targets & consensus datasets
+│   ├── SUPER_CONSENSUS_labels.parquet      # 0.9172 CV multi-label soft targets (4,349 studies)
+│   ├── qwen_extracted_soft_labels.csv      # Open-weights LLM extracted probability targets
+│   ├── HYBRID_labels_scores.csv            # Reliability weighting matrix
+│   └── README.md
+│
+└── docs/                                   # High-resolution architectural diagrams
+    ├── architecture_overview.png           # End-to-end system topology (300 DPI)
+    └── finding_breakdown.png               # Pathological orthogonality matrix
 ```
+
+---
+
+## 📊 Version History & Empirical Progression
+
+| Version | Public LB | Architecture / Configuration | Forensic Outcome & Key Takeaway |
+| :--- | :---: | :--- | :--- |
+| **V1–V5** | `< 0.940` | Single-model prototypes, naive PyDICOM loaders | Inverted slice order and uncalibrated thresholds degraded AUC. |
+| **V6** | **0.956** | **Dual Engine Uniform 50/50 Rank Blend** (CoAtNet SWA + ConvNeXt R7) | **Personal Best**. C++ `fastread` with 3D physical normal sorting. Minimum variance rank fusion. |
+| **V7** | `0.955` | Finding-specific asymmetric weights (CoAtNet 65% on tears, ConvNeXt 70% on OA) | -0.001 regression. Variance increased across borderline targets. Proved uniform 50/50 is optimal for 2 models. |
+| **V8** | `0.955` | Test-Time Augmentation (Horizontal Flip) | -0.001 regression. Horizontal flip inverts Medial and Lateral compartmental anatomy. |
+| **V9–V11** | `0.955` | Heuristic conditional priors (`+0.15*ACL -> Contusion`, etc.) | -0.001 regression. Inverted rankings on discordant patient subsets; overfit Gold-58 sample noise. |
+| **V12** | *Pending* | **Excised all heuristic priors**. Restored pure uniform percentile rank blending | **Offline Verified**. Cleaned pipeline ready for live submission (submission lock active). |
+| **Engine 3** | *Training* | **CoAtNet-2 384 + 3D Slice-Transformer MIL Head** (A100 BF16) | Adds true 3D spatial inter-slice attention to break 0.956 ceiling toward 0.967. |
 
 ---
 
@@ -211,30 +263,26 @@ To maximize competition performance while eliminating any audit risk, two distin
 
 ```bash
 # Step 1: Create mock test root inside Kaggle environment
-python tools/gate_make_root.py
+python validation/gate_make_root.py
 
 # Step 2: Score candidate arms with paired bootstrap (2,000 iterations)
-python tools/gate_score.py \
+python validation/gate_score.py \
   --gold /kaggle/working/gate_root/gold.csv \
   --arm raptor=raptor_sub.csv \
   --arm convnext=ours_sub.csv \
-  --log run.log \
-  --cw "A=0.6,B=0.4,C=0.5"
+  --cw "A=0.5,B=0.5"
 ```
-
 
 ---
 
 ## 🚀 Quickstart & Reproduction Guide
 
-1. **Kernel Setup**:
-   * Accelerator: **GPU T4 x2**
-   * Internet: **OFF**
-2. **Mounted Datasets**:
-   * `rsna-knee-abnormality-detection` (Competition Data)
-   * `heliosli/rsna-knee-compact-r7cnxfsss` (Release 7 ConvNeXt weights)
-   * `nartaa/rsna-knee-publication-swa-weights-20261007` (Raptor SWA weights)
-   * `heliosli/rsna-orthofoundation-fold0-epoch7-20261004` (Anatomy router)
-3. **Run**:
-   * Commit the clean 7-cell notebook in `scratch/clean_r7_kernel/rsna-knee-quint-ensemble-r7-colab.ipynb`.
-   * Submit the generated `submission.csv` to claim the verified **0.956** score.
+1. **Inference Pipeline (Kaggle Dual T4)**:
+   - Mount: `rsna-knee-abnormality-detection`, `heliosli/rsna-knee-compact-r7cnxfsss`, `nartaa/rsna-knee-publication-swa-weights-20261007`.
+   - Run: [submissions/v12_clean_offline/rsna-knee-quint-ensemble-r7-colab.ipynb](submissions/v12_clean_offline/rsna-knee-quint-ensemble-r7-colab.ipynb).
+   - Generates: `submission.csv` with 0 fallbacks and execution time $< 450$s.
+
+2. **Frontier Training Pipeline (Google Colab Pro A100)**:
+   - Open: [training/engine3_slice_transformer/colab_rsna_knee_super_train.ipynb](training/engine3_slice_transformer/colab_rsna_knee_super_train.ipynb).
+   - Precision: BFloat16 direct backpropagation with `head_lr=2e-4`, `bb_lr=2e-5`, gradient clipping `1.0`.
+   - Packages trained weights directly into Kaggle dataset `cyruspinto/rsna-knee-colab-super-weights`.

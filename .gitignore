@@ -1,6 +1,24 @@
+# Environment & Keys
 .env
 *.env
+
+# Large Raw Competition Data (Keep off Git)
+train.csv
+train_series.csv
+test.csv
+test_series.csv
+sample_submission.csv
+gate_root/
+
+# Archives & Temporary Runs
 *.zip
+*.tar.gz
+results/
+scratch/
+v12_output/
+.planning/
+
+# Python & Checkpoints
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
@@ -8,8 +26,10 @@ __pycache__/
 *.safetensors
 *.bin
 *.log
-results/
 
-# Scratch directory
-scratch/
-
+# Scratch notes
+*.tmp
+Untitled*
+12Untitled*
+1231.txt
+__notebook_source__*
