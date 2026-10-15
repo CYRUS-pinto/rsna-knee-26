@@ -1,5 +1,5 @@
 {
-  "id": "cyruspinto/rsna-knee-engine4-train",
+  "id": "cyruspinto/rsna-knee-engine4-multiplane-train",
   "title": "RSNA Knee Engine4 MultiPlane Train",
   "code_file": "train_engine4_kaggle.py",
   "language": "python",

@@ -174,7 +174,7 @@ class FastMultiPlaneDataset(Dataset):
             idb = np.load(self.idb, allow_pickle=True).astype(str) if self.idb else np.array([])
             all_ids = np.concatenate([ida, idb])
             self.id2row = {u: i for i, u in enumerate(all_ids)}
-            ma = np.load(self.am)
+            ma = np.load(self.am) if self.am else np.ones(va.shape[:2], dtype=np.uint8)
             mb = np.load(self.bm) if self.bm else np.zeros((0,) + ma.shape[1:], dtype=ma.dtype)
             self.masks = np.concatenate([ma, mb], axis=0)
             self.vols = ConcatVols(va, vb)
@@ -231,15 +231,15 @@ def main():
     
     # 1. Locate Datasets
     av = _find('all_vols.npy')
-    bv = _find('all_vols_ext.npy')
-    ida = _find('all_study_uids.npy')
-    idb = _find('all_study_uids_ext.npy')
+    bv = _find('all_vols_ext.npy', 'extra_vols.npy')
+    ida = _find('all_ids.npy', 'all_study_uids.npy')
+    idb = _find('all_ids_ext.npy', 'extra_ids.npy', 'all_study_uids_ext.npy')
     am = _find('all_masks.npy')
-    bm = _find('all_masks_ext.npy')
+    bm = _find('all_masks_ext.npy', 'extra_masks.npy')
     labels_file = _find('SUPER_CONSENSUS_labels.parquet', 'SUPER_CONSENSUS_labels.csv')
     
-    print(f"Files Located:\n  Volumes A: {av}\n  Labels: {labels_file}")
-    assert av is not None and labels_file is not None, "Crucial dataset files missing!"
+    print(f"Files Located:\n  Volumes A: {av}\n  Extra Vols: {bv}\n  IDs A: {ida}\n  Labels: {labels_file}")
+    assert av is not None and ida is not None and labels_file is not None, "Crucial dataset files missing!"
     
     df_labels = pd.read_parquet(labels_file) if labels_file.endswith('.parquet') else pd.read_csv(labels_file)
     uids = df_labels['StudyInstanceUID'].tolist()
