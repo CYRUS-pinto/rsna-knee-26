@@ -4,6 +4,7 @@ RSNA Knee Abnormality Detection - Multi-Plane Engine 3 (Kaggle Cloud Trainer)
 """
 
 import os
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 import sys
 import time
 import math
@@ -102,13 +103,19 @@ class MultiPlaneEngine3(nn.Module):
     def __init__(self, backbone_name='coatnet_rmlp_2_rw_384.sw_in12k_ft_in1k', n=12, drop=0.1):
         super().__init__()
         self.backbone = timm.create_model(backbone_name, pretrained=True, num_classes=0, in_chans=3, global_pool='avg')
+        if hasattr(self.backbone, 'set_grad_checkpointing'):
+            try:
+                self.backbone.set_grad_checkpointing(True)
+                print("  Gradient checkpointing enabled on backbone.")
+            except Exception:
+                pass
         feat_dim = self.backbone.num_features
         self.head = MultiPlaneSliceTransformerHead(F_dim=feat_dim, n=n, num_heads=8, num_layers=2, drop=drop)
         
     def forward(self, x, plane_ids=None):
         B, K, C, H, W = x.shape
         flat_x = x.view(B * K, C, H, W)
-        chunk_size = 16
+        chunk_size = 8
         chunks = [self.backbone(flat_x[i:i + chunk_size]) for i in range(0, flat_x.size(0), chunk_size)]
         feats = torch.cat(chunks, dim=0).view(B, K, -1)
         return self.head(feats, plane_ids=plane_ids)
@@ -250,8 +257,9 @@ def main():
     train_ds = KaggleKneeDataset(train_uids, labels_dict, av, bv, ida, idb, am, bm, k=16, is_train=True)
     val_ds = KaggleKneeDataset(val_uids, labels_dict, av, bv, ida, idb, am, bm, k=24, is_train=False)
     
-    train_loader = DataLoader(train_ds, batch_size=4, shuffle=True, num_workers=4, pin_memory=True, drop_last=True)
-    val_loader = DataLoader(val_ds, batch_size=4, shuffle=False, num_workers=4, pin_memory=True)
+    accum_steps = 2
+    train_loader = DataLoader(train_ds, batch_size=2, shuffle=True, num_workers=2, pin_memory=True, drop_last=True)
+    val_loader = DataLoader(val_ds, batch_size=2, shuffle=False, num_workers=2, pin_memory=True)
     
     model = MultiPlaneEngine3(backbone_name='coatnet_rmlp_2_rw_384.sw_in12k_ft_in1k').to(dev)
     loss_fn = nn.BCEWithLogitsLoss()
@@ -264,7 +272,7 @@ def main():
     ], weight_decay=0.01)
     
     epochs = 6
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=len(train_loader) * epochs, eta_min=1e-6)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=(len(train_loader) // accum_steps) * epochs, eta_min=1e-6)
     scaler = torch.amp.GradScaler('cuda') if hasattr(torch.amp, 'GradScaler') else torch.cuda.amp.GradScaler()
     autocast_dtype = torch.float16
     print("  Precision: Native FP16 with GradScaler (Optimized for T4)")
@@ -274,19 +282,21 @@ def main():
         model.train()
         train_loss = 0.0
         t0 = time.time()
-        for x, plane_ids, y in train_loader:
+        optimizer.zero_grad()
+        for step, (x, plane_ids, y) in enumerate(train_loader):
             x, plane_ids, y = x.to(dev, non_blocking=True), plane_ids.to(dev, non_blocking=True), y.to(dev, non_blocking=True)
-            optimizer.zero_grad()
             with torch.autocast(dev, dtype=autocast_dtype):
                 logits = model(x, plane_ids=plane_ids)
-                loss = loss_fn(logits, y)
+                loss = loss_fn(logits, y) / accum_steps
             scaler.scale(loss).backward()
-            scaler.unscale_(optimizer)
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            scaler.step(optimizer)
-            scaler.update()
-            scheduler.step()
-            train_loss += loss.item()
+            if (step + 1) % accum_steps == 0 or (step + 1) == len(train_loader):
+                scaler.unscale_(optimizer)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                scaler.step(optimizer)
+                scaler.update()
+                optimizer.zero_grad()
+                scheduler.step()
+            train_loss += loss.item() * accum_steps
             
         train_loss /= len(train_loader)
         
