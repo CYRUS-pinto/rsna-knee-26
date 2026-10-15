@@ -1,7 +1,8 @@
-# Submission Version 8: Test-Time Augmentation (TTA) (Public LB: 0.955)
+# Submission Version 8: Test-Time Augmentation (TTA) Experiment
 
 ## Overview
-- **Public LB Score:** **0.955**
-- **Hypothesis:** Horizontal flip test-time augmentation (TTA) improves spatial generalization.
-- **Empirical Result:** Knee anatomy has distinct lateral and medial compartments; horizontal flipping mirrors medial and lateral structures (e.g. Medial Meniscus vs Lateral Meniscus), diluting compartmental precision unless bilateral labels are explicitly swapped.
-- **Takeaway:** TTA must be strictly plane-aware and never horizontally flip coronal/axial slices where medial-lateral orientation is anatomically fixed.
+- **Configuration Tested:** Test-Time Augmentation (Horizontal Slice Flipping).
+- **Hypothesis:** Horizontal flipping may regularize spatial inference across planes.
+- **Empirical Status:** Kernel prepared in `scratch/v8_tta_kernel/`. No distinct submitted LB improvement over the V6 baseline was observed.
+- **Anatomical Consideration:** Knee anatomy has distinct Medial vs Lateral compartments; naive horizontal flipping without compartment label swapping can introduce ambiguity between medial and lateral structures on Coronal/Axial views.
+- **Decision:** TTA was not promoted to the final candidate ensemble to keep inference simple and within the 500s runtime envelope.

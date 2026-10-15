@@ -1,11 +1,13 @@
-# Submission Version 12: Cleaned Offline Baseline (Target LB: 0.956)
+# Submission Version 12: Cleaned Offline Baseline
 
 ## Overview
-- **Status:** **Offline Verified & Cleaned (Submission Locked)**
-- **Forensic Fix Applied:** All 4 heuristic post-processing rules (`+0.15*ACL`, `+0.20*Effusion`, etc.) introduced in V9-V11 have been completely excised.
-- **Blending Protocol:** Pure, mathematically optimal uniform 50/50 percentile rank blending across all 12 targets:
+- **Status:** **Offline Verified Pipeline** (Local notebook prepared with priors removed).
+- **Context on Kaggle vs Local:**
+  - On Kaggle, an earlier running commit titled "V12" was launched with "+ Priors" (Super-Consensus V2 + Priors).
+  - This local directory contains the version where Cell 6 has all heuristic priors excised, restoring pure 50/50 uniform rank blending.
+- **Blending Protocol:** Uniform 50/50 percentile rank blending across all 12 targets:
   $$r = 0.50 \cdot r_{\text{raptor}} + 0.50 \cdot r_{\text{convnext}}$$
 - **Validation Receipts:**
-  - `blend_receipt.json`: Verifies 50/50 weights across all classes, 0 study fallbacks, total run time ~438.5s.
+  - `blend_receipt.json`: 50/50 weights across all classes, 0 study fallbacks, commit time ~438.5s.
   - `submission_receipt.json`: Validates shape `(N, 13)` and monotonicity across all prediction arms.
-- **Rules Compliance:** Submission lock active until user explicitly authorizes live submission.
+- **Decision:** Ready as an unadjusted candidate once the Kaggle running version completes its evaluation.

@@ -9,25 +9,22 @@ Our primary inference pipelines consist of two fundamentally diverse architectur
 1. **Engine 1 (Raptor CoAtNet-384 SWA)**: Global multi-instance vision transformer evaluating 42 temporal 2.5D windows.
 2. **Engine 2 (Heliosli ConvNeXt-S6 R7)**: Dense pure convolutional network with 4 folds at 352x352, fluid volumetry, and dedicated OA extent heads.
 
-In Version 7, we attempted finding-specific asymmetric weighting based on anatomical domain knowledge (e.g. assigning 65% weight to CoAtNet on ligament tears and 70% to ConvNeXt on osteoarthritis). This resulted in an immediate leaderboard regression from **0.956 to 0.955**.
+In Version 7, we tested finding-specific asymmetric weighting based on anatomical domain hypotheses (e.g. assigning 65% weight to CoAtNet on ligament tears and 70% to ConvNeXt on osteoarthritis). Public LB shifted from 0.956 to 0.955 (a 0.001 shift, which is within expected test sampling noise).
 
-## Mathematical Proof of Decision
-Let $r_1$ and $r_2$ denote the empirical percentile ranks from Engine 1 and Engine 2 respectively:
+## Theoretical Rationale
+Let $r_1$ and $r_2$ denote the empirical percentile ranks from Engine 1 and Engine 2:
 $$r_1 = \frac{\text{argsort}(p_1)}{N}, \quad r_2 = \frac{\text{argsort}(p_2)}{N}$$
 
-For any convex linear combination $r(w) = w r_1 + (1 - w) r_2$, the variance of the ensemble rank estimator is:
+For a linear combination $r(w) = w r_1 + (1 - w) r_2$, the variance of the blended score estimator is:
 $$\operatorname{Var}(r(w)) = w^2 \sigma_1^2 + (1 - w)^2 \sigma_2^2 + 2w(1 - w)\operatorname{Cov}(r_1, r_2)$$
 
-Since percentile ranks on uniform distributions have equal variance $\sigma_1^2 = \sigma_2^2 = \sigma^2$:
+Under approximately equal model performance and rank dispersion ($\sigma_1 \approx \sigma_2 = \sigma$):
 $$\operatorname{Var}(r(w)) = \sigma^2 \left[ w^2 + (1 - w)^2 + 2w(1 - w)\rho \right]$$
 
-Differentiating with respect to $w$ and setting to zero:
-$$\frac{d}{dw}\operatorname{Var}(r(w)) = \sigma^2 \left[ 2w - 2(1 - w) + 2(1 - 2w)\rho \right] = 2\sigma^2 (1 - \rho)(2w - 1) = 0$$
-
-Since the correlation between orthogonal models satisfies $\rho < 1$, the unique global minimum variance occurs strictly at:
-$$w^* = 0.50$$
+Setting the derivative to zero yields $w^* = 0.50$.
+While ROC AUC is a pairwise ranking concordance metric rather than linear mean squared error, minimizing rank score variance provides a principled defense against overfitting to small test sets when neither model demonstrably dominates across all classes.
 
 ## Decision
-1. Retain pure, uniform 50/50 percentile rank blending across all 12 classes as the immutable baseline.
-2. Reject class-specific weight heuristic sweeps on the two-model ensemble.
-3. Performance breakthroughs beyond 0.956 require adding a genuine **Engine 3** model family rather than perturbing weights.
+1. Retain pure, uniform 50/50 percentile rank blending across all 12 classes as the default baseline.
+2. Avoid ad-hoc class-by-class weight tuning on small validation samples.
+3. Treat small public score shifts ($\pm 0.001$) as statistical noise rather than conclusive proof of weight sensitivity.
