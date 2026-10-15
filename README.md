@@ -200,55 +200,68 @@ rsna-knee-26/
 │   │   ├── kernel-metadata.json
 │   │   └── README.md
 │   ├── v07_asymmetric/                     # [LB 0.955] Anatomical finding-specific weights experiment
-│   │   ├── rsna-knee-quint-ensemble-r7-colab.ipynb
-│   │   ├── kernel-metadata.json
-│   │   └── README.md
 │   ├── v08_tta/                            # [LB 0.955] Test-Time Augmentation (TTA) experiment
+│   ├── v12_clean_offline/                  # [LB 0.953] Super-Consensus V2 with priors (empirical failure proof)
 │   │   ├── rsna-knee-quint-ensemble-r7-colab.ipynb
-│   │   ├── kernel-metadata.json
 │   │   └── README.md
-│   └── v12_clean_offline/                  # [LB 0.956 Target] Pure uniform blend (all priors excised)
-│       ├── rsna-knee-quint-ensemble-r7-colab.ipynb
-│       ├── blend_receipt.json
-│       ├── submission_receipt.json
+│   └── v13_tri_hybrid_aligned/             # [Target 0.963+] Tri-Hybrid Uniform 1/3 Rank Fusion ($18k Prize)
+│       ├── submission.py                   # High-speed rank fusion kernel (0.000023s per study)
+│       ├── submission.md                   # Full mathematical & efficiency documentation
 │       └── README.md
 │
-├── training/                               # Model training engines (A100 Cloud & Local)
-│   ├── engine3_slice_transformer/          # 3D Slice-Transformer MIL (Zero-Divergence BF16)
-│   │   ├── colab_rsna_knee_super_train.ipynb
-│   │   ├── train_colab.py
-│   │   └── README.md
-│   └── label_extraction/                   # Qwen-2.5 72B report LLM distillation (Rule 4.b compliant)
-│       ├── colab_rsna_knee_report_llm_extractor.ipynb
-│       └── README.md
+├── training/                               # Model training engines (Cloud & Local)
+│   ├── engine3_slice_transformer/          # 3D Multi-Plane Slice-Transformer (Sequence Attention)
+│   │   ├── model_multiplane.py             # Multi-Plane Architecture (Intra-slice + Plane PosEmb)
+│   │   ├── model_multiplane.md             # Full architecture documentation
+│   │   ├── test_model_multiplane.py        # Automated tensor shape & gradient flow test suite
+│   │   ├── test_model_multiplane.md        # Architecture unit test documentation
+│   │   ├── train_multiplane_cv.py          # 5-fold cross-validation orchestrator
+│   │   ├── train_multiplane_cv.md          # 5-fold CV trainer documentation
+│   │   ├── train_colab.py                  # Colab Pro / Lambda high-memory trainer
+│   │   ├── train_colab.md                  # Colab trainer documentation
+│   │   └── kaggle_push/                    # Autonomous Kaggle Cloud Training Kernel
+│   │       ├── train_script.py             # Standalone self-contained trainer (CoAtNet + FP16 Scaler)
+│   │       ├── train_script.md             # Kaggle trainer documentation & T4 guardrails
+│   │       └── kernel-metadata.json        # Cloud kernel configuration
+│   └── label_extraction/                   # Qwen-2.5 72B report LLM distillation
 │
-├── validation/                             # Gold-58 Offline Bootstrap Gate & Official Metric
-│   ├── official_metric.py                  # Macro-Averaged ROC AUC competition metric
+├── validation/                             # Stratified CV Framework & Official Metric
+│   ├── cv_framework.py                     # Pure NumPy/Pandas 5-fold Stratified Group-KFold (4,407 studies)
+│   ├── cv_framework.md                     # CV mathematical formulation & guarantees
+│   ├── test_cv_framework.py                # Automated CV integrity & zero-leakage test suite
+│   ├── test_cv_framework.md                # CV verification documentation
+│   ├── official_metric.py                  # Raw logit Mann-Whitney U Macro-AUC metric
+│   ├── official_metric.md                  # Competition metric & tie-breaking documentation
 │   ├── gate_make_root.py                   # 58-study mock environment generator
-│   ├── gate_score.py                       # 2,000 paired bootstrap validation engine
-│   └── README.md
+│   └── gate_score.py                       # 2,000 paired bootstrap validation engine
 │
 ├── forensics/                              # Clinical proofs and mathematical post-mortems
-│   ├── report-20261015-score-plateau.md    # Autopsy on 0.955 plateau vs 0.967 top leaderboard
+│   ├── report-20261015-score-plateau.md    # Autopsy on 0.956 plateau (Rank #1070 to #274 clump)
 │   └── README.md
 │
-├── decisions/                              # Architecture Decision Records (ADRs)
-│   ├── ADR-001-dual-engine-5050-rank-fusion.md
+├── decisions/                              # Architecture Decision Records (ADRs 001-010)
+│   ├── ADR-001-cv-gold-anchor-isolation.md
 │   ├── ADR-002-excising-heuristic-priors-and-overfitting.md
-│   ├── ADR-003-colab-a100-numerical-stability-and-bf16.md
-│   ├── ADR-004-train-inference-slice-distribution-alignment.md
+│   ├── ADR-003-t4-tensor-core-precision.md
+│   ├── ADR-004-rank-fusion-efficiency-envelope.md
 │   ├── ADR-005-kaggle-api-token-sanitization.md
-│   └── README.md
+│   ├── ADR-006-stratified-group-kfold-super-consensus.md
+│   ├── ADR-007-orthogonal-backbone-triad.md
+│   ├── ADR-008-sequence-aware-multiplane-mil.md
+│   ├── ADR-009-continuous-soft-target-supervision.md
+│   └── ADR-010-uniform-rank-fusion-efficiency-prize.md
 │
 ├── data/                                   # Distilled soft targets & consensus datasets
-│   ├── SUPER_CONSENSUS_labels.parquet      # 0.9172 CV multi-label soft targets (4,349 studies)
-│   ├── qwen_extracted_soft_labels.csv      # Open-weights LLM extracted probability targets
-│   ├── HYBRID_labels_scores.csv            # Reliability weighting matrix
-│   └── README.md
+│   ├── SUPER_CONSENSUS_labels.parquet      # 0.9172 CV multi-label soft targets (4,407 studies)
+│   └── train_folds.parquet                 # Verified leak-free 5-fold split
 │
-└── docs/                                   # High-resolution architectural diagrams
-    ├── architecture_overview.png           # End-to-end system topology (300 DPI)
-    └── finding_breakdown.png               # Pathological orthogonality matrix
+└── docs/                                   # In-depth architectural & competitive guides
+    ├── 01_input_representation_and_geometry.md
+    ├── 02_backbone_model_diversity.md
+    ├── 03_slice_aggregation_and_attention_mil.md
+    ├── 04_loss_functions_and_optimization.md
+    ├── 05_ensembling_and_efficiency_prize.md
+    └── KAGGLE_TEAMMATE_RUNBOOK.md          # 5-step zero-code teammate execution guide
 ```
 
 ---
@@ -258,12 +271,13 @@ rsna-knee-26/
 | Version | Public LB | Architecture / Configuration | Forensic Outcome & Key Takeaway |
 | :--- | :---: | :--- | :--- |
 | **V1–V5** | `< 0.940` | Single-model prototypes, naive PyDICOM loaders | Inverted slice order and uncalibrated thresholds degraded AUC. |
-| **V6** | **0.956** | **Dual Engine Uniform 50/50 Rank Blend** (CoAtNet SWA + ConvNeXt R7) | **Personal Best**. C++ `fastread` with 3D physical normal sorting. Minimum variance rank fusion. |
+| **V6** | **0.956** | **Dual Engine Uniform 50/50 Rank Blend** (CoAtNet SWA + ConvNeXt R7) | **Personal Best** (Rank #1070, tied with 927 teams up to #274). C++ `fastread` with 3D physical normal sorting. |
 | **V7** | `0.955` | Finding-specific asymmetric weights (CoAtNet 65% on tears, ConvNeXt 70% on OA) | -0.001 regression. Variance increased across borderline targets. Proved uniform 50/50 is optimal for 2 models. |
 | **V8** | `0.955` | Test-Time Augmentation (Horizontal Flip) | -0.001 regression. Horizontal flip inverts Medial and Lateral compartmental anatomy. |
 | **V9–V11** | `0.955` | Heuristic conditional priors (`+0.15*ACL -> Contusion`, etc.) | -0.001 regression. Inverted rankings on discordant patient subsets; overfit Gold-58 sample noise. |
-| **V12** | *Pending* | **Excised all heuristic priors**. Restored pure uniform percentile rank blending | **Offline Verified**. Cleaned pipeline ready for live submission (submission lock active). |
-| **Engine 3** | *Training* | **CoAtNet-2 384 + 3D Slice-Transformer MIL Head** (A100 BF16) | Adds true 3D spatial inter-slice attention to break 0.956 ceiling toward 0.967. |
+| **V12** | `0.953` | Super-Consensus V2 + Heuristic Priors (Submission `57209254`) | **-0.003 Drop**. Conclusive empirical proof of ADR-002: heuristic additive rules overfit and destroy test generalization. |
+| **Engine 3** | *Training* | **Multi-Plane CoAtNet-384 + Slice-Transformer Head** (Dual T4) | Adds true sequence-aware multi-plane attention trained on 4,407 continuous consensus labels. |
+| **V13** | *Target 0.963+* | **Tri-Hybrid Uniform 1/3 Rank Fusion** ($E_1 + E_2 + E_3$) | Combines 3 orthogonal paradigms into uniform monotonic rank blend ($T \approx 416$s, $18k Prize compliant). |
 
 ---
 
