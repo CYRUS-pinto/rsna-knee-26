@@ -99,7 +99,7 @@ class MultiPlaneSliceTransformerHead(nn.Module):
         return logits
 
 class MultiPlaneEngine3(nn.Module):
-    def __init__(self, backbone_name='convnext_base.fb_in22k_ft_in1k_384', n=12, drop=0.1):
+    def __init__(self, backbone_name='coatnet_rmlp_2_rw_384.sw_in12k_ft_in1k', n=12, drop=0.1):
         super().__init__()
         self.backbone = timm.create_model(backbone_name, pretrained=True, num_classes=0, in_chans=3, global_pool='avg')
         feat_dim = self.backbone.num_features
@@ -253,7 +253,7 @@ def main():
     train_loader = DataLoader(train_ds, batch_size=4, shuffle=True, num_workers=4, pin_memory=True, drop_last=True)
     val_loader = DataLoader(val_ds, batch_size=4, shuffle=False, num_workers=4, pin_memory=True)
     
-    model = MultiPlaneEngine3(backbone_name='convnext_base.fb_in22k_ft_in1k_384').to(dev)
+    model = MultiPlaneEngine3(backbone_name='coatnet_rmlp_2_rw_384.sw_in12k_ft_in1k').to(dev)
     loss_fn = nn.BCEWithLogitsLoss()
     
     bb_params = [p for n, p in model.named_parameters() if n.startswith('backbone.') and p.requires_grad]
@@ -265,8 +265,9 @@ def main():
     
     epochs = 6
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=len(train_loader) * epochs, eta_min=1e-6)
-    use_bf16 = torch.cuda.is_available() and torch.cuda.is_bf16_supported()
-    autocast_dtype = torch.bfloat16 if use_bf16 else torch.float16
+    scaler = torch.amp.GradScaler('cuda') if hasattr(torch.amp, 'GradScaler') else torch.cuda.amp.GradScaler()
+    autocast_dtype = torch.float16
+    print("  Precision: Native FP16 with GradScaler (Optimized for T4)")
     
     best_auc = 0.0
     for ep in range(epochs):
@@ -279,9 +280,11 @@ def main():
             with torch.autocast(dev, dtype=autocast_dtype):
                 logits = model(x, plane_ids=plane_ids)
                 loss = loss_fn(logits, y)
-            loss.backward()
+            scaler.scale(loss).backward()
+            scaler.unscale_(optimizer)
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            optimizer.step()
+            scaler.step(optimizer)
+            scaler.update()
             scheduler.step()
             train_loss += loss.item()
             
