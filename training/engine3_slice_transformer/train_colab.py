@@ -1,8 +1,13 @@
 """
-RSNA Knee Abnormality Detection — Frontier 3D Slice-Transformer MIL Trainer
+RSNA Knee Abnormality Detection — Frontier 3D Slice-Transformer & MIL Trainer
 Platform: Google Colab Pro / Lambda / Cloud (A100 / L4 GPU)
-Architecture: CoAtNet-2 384 Backbone + 3D Slice-Transformer Attention Head + Asymmetric Loss (ASL)
-Stability Guard: Zero-Divergence BF16 direct backprop + 1.0 gradient clipping + 2e-4 head LR
+Supported Heads: 'mil' (Proven baseline) | 'transformer' (3D Slice-Transformer)
+Supported Losses: 'bce' (Rock-solid BCEWithLogits) | 'asl' (Asymmetric Loss)
+Stability Guardrails:
+  1. Direct BF16 Backprop (bypasses GradScaler to prevent NaN overflow)
+  2. Raw logit evaluation in ROC AUC to prevent sigmoid saturation ties
+  3. Automatic early abort if loss blows up (> 5.0 or NaN)
+  4. SWA over stable final epochs
 """
 
 import os, sys, time, json, math, random, argparse
@@ -107,7 +112,7 @@ class StudyWindows(Dataset):
             reps = count // len(cs) + 1
             pool = (cs * reps)
             random.shuffle(pool)
-            return sorted(pool[:count]) # Monotonic Z-axis order for spatial positional encoding
+            return sorted(pool[:count])
         idx = np.linspace(0, len(cs) - 1, count).round().astype(int)
         return sorted([cs[i] for i in idx])
 
@@ -185,7 +190,7 @@ class SliceTransformerHead(nn.Module):
         return logits
 
 class RaptorClassifier(nn.Module):
-    def __init__(self, backbone, F_dim=384, n=12, drop=0.2, head_type='transformer'):
+    def __init__(self, backbone, F_dim=384, n=12, drop=0.2, head_type='mil'):
         super().__init__()
         self.backbone = backbone
         self.head_type = head_type
@@ -224,14 +229,14 @@ def main():
     ap.add_argument('--k', type=int, default=16, help='Number of slices to sample per study during training')
     ap.add_argument('--k_eval', type=int, default=24, help='Number of slices during evaluation')
     ap.add_argument('--epochs', type=int, default=8)
-    ap.add_argument('--bs', type=int, default=4, help='Batch size (bs=4 with grad accum=2 runs smooth on A100)')
-    ap.add_argument('--accum', type=int, default=2, help='Gradient accumulation steps (effective bs = bs * accum)')
-    ap.add_argument('--bb_lr', type=float, default=2e-5)
-    ap.add_argument('--head_lr', type=float, default=2e-4)
-    ap.add_argument('--head', default='transformer', choices=['mil', 'transformer'], help='Head architecture: mil or transformer')
-    ap.add_argument('--loss', default='asl', choices=['bce', 'asl'], help='Loss: bce or asl')
-    ap.add_argument('--workers', type=int, default=4)
-    ap.add_argument('--tag', default='colab_super_coatnet_transformer_0925')
+    ap.add_argument('--bs', type=int, default=8, help='Batch size (bs=8 fits comfortably on A100 80GB)')
+    ap.add_argument('--accum', type=int, default=1, help='Gradient accumulation steps')
+    ap.add_argument('--bb_lr', type=float, default=3e-5)
+    ap.add_argument('--head_lr', type=float, default=3e-4)
+    ap.add_argument('--head', default='mil', choices=['mil', 'transformer'], help='Head architecture: mil (proven baseline) or transformer')
+    ap.add_argument('--loss', default='bce', choices=['bce', 'asl'], help='Loss: bce (stable default) or asl')
+    ap.add_argument('--workers', type=int, default=8)
+    ap.add_argument('--tag', default='colab_super_coatnet_mil_bce')
     a = ap.parse_args()
 
     dev = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -316,22 +321,24 @@ def main():
     @torch.no_grad()
     def evaluate():
         model.eval()
-        P, Y = [], []
+        L, Y = [], []
         for x, y in vl:
             with torch.autocast(dev, dtype=autocast_dtype):
-                o = torch.sigmoid(model(x.to(dev)).float())
-            P.append(o.cpu().numpy())
+                # Score raw logits directly to prevent sigmoid numerical saturation ties
+                logits = model(x.to(dev)).float()
+            L.append(logits.cpu().numpy())
             Y.append(y.numpy())
-        P, Y = np.concatenate(P), np.concatenate(Y)
+        L, Y = np.concatenate(L), np.concatenate(Y)
         aucs = {}
         for j, name in enumerate(LAB):
             if len(set(Y[:, j].astype(int))) > 1:
-                aucs[name] = float(roc_auc_score(Y[:, j], P[:, j]))
-        return float(np.mean(list(aucs.values()))), aucs, P, Y
+                aucs[name] = float(roc_auc_score(Y[:, j], L[:, j]))
+        mean_auc = float(np.mean(list(aucs.values())))
+        print(f'   [eval stats] Logits Mean: {L.mean():.3f} | Std: {L.std():.3f} | Min: {L.min():.3f} | Max: {L.max():.3f}')
+        return mean_auc, aucs, L, Y
 
     best_auc = 0.0
-    best_state = None
-    top_states = []
+    all_epoch_states = []
     t0 = time.time()
     for ep in range(a.epochs):
         model.train()
@@ -343,6 +350,11 @@ def main():
                 logits = model(x)
                 loss = lossf(logits.float(), y) / a.accum
             
+            raw_loss_val = loss.item() * a.accum
+            if not math.isfinite(raw_loss_val) or raw_loss_val > 5.0:
+                print(f'\n[CRITICAL ERROR] Divergence detected at Epoch {ep+1}, Step {step}: Loss={raw_loss_val:.4f}. Aborting execution!')
+                sys.exit(1)
+
             if use_scaler:
                 scaler.scale(loss).backward()
                 if (step + 1) % a.accum == 0 or (step + 1) == len(tl):
@@ -360,14 +372,20 @@ def main():
                     opt.zero_grad()
                     sched.step()
                     
-            tot += loss.item() * a.accum
-        au, aucs, P, Y = evaluate()
+            tot += raw_loss_val
+            
+        au, aucs, L, Y = evaluate()
         print(f'Epoch {ep+1:2d}/{a.epochs} | Loss: {tot/len(tl):.4f} | Gold Macro-AUC: {au:.4f} (Best: {max(best_auc, au):.4f}) | {time.time()-t0:.0f}s', flush=True)
+        
+        # Guard against sudden loss blow-up across epochs
+        if ep > 0 and (tot / len(tl)) > 2.0 * last_loss:
+            print(f'\n[CRITICAL WARNING] Loss doubled from previous epoch ({last_loss:.4f} -> {tot/len(tl):.4f}). Halting to protect compute credits!')
+            break
+        last_loss = tot / len(tl)
+
         state_copy = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
-        top_states.append({'epoch': ep+1, 'auc': au, 'state': state_copy})
-        top_states.sort(key=lambda x: -x['auc'])
-        if len(top_states) > 3:
-            top_states.pop()
+        all_epoch_states.append({'epoch': ep+1, 'auc': au, 'state': state_copy})
+        
         if au > best_auc:
             best_auc = au
             torch.save({
@@ -376,14 +394,15 @@ def main():
             }, f'{a.tag}_best.pt')
             print(f'   -> Saved new best checkpoint ({au:.4f})', flush=True)
 
-    # Stochastic Weight Averaging (SWA) over top 3 epochs
-    if len(top_states) > 1:
+    # Stochastic Weight Averaging (SWA) over the LAST 3 epochs (Standard SWA principle)
+    if len(all_epoch_states) >= 2:
+        swa_candidates = all_epoch_states[-3:]
         avg_sd = {}
-        for k in top_states[0]['state']:
-            avg_sd[k] = sum(s['state'][k].double() for s in top_states).div(len(top_states)).to(top_states[0]['state'][k].dtype)
+        for k in swa_candidates[0]['state']:
+            avg_sd[k] = sum(s['state'][k].double() for s in swa_candidates).div(len(swa_candidates)).to(swa_candidates[0]['state'][k].dtype)
         model.load_state_dict(avg_sd)
         swa_auc, swa_aucs, _, _ = evaluate()
-        print(f'\nSWA Macro-AUC: {swa_auc:.4f} (across epochs {[s["epoch"] for s in top_states]})', flush=True)
+        print(f'\nSWA Macro-AUC: {swa_auc:.4f} (across final epochs {[s["epoch"] for s in swa_candidates]})', flush=True)
         torch.save({
             'model': avg_sd, 'gold_auc': swa_auc, 'aucs': swa_aucs,
             'arch': a.arch, 'res': a.res, 'lab': LAB, 'head': a.head, 'k': a.k

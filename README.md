@@ -232,6 +232,14 @@ rsna-knee-26/
 │   ├── report-20261015-score-plateau.md    # Autopsy on 0.955 plateau vs 0.967 top leaderboard
 │   └── README.md
 │
+├── decisions/                              # Architecture Decision Records (ADRs)
+│   ├── ADR-001-dual-engine-5050-rank-fusion.md
+│   ├── ADR-002-excising-heuristic-priors-and-overfitting.md
+│   ├── ADR-003-colab-a100-numerical-stability-and-bf16.md
+│   ├── ADR-004-train-inference-slice-distribution-alignment.md
+│   ├── ADR-005-kaggle-api-token-sanitization.md
+│   └── README.md
+│
 ├── data/                                   # Distilled soft targets & consensus datasets
 │   ├── SUPER_CONSENSUS_labels.parquet      # 0.9172 CV multi-label soft targets (4,349 studies)
 │   ├── qwen_extracted_soft_labels.csv      # Open-weights LLM extracted probability targets
