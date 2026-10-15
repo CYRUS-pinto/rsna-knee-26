@@ -126,12 +126,22 @@ class ConcatVols:
     def shape(self):
         return (self.n_a + len(self.b),) + self.a.shape[1:]
 
+def _find(*names, roots=['/kaggle/input', '/content', '.']):
+    for r in roots:
+        if os.path.exists(r):
+            for root, _, files in os.walk(r):
+                for n in names:
+                    if n in files:
+                        return os.path.join(root, n)
+    return None
+
 class KaggleKneeDataset(Dataset):
-    def __init__(self, uids, labels_dict, corpus_dir1, corpus_dir2, k=16, res=384, is_train=True):
+    def __init__(self, uids, labels_dict, av, bv, ida, idb, am, bm, k=16, res=384, is_train=True):
         self.uids = uids
         self.labels_dict = labels_dict
-        self.c1 = corpus_dir1
-        self.c2 = corpus_dir2
+        self.av, self.bv = av, bv
+        self.ida, self.idb = ida, idb
+        self.am, self.bm = am, bm
         self.k = k
         self.res = res
         self.is_train = is_train
@@ -141,14 +151,14 @@ class KaggleKneeDataset(Dataset):
 
     def _init(self):
         if self.vols is None:
-            va = np.load(os.path.join(self.c1, 'all_vols.npy'), mmap_mode='r')
-            vb = np.load(os.path.join(self.c2, 'extra_vols.npy'), mmap_mode='r')
-            ida = np.load(os.path.join(self.c1, 'all_ids.npy'), allow_pickle=True).astype(str)
-            idb = np.load(os.path.join(self.c2, 'extra_ids.npy'), allow_pickle=True).astype(str)
+            va = np.load(self.av, mmap_mode='r')
+            vb = np.load(self.bv, mmap_mode='r') if self.bv else np.zeros((0,) + va.shape[1:], dtype=va.dtype)
+            ida = np.load(self.ida, allow_pickle=True).astype(str)
+            idb = np.load(self.idb, allow_pickle=True).astype(str) if self.idb else np.array([])
             all_ids = np.concatenate([ida, idb])
             self.id2row = {u: i for i, u in enumerate(all_ids)}
-            ma = np.load(os.path.join(self.c1, 'all_masks.npy'))
-            mb = np.load(os.path.join(self.c2, 'extra_masks.npy'))
+            ma = np.load(self.am)
+            mb = np.load(self.bm) if self.bm else np.zeros((0,) + ma.shape[1:], dtype=ma.dtype)
             self.masks = np.concatenate([ma, mb], axis=0)
             self.vols = ConcatVols(va, vb)
 
@@ -193,19 +203,26 @@ def main():
     dev = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f"=== Multi-Plane Engine 3 Training on {dev} ===")
     
-    # Paths
-    c1 = '/kaggle/input/knee-raptor-corpus'
-    c2 = '/kaggle/input/knee-raptor-corpus-ext'
-    lab_path = '/kaggle/input/rsna-knee-super-consensus-labels-0916/SUPER_CONSENSUS_labels.parquet'
-    gold_path = '/kaggle/input/rsna-knee-abnormality-detection/train.csv'
+    # Dynamic file discovery across all Kaggle input mounts
+    av = _find('all_vols.npy')
+    bv = _find('extra_vols.npy')
+    ida = _find('all_ids.npy')
+    idb = _find('extra_ids.npy')
+    am = _find('all_masks.npy')
+    bm = _find('extra_masks.npy')
+    lab_path = _find('SUPER_CONSENSUS_labels.parquet', 'SUPER_CONSENSUS_labels.csv', 'labels_llm_soft.parquet')
+    gold_path = _find('train.csv')
     
-    if not os.path.exists(c1):
-        print("Fallback to local paths...")
-        c1, c2 = '/content/corpus', '/content/corpus'
-        lab_path = 'data/SUPER_CONSENSUS_labels.parquet'
-        gold_path = 'train.csv'
+    print(f"Discovered Paths:")
+    print(f"  all_vols: {av}")
+    print(f"  extra_vols: {bv}")
+    print(f"  labels: {lab_path}")
+    print(f"  train.csv: {gold_path}")
+    
+    if not av or not lab_path or not gold_path:
+        raise FileNotFoundError(f"Missing essential inputs: av={av}, lab={lab_path}, gold={gold_path}")
         
-    df_super = pd.read_parquet(lab_path)
+    df_super = pd.read_parquet(lab_path) if lab_path.endswith('.parquet') else pd.read_csv(lab_path)
     df_gold = pd.read_csv(gold_path)
     gold_studies = set(df_gold[df_gold[LABELS].notna().all(axis=1)]['StudyInstanceUID'].astype(str))
     df_super['StudyInstanceUID'] = df_super['StudyInstanceUID'].astype(str)
@@ -229,8 +246,8 @@ def main():
     
     print(f"Fold {target_fold}: Train={len(train_uids)} | Val={len(val_uids)}")
     
-    train_ds = KaggleKneeDataset(train_uids, labels_dict, c1, c2, k=16, is_train=True)
-    val_ds = KaggleKneeDataset(val_uids, labels_dict, c1, c2, k=24, is_train=False)
+    train_ds = KaggleKneeDataset(train_uids, labels_dict, av, bv, ida, idb, am, bm, k=16, is_train=True)
+    val_ds = KaggleKneeDataset(val_uids, labels_dict, av, bv, ida, idb, am, bm, k=24, is_train=False)
     
     train_loader = DataLoader(train_ds, batch_size=4, shuffle=True, num_workers=4, pin_memory=True, drop_last=True)
     val_loader = DataLoader(val_ds, batch_size=4, shuffle=False, num_workers=4, pin_memory=True)
