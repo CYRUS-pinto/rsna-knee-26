@@ -292,10 +292,13 @@ def main():
             if (step + 1) % accum_steps == 0 or (step + 1) == len(train_loader):
                 scaler.unscale_(optimizer)
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                scale_before = scaler.get_scale()
                 scaler.step(optimizer)
                 scaler.update()
+                scale_after = scaler.get_scale()
                 optimizer.zero_grad()
-                scheduler.step()
+                if scale_before <= scale_after:
+                    scheduler.step()
             train_loss += loss.item() * accum_steps
             
         train_loss /= len(train_loader)

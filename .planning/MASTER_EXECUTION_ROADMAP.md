@@ -47,8 +47,15 @@ gantt
 - [ ] Checkpoint artifact extraction: `/kaggle/working/engine3_multiplane_fold0_best.pth`.
 
 ### Milestone 3: Local Gate & Final V13 Submission [PENDING TRAINING]
-- [ ] Run `validation/gate_score.py` to evaluate fold 0 out-of-fold predictions against ground truth.
+- [ ] Run `tools/gate_score.py` to evaluate fold 0 out-of-fold predictions against ground truth.
+- [ ] Implement ADR-013 Column-Wise Specialist Rank Routing in `submissions/v13_tri_hybrid_aligned/`:
+  - 4 Focal Columns (`ACL`, `MCL`, `Medial Meniscus`, `Lateral Meniscus`): 75% weighted to CoAtNet-384 Raptor & Multi-Plane Slice-Transformer.
+  - 8 Systemic Columns (`Medial OA`, `Lateral OA`, `PF OA`, `Effusion`, `Synovitis`, `Baker's`, `Contusion`, `Fracture`): 75% weighted to multi-scale ConvNeXt-S6 R7.
 - [ ] Pack weights into Kaggle dataset `cyruspinto/rsna-knee-engine3-multiplane-weights`.
-- [ ] Build offline Kaggle submission notebook with the 3 orthogonal engines.
-- [ ] Verify execution time strictly $\le 450$s.
+- [ ] Verify total test inference latency strictly $\le 450$s ($18,000 Efficiency Prize compliant).
 - [ ] Submit to Kaggle leaderboard as Final Selection 2.
+
+### Milestone 4: Next-Gen Retraining with Bayesian Pseudo-Labels (Post-V13)
+- [ ] Generate out-of-fold predictions $\hat{\mathbf{Y}}_{\text{vis}}$ across all 4,349 unannotated studies.
+- [ ] Compute Bayesian harmonized pseudo-labels $\mathbf{Y}_{\text{harmonized}}$ with conditioned Synovitis priors ($\Pr(\text{Synovitis} \mid \text{Effusion}, \text{Baker's})$).
+- [ ] Train second-generation student models incorporating 3D patient-coordinate laterality rectification and anatomical mirroring.
