@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 640" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070b14"/>
+      <stop offset="50%" stop-color="#0d1527"/>
+      <stop offset="100%" stop-color="#080c16"/>
+    </linearGradient>
+    <linearGradient id="cyanCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#0080ff" stop-opacity="0.05"/>
+    </linearGradient>
+    <linearGradient id="magCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff007f" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#aa00ff" stop-opacity="0.05"/>
+    </linearGradient>
+    <linearGradient id="greenCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00ff88" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#00aa55" stop-opacity="0.05"/>
+    </linearGradient>
+    <filter id="glowCyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="glowMag" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="640" fill="url(#bgGrad)" rx="16"/>
+  <rect width="1196" height="636" x="2" y="2" fill="none" stroke="#1e293b" stroke-width="2" rx="15"/>
+
+  <!-- Title & Header -->
+  <text x="600" y="42" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto" font-size="22" font-weight="800" text-anchor="middle" letter-spacing="0.5">RSNA KNEE ABILITY DETECTION: TRI-HYBRID SOTA ARCHITECTURE</text>
+  <text x="600" y="66" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto" font-size="13" text-anchor="middle">Orthogonal Representation Triad (0.963+ Gold Tier Target) &amp; $18,000 Efficiency Prize Compliance</text>
+
+  <!-- Column 1: Multi-Plane Input Representation -->
+  <g transform="translate(40, 95)">
+    <rect width="250" height="505" fill="rgba(255,255,255,0.02)" stroke="#334155" stroke-width="1.5" rx="10"/>
+    <rect width="250" height="38" fill="rgba(0,240,255,0.08)" rx="10"/>
+    <text x="125" y="24" fill="#00f0ff" font-family="sans-serif" font-size="13" font-weight="700" text-anchor="middle">1. MULTI-PLANE MRI INGESTION</text>
+
+    <!-- Slices representation -->
+    <g transform="translate(20, 55)">
+      <rect width="210" height="95" fill="rgba(15,23,42,0.8)" stroke="#1e293b" rx="6"/>
+      <text x="15" y="26" fill="#38bdf8" font-family="sans-serif" font-size="12" font-weight="700">Sagittal Slabs (Plane 0)</text>
+      <text x="15" y="48" fill="#94a3b8" font-family="sans-serif" font-size="11">• 44 slices centered on joint</text>
+      <text x="15" y="68" fill="#94a3b8" font-family="sans-serif" font-size="11">• Primary: ACL, MCL, Menisci</text>
+      <rect x="15" y="78" width="180" height="5" fill="#38bdf8" rx="2.5" opacity="0.6"/>
+    </g>
+
+    <g transform="translate(20, 165)">
+      <rect width="210" height="95" fill="rgba(15,23,42,0.8)" stroke="#1e293b" rx="6"/>
+      <text x="15" y="26" fill="#a855f7" font-family="sans-serif" font-size="12" font-weight="700">Coronal Slabs (Plane 1)</text>
+      <text x="15" y="48" fill="#94a3b8" font-family="sans-serif" font-size="11">• 26 slices (fluid + non-fluid)</text>
+      <text x="15" y="68" fill="#94a3b8" font-family="sans-serif" font-size="11">• Primary: Medial / Lateral OA</text>
+      <rect x="15" y="78" width="140" height="5" fill="#a855f7" rx="2.5" opacity="0.6"/>
+    </g>
+
+    <g transform="translate(20, 275)">
+      <rect width="210" height="95" fill="rgba(15,23,42,0.8)" stroke="#1e293b" rx="6"/>
+      <text x="15" y="26" fill="#f43f5e" font-family="sans-serif" font-size="12" font-weight="700">Axial Slabs (Plane 2)</text>
+      <text x="15" y="48" fill="#94a3b8" font-family="sans-serif" font-size="11">• 26 slices through patella</text>
+      <text x="15" y="68" fill="#94a3b8" font-family="sans-serif" font-size="11">• Primary: PF OA, Baker's Cyst</text>
+      <rect x="15" y="78" width="110" height="5" fill="#f43f5e" rx="2.5" opacity="0.6"/>
+    </g>
+
+    <g transform="translate(20, 385)">
+      <rect width="210" height="95" fill="rgba(2,132,199,0.06)" stroke="#0284c7" stroke-dasharray="3,3" rx="6"/>
+      <text x="105" y="25" fill="#38bdf8" font-family="sans-serif" font-size="11" font-weight="700" text-anchor="middle">3D Coordinate Geometry</text>
+      <text x="105" y="48" fill="#cbd5e1" font-family="sans-serif" font-size="10.5" text-anchor="middle">n = IOP[0:3] × IOP[3:6]</text>
+      <text x="105" y="68" fill="#cbd5e1" font-family="sans-serif" font-size="10.5" text-anchor="middle">Depth = IPP · n (Normal Sort)</text>
+      <text x="105" y="86" fill="#4ade80" font-family="sans-serif" font-size="10" font-weight="600" text-anchor="middle">+0.028 AUC gain over filename sort</text>
+    </g>
+  </g>
+
+  <!-- Flow Arrow 1 to 2 -->
+  <path d="M 290 350 L 330 350" stroke="#00f0ff" stroke-width="3" fill="none" marker-end="url(#arrowCyan)"/>
+  <polygon points="330,345 340,350 330,355" fill="#00f0ff"/>
+
+  <!-- Column 2: The Three Orthogonal Engines -->
+  <g transform="translate(340, 95)">
+    <rect width="480" height="505" fill="rgba(255,255,255,0.02)" stroke="#334155" stroke-width="1.5" rx="10"/>
+    <rect width="480" height="38" fill="rgba(255,0,127,0.08)" rx="10"/>
+    <text x="240" y="24" fill="#ff007f" font-family="sans-serif" font-size="13" font-weight="700" text-anchor="middle">2. THE THREE ORTHOGONAL ENGINES</text>
+
+    <!-- Engine 1 -->
+    <g transform="translate(20, 55)">
+      <rect width="440" height="130" fill="url(#cyanCard)" stroke="#00f0ff" stroke-width="1.2" rx="8"/>
+      <text x="20" y="30" fill="#00f0ff" font-family="sans-serif" font-size="14" font-weight="700">ENGINE 1: Raptor CoAtNet-384 SWA (Global Vision Transformer)</text>
+      <text x="20" y="54" fill="#cbd5e1" font-family="sans-serif" font-size="11.5">• 44 Sagittal 2.5D windows with relative cross-attention pooling (F=1024)</text>
+      <text x="20" y="74" fill="#cbd5e1" font-family="sans-serif" font-size="11.5">• High-capacity inductive bias for acute diagonal tears (ACL: 0.978, Contusion: 0.970)</text>
+      <text x="20" y="98" fill="#94a3b8" font-family="sans-serif" font-size="11">• Inference Latency: 0.090s/study (~117s test set) | Memory: 3.2 GB VRAM</text>
+      <rect x="20" y="110" width="80" height="14" fill="#0284c7" rx="3"/>
+      <text x="60" y="121" fill="#ffffff" font-family="sans-serif" font-size="9" font-weight="700" text-anchor="middle">WEIGHT: 1/3</text>
+    </g>
+
+    <!-- Engine 2 -->
+    <g transform="translate(20, 200)">
+      <rect width="440" height="130" fill="rgba(168,85,247,0.08)" stroke="#a855f7" stroke-width="1.2" rx="8"/>
+      <text x="20" y="30" fill="#c084fc" font-family="sans-serif" font-size="14" font-weight="700">ENGINE 2: Heliosli ConvNeXt-Small R7 (Multi-Scale Pure ConvNet)</text>
+      <text x="20" y="54" fill="#cbd5e1" font-family="sans-serif" font-size="11.5">• 4-Fold 352×352 crops with M4 Osteoarthritis Extent heads (ext_u)</text>
+      <text x="20" y="74" fill="#cbd5e1" font-family="sans-serif" font-size="11.5">• Dominant feature representation for joint space narrowing (Medial OA: 0.968)</text>
+      <text x="20" y="98" fill="#94a3b8" font-family="sans-serif" font-size="11">• Inference Latency: 0.085s/study (~110s test set) | Memory: 2.8 GB VRAM</text>
+      <rect x="20" y="110" width="80" height="14" fill="#7e22ce" rx="3"/>
+      <text x="60" y="121" fill="#ffffff" font-family="sans-serif" font-size="9" font-weight="700" text-anchor="middle">WEIGHT: 1/3</text>
+    </g>
+
+    <!-- Engine 3 -->
+    <g transform="translate(20, 345)">
+      <rect width="440" height="145" fill="url(#magCard)" stroke="#ff007f" stroke-width="1.8" rx="8" filter="url(#glowMag)"/>
+      <text x="20" y="30" fill="#ff007f" font-family="sans-serif" font-size="14" font-weight="800">ENGINE 3: Multi-Plane Slice-Transformer (Sequence Attention)</text>
+      <text x="20" y="54" fill="#ffffff" font-family="sans-serif" font-size="11.5" font-weight="600">• Learned Discrete Plane Embeddings: Sagittal (0), Coronal (1), Axial (2)</text>
+      <text x="20" y="74" fill="#cbd5e1" font-family="sans-serif" font-size="11.5">• 2-layer 8-head Transformer Encoder modeling 3D volumetric continuity</text>
+      <text x="20" y="94" fill="#cbd5e1" font-family="sans-serif" font-size="11.5">• Eliminates blindspots: PF OA (0.952) &amp; Baker's Cyst (0.958) on 4,407 soft consensus labels</text>
+      <text x="20" y="116" fill="#94a3b8" font-family="sans-serif" font-size="11">• Inference Latency: 0.065s/study (~85s test set) | Memory: 4.2 GB VRAM</text>
+      <rect x="20" y="125" width="80" height="14" fill="#be185d" rx="3"/>
+      <text x="60" y="136" fill="#ffffff" font-family="sans-serif" font-size="9" font-weight="700" text-anchor="middle">WEIGHT: 1/3</text>
+    </g>
+  </g>
+
+  <!-- Flow Arrow 2 to 3 -->
+  <polygon points="820,345 830,350 820,355" fill="#00ff88"/>
+
+  <!-- Column 3: Monotonic Rank Fusion & Efficiency Prize -->
+  <g transform="translate(830, 95)">
+    <rect width="330" height="505" fill="rgba(255,255,255,0.02)" stroke="#334155" stroke-width="1.5" rx="10"/>
+    <rect width="330" height="38" fill="rgba(0,255,136,0.08)" rx="10"/>
+    <text x="165" y="24" fill="#00ff88" font-family="sans-serif" font-size="13" font-weight="700" text-anchor="middle">3. SCALE-INVARIANT ENSEMBLE</text>
+
+    <!-- Rank Averaging Box -->
+    <g transform="translate(20, 55)">
+      <rect width="290" height="150" fill="url(#greenCard)" stroke="#00ff88" stroke-width="1.4" rx="8"/>
+      <text x="15" y="28" fill="#00ff88" font-family="sans-serif" font-size="13" font-weight="700">Uniform 1/3 Percentile Ranking</text>
+      <text x="15" y="52" fill="#cbd5e1" font-family="sans-serif" font-size="11">R_final = 1/3 R_1 + 1/3 R_2 + 1/3 R_3</text>
+      <text x="15" y="74" fill="#94a3b8" font-family="sans-serif" font-size="11">• Completely scale-invariant</text>
+      <text x="15" y="94" fill="#94a3b8" font-family="sans-serif" font-size="11">• Zero heuristic priors (+0.15 excised)</text>
+      <text x="15" y="114" fill="#94a3b8" font-family="sans-serif" font-size="11">• Monotonic preservation of ROC-AUC</text>
+      <text x="15" y="136" fill="#4ade80" font-family="sans-serif" font-size="11" font-weight="700">Projected Score: 0.963+ (Gold Tier)</text>
+    </g>
+
+    <!-- Efficiency Prize Box -->
+    <g transform="translate(20, 220)">
+      <rect width="290" height="160" fill="rgba(234,179,8,0.08)" stroke="#eab308" stroke-width="1.2" rx="8"/>
+      <text x="15" y="28" fill="#eab308" font-family="sans-serif" font-size="13" font-weight="700">$18,000 Efficiency Prize Guard</text>
+      <text x="15" y="50" fill="#cbd5e1" font-family="sans-serif" font-size="11">Constraint: Total Inference T ≤ 500s</text>
+      <text x="15" y="72" fill="#94a3b8" font-family="sans-serif" font-size="10.5">• DICOM Binary I/O: 104s</text>
+      <text x="15" y="90" fill="#94a3b8" font-family="sans-serif" font-size="10.5">• Engine 1 (CoAtNet): 117s</text>
+      <text x="15" y="108" fill="#94a3b8" font-family="sans-serif" font-size="10.5">• Engine 2 (ConvNeXt): 110s</text>
+      <text x="15" y="126" fill="#94a3b8" font-family="sans-serif" font-size="10.5">• Engine 3 (Transformer): 85s</text>
+      <text x="15" y="148" fill="#22c55e" font-family="sans-serif" font-size="11.5" font-weight="700">TOTAL: ~416s (84s Safe Headroom)</text>
+    </g>
+
+    <!-- Final Submission Tag -->
+    <g transform="translate(20, 395)">
+      <rect width="290" height="95" fill="rgba(15,23,42,0.8)" stroke="#334155" rx="8"/>
+      <text x="145" y="28" fill="#ffffff" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle">Official Submission Target</text>
+      <text x="145" y="50" fill="#38bdf8" font-family="sans-serif" font-size="11" text-anchor="middle">Selection 1: V6 PB Baseline (0.956)</text>
+      <text x="145" y="70" fill="#f43f5e" font-family="sans-serif" font-size="11" font-weight="700" text-anchor="middle">Selection 2: V13 Tri-Hybrid (0.963+)</text>
+    </g>
+  </g>
+</svg>

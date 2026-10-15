@@ -59,42 +59,28 @@ A skeptical, battle-hardened ML Grandmaster questioning our design choices — a
 
 ---
 
-## 🏛️ System Architecture
+## 🏛️ System Architecture & Working Pipeline
 
-![RSNA Knee Architecture Overview](docs/architecture_overview.png)
+<p align="center">
+  <img src="docs/visualizer_architecture_flow.svg" width="100%" alt="RSNA Knee Abnormality Detection: Tri-Hybrid SOTA Architecture Flow" />
+</p>
 
-```mermaid
-flowchart TD
-    subgraph DICOM_INGESTION ["1. 3D Spatial Vector & Physical Geometry Engine"]
-        A["Raw Multi-Series DICOMs (GE / Siemens / Philips)"] --> B["Multi-Threaded Binary fastread Loader (_fastread.py)"]
-        B --> C["Physical Normal Vector Calculation<br/>n = IOP[0:3] × IOP[3:6]<br/>Depth = IPP · n"]
-        C --> D["Continuous 3D Normal Sorting (Fixes Inverted Slices)"]
-        D --> E["140 mm Physical Joint Crop & Spacing Resampling"]
-    end
+### 👁️ Interactive Model Visualizer
+A fully interactive, client-side attention and rank averaging visualizer is available in [`docs/multiplane_transformer_visualizer.html`](docs/multiplane_transformer_visualizer.html):
+- **Live Slice Attention Distribution:** Dynamically inspect learned slice attention weights $a_{k,n}$ across Sagittal, Coronal, and Axial planes for any of the 12 knee abnormalities.
+- **$24 \times 24$ Self-Attention Heatmap:** Visualizes inter-slice cross-attention dependencies ($A = \text{softmax}(QK^T / \sqrt{d})$) modeling 3D volumetric continuity.
+- **Tri-Engine Rank Averaging Simulation:** Demonstrates real-time monotonic rank fusion combining Engine 1, Engine 2, and Engine 3.
+- **Zero Dependencies:** Double-click [`docs/multiplane_transformer_visualizer.html`](docs/multiplane_transformer_visualizer.html) to open in Chrome, Edge, Safari, or Firefox without any server or install.
 
-    subgraph TENSOR_STACK ["2. Standardized 5-Slot Tensor (96 Slices)"]
-        E --> S1["Slot 1: Sagittal Fluid (26 slices) — ACL, PCL, Contusion"]
-        E --> S2["Slot 2: Sagittal Non-Fluid (22 slices) — Meniscal Tears"]
-        E --> S3["Slot 3: Coronal Fluid (18 slices) — MCL, Collateral Edema"]
-        E --> S4["Slot 4: Coronal Non-Fluid (12 slices) — Cartilage & Osteophytes"]
-        E --> S5["Slot 5: Axial Plane (18 slices) — PF OA & Baker's Cyst"]
-    end
+### 🔄 End-to-End Execution Pipeline
 
-    subgraph TRI_ENGINE ["3. Tri-Engine Parallel Inference"]
-        S1 & S2 & S3 & S4 & S5 --> ENG1["Engine 1: CoAtNet-384 SWA<br/>(Hybrid Transformer)<br/>• 42 Temporal 2.5D Windows<br/>• Specializes in: Acute Tears"]
-        S1 & S2 & S3 & S4 & S5 --> ENG2["Engine 2: ConvNeXt-S6 R7<br/>(Pure ConvNet)<br/>• 4-Fold S6 at 352×352<br/>• Specializes in: OA Extent (ext_u)"]
-        S1 & S2 & S3 & S4 & S5 --> ENG3["Engine 3: Multi-Plane Slice-Transformer<br/>(Sequence-Aware Head)<br/>• Learned Plane PosEmb (Sag/Cor/Ax)<br/>• Specializes in: PF OA & Multi-Plane Context"]
-    end
-
-    subgraph FUSION ["4. Monotonic Percentile Rank Fusion & Safeguards"]
-        ENG1 --> R1["Percentile Ranking r_1"]
-        ENG2 --> R2["Percentile Ranking r_2"]
-        ENG3 --> R3["Percentile Ranking r_3"]
-        R1 & R2 & R3 --> UNIFORM["Uniform 1/3 Monotonic Rank Averaging<br/>r_final = 1/3 r_1 + 1/3 r_2 + 1/3 r_3"]
-        UNIFORM --> GUARD["Non-Raising Runtime Correlation Guard<br/>(min_rho ≥ 0.30 Fallback)"]
-        GUARD --> OUT["Verified submission.csv<br/><b>Target: 0.963+ | Latency: ~416s (Efficiency Prize Eligible)</b>"]
-    end
-```
+| Stage | Input | Operation / Math | Output / Guarantee |
+| :--- | :--- | :--- | :--- |
+| **1. 3D Ingestion** | Raw Multi-Series DICOMs | Multi-threaded binary `_fastread.py` + 3D normal vector sort $\vec{n} = \text{IOP}[0:3] \times \text{IOP}[3:6]$, $\text{depth} = \text{IPP} \cdot \vec{n}$ | Inversion-proof spatial volume (+0.028 AUC gain) |
+| **2. Joint Normalization** | Continuous 3D Volume | $140\text{ mm}$ physical bounding box crop centered on femoral condyles using pixel spacing ($\text{mm/px}$) | Scale-invariant receptive field across all scanner makes |
+| **3. 5-Slot Tensor** | Cropped Multi-Plane Series | Standardized 96-slice stack: Sagittal Fluid (26), Sagittal Non-Fluid (22), Coronal Fluid (18), Coronal Non-Fluid (12), Axial (18) | Standardized multi-plane anatomical representation |
+| **4. Tri-Engine Inference** | Standardized 96 Slices | **Engine 1:** CoAtNet-384 SWA (42 windows, acute tears)<br/>**Engine 2:** ConvNeXt-S6 R7 (352x352, OA Extent heads)<br/>**Engine 3:** Multi-Plane Slice-Transformer (Plane pos-emb, PF OA) | Three orthogonal sets of continuous probability logits |
+| **5. Monotonic Rank Fusion** | Predictions $p_1, p_2, p_3$ | Uniform percentile ranking: $R_{\text{final}} = \frac{1}{3} r_1 + \frac{1}{3} r_2 + \frac{1}{3} r_3$ with non-raising guard ($\min \rho \ge 0.30$) | Scale-invariant submission ($T \approx 416$s, $18k Efficiency Eligible) |
 
 ---
 
@@ -177,7 +163,7 @@ sequenceDiagram
     Scorer->>Scorer: Per-class AUC Calculation (12 targets)
     Scorer->>Scorer: 2,000 Paired Bootstrap Iterations
     Scorer->>Gate: Evaluate 95% Confidence Intervals & Guardrails
-    alt Any Target AUC < 0.60 OR Inter-Arm Corr < 0.30 OR Fallbacks > 0
+    alt Any Target AUC below 0.60 OR Inter-Arm Corr below 0.30 OR Fallbacks gt 0
         Gate-->>Dev: ❌ REJECT: Blunder Detected (Catch Inverted Effusions Offline)
     else 95% Bootstrap CI strictly > 0 and 0 Fallbacks
         Gate-->>Dev: ✅ PROMOTE: Approved for Live Kaggle Submission
@@ -258,6 +244,14 @@ rsna-knee-26/
 │   │       └── kernel-metadata.json        # Cloud kernel configuration
 │   └── label_extraction/                   # Qwen-2.5 72B report LLM distillation
 │
+├── tools/                                  # Offline validation gates & test root generators
+│   ├── gate_make_root.py                   # 58-study mock environment generator
+│   ├── gate_make_root.md                   # Gate environment generator documentation
+│   ├── gate_score.py                       # 2,000 paired bootstrap validation engine
+│   ├── gate_score.md                       # Statistical hypothesis testing documentation
+│   ├── official_metric.py                  # Standalone competition metric implementation
+│   └── README.md                           # Tools index & offline protocol
+│
 ├── validation/                             # Stratified CV Framework & Official Metric
 │   ├── cv_framework.py                     # Pure NumPy/Pandas 5-fold Stratified Group-KFold (4,407 studies)
 │   ├── cv_framework.md                     # CV mathematical formulation & guarantees
@@ -265,30 +259,35 @@ rsna-knee-26/
 │   ├── test_cv_framework.md                # CV verification documentation
 │   ├── official_metric.py                  # Raw logit Mann-Whitney U Macro-AUC metric
 │   ├── official_metric.md                  # Competition metric & tie-breaking documentation
-│   ├── gate_make_root.py                   # 58-study mock environment generator
-│   └── gate_score.py                       # 2,000 paired bootstrap validation engine
+│   └── README.md                           # Validation guidelines & testing instructions
 │
 ├── forensics/                              # Clinical proofs and mathematical post-mortems
 │   ├── report-20261015-score-plateau.md    # Autopsy on 0.956 plateau (Rank #1070 to #274 clump)
 │   └── README.md
 │
-├── decisions/                              # Architecture Decision Records (ADRs 001-010)
-│   ├── ADR-001-cv-gold-anchor-isolation.md
+├── decisions/                              # Architecture Decision Records (ADRs 001-012)
+│   ├── ADR-001-dual-engine-5050-rank-fusion.md
 │   ├── ADR-002-excising-heuristic-priors-and-overfitting.md
-│   ├── ADR-003-t4-tensor-core-precision.md
-│   ├── ADR-004-rank-fusion-efficiency-envelope.md
+│   ├── ADR-003-colab-a100-numerical-stability-and-bf16.md
+│   ├── ADR-004-train-inference-slice-distribution-alignment.md
 │   ├── ADR-005-kaggle-api-token-sanitization.md
-│   ├── ADR-006-stratified-group-kfold-super-consensus.md
-│   ├── ADR-007-orthogonal-backbone-triad.md
-│   ├── ADR-008-sequence-aware-multiplane-mil.md
-│   ├── ADR-009-continuous-soft-target-supervision.md
-│   └── ADR-010-uniform-rank-fusion-efficiency-prize.md
+│   ├── ADR-006-input-representation-and-spatial-geometry.md
+│   ├── ADR-007-orthogonal-backbone-selection.md
+│   ├── ADR-008-cross-plane-attention-mil-pooling.md
+│   ├── ADR-009-continuous-soft-target-loss-discipline.md
+│   ├── ADR-010-efficiency-prize-and-rank-fusion.md
+│   ├── ADR-011-t4-memory-guardrails-and-gradient-checkpointing.md
+│   ├── ADR-012-interactive-multiplane-attention-architecture-visualizer.md
+│   └── README.md                           # Master index of all 12 ADRs
 │
 ├── data/                                   # Distilled soft targets & consensus datasets
 │   ├── SUPER_CONSENSUS_labels.parquet      # 0.9172 CV multi-label soft targets (4,407 studies)
-│   └── train_folds.parquet                 # Verified leak-free 5-fold split
+│   ├── train_folds.parquet                 # Verified leak-free 5-fold split
+│   └── README.md
 │
-└── docs/                                   # In-depth architectural & competitive guides
+└── docs/                                   # Visualizers, architecture guides & teammate runbooks
+    ├── visualizer_architecture_flow.svg    # High-res standalone vector architecture flow diagram
+    ├── multiplane_transformer_visualizer.html # Interactive HTML5 slice attention & rank fusion visualizer
     ├── 01_input_representation_and_geometry.md
     ├── 02_backbone_model_diversity.md
     ├── 03_slice_aggregation_and_attention_mil.md
