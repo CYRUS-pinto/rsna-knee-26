@@ -1,0 +1,20 @@
+{
+  "id": "cyruspinto/rsna-knee-v13-tri-hybrid-submission",
+  "title": "RSNA Knee 2026: V13 Tri-Hybrid Aligned Submission",
+  "code_file": "kaggle_submission_script.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_tpu": "false",
+  "enable_internet": "false",
+  "dataset_sources": [
+    "dreaddevelopment/knee-raptor-corpus",
+    "heliosli/rsna-knee-compact-r7cnxfsss",
+    "cyruspinto/rsna-knee-engine3-multiplane-weights"
+  ],
+  "competition_sources": [
+    "rsna-knee-abnormality-detection"
+  ],
+  "kernel_sources": []
+}
