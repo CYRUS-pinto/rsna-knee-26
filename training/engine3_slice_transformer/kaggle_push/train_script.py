@@ -102,9 +102,6 @@ class MultiPlaneEngine3(nn.Module):
     def __init__(self, backbone_name='convnext_base.fb_in22k_ft_in1k_384', n=12, drop=0.1):
         super().__init__()
         self.backbone = timm.create_model(backbone_name, pretrained=True, num_classes=0, in_chans=3, global_pool='avg')
-        if hasattr(self.backbone, 'set_grad_checkpointing'):
-            try: self.backbone.set_grad_checkpointing(True)
-            except Exception: pass
         feat_dim = self.backbone.num_features
         self.head = MultiPlaneSliceTransformerHead(F_dim=feat_dim, n=n, num_heads=8, num_layers=2, drop=drop)
         
@@ -201,6 +198,10 @@ class KaggleKneeDataset(Dataset):
 
 def main():
     dev = 'cuda' if torch.cuda.is_available() else 'cpu'
+    if torch.cuda.is_available():
+        torch.backends.cudnn.benchmark = False
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
     print(f"=== Multi-Plane Engine 3 Training on {dev} ===")
     
     # Dynamic file discovery across all Kaggle input mounts
