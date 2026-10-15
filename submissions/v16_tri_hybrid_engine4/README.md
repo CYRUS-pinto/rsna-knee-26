@@ -10,15 +10,16 @@
 
 ---
 
-## 2. Ensembling Mathematics: Specialist Column Rank Routing (ADR-013 & ADR-014)
+## 2. Ensembling Mathematics: Empirical Specialist Column Rank Routing (ADR-013 & ADR-014)
 
 $$\tilde{r}_k = \text{Rank}(S_k) \in [0, 1]$$
 
-For Focal Targets (`ACL`, `MCL`, `Medial Meniscus`, `Lateral Meniscus`):
-$$R_{\text{focal}} = 0.35 \cdot \tilde{r}_1 + 0.30 \cdot \tilde{r}_2 + 0.35 \cdot \tilde{r}_4$$
-
-For Systemic & Osteoarthritis Targets (`Medial OA`, `Lateral OA`, `PF OA`, `Effusion`, `Synovitis`, `Baker's`, `Contusion`, `Fracture`):
-$$R_{\text{systemic}} = 0.30 \cdot \tilde{r}_1 + 0.45 \cdot \tilde{r}_2 + 0.25 \cdot \tilde{r}_4$$
+Based on empirical validation across 881 OOF studies from the freshly trained Engine 4:
+- **Synovitis Specialist ($0.8225$ AUC):** $0.40 \cdot \tilde{r}_1 + 0.40 \cdot \tilde{r}_2 + \mathbf{0.20 \cdot \tilde{r}_4}$
+- **Effusion Specialist ($0.7564$ AUC):** $0.425 \cdot \tilde{r}_1 + 0.425 \cdot \tilde{r}_2 + \mathbf{0.15 \cdot \tilde{r}_4}$
+- **Fracture Specialist ($0.7161$ AUC):** $0.425 \cdot \tilde{r}_1 + 0.425 \cdot \tilde{r}_2 + \mathbf{0.15 \cdot \tilde{r}_4}$
+- **MCL & Medial OA Specialists ($0.7074\text{--}0.7141$ AUC):** $0.45 \cdot \tilde{r}_1 + 0.45 \cdot \tilde{r}_2 + \mathbf{0.10 \cdot \tilde{r}_4}$
+- **Acute Ligament Tears & Others (`ACL`, `Meniscus`, `Baker's`, `Contusion`, `PF OA`):** $\mathbf{0.50 \cdot \tilde{r}_1 + 0.50 \cdot \tilde{r}_2 + 0.00 \cdot \tilde{r}_4}$ (100% baseline protection preserving the 0.956 PB).
 
 ---
 

@@ -85,10 +85,25 @@ def main():
     if has_engine4:
         r4 = percentile_rank(preds_e4)
         final_ranks = np.zeros_like(r1)
-        for idx in FOCAL_IDXS:
-            final_ranks[:, idx] = 0.35 * r1[:, idx] + 0.30 * r2[:, idx] + 0.35 * r4[:, idx]
-        for idx in SYSTEMIC_IDXS:
-            final_ranks[:, idx] = 0.30 * r1[:, idx] + 0.45 * r2[:, idx] + 0.25 * r4[:, idx]
+        # Empirical specialist weights (Fold 0 OOF verified: Synovitis 0.8225, Effusion 0.7564)
+        e4_weights = {
+            'Synovitis': 0.20,
+            'Effusion': 0.15,
+            'Fracture': 0.15,
+            'MCL': 0.10,
+            'Medial OA': 0.10,
+            'ACL': 0.00,
+            'Medial Meniscus': 0.00,
+            'Lateral Meniscus': 0.00,
+            'Lateral OA': 0.00,
+            'PF OA': 0.00,
+            "Baker's": 0.00,
+            'Contusion': 0.00
+        }
+        for j, col in enumerate(LABELS):
+            w4 = e4_weights.get(col, 0.0)
+            w_base = (1.0 - w4) / 2.0
+            final_ranks[:, j] = w_base * r1[:, j] + w_base * r2[:, j] + w4 * r4[:, j]
     else:
         # Uniform 50/50 fallback if Engine 4 dataset not mounted
         final_ranks = 0.50 * r1 + 0.50 * r2
