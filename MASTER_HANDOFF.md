@@ -5,10 +5,11 @@
 **Target Metric:** Macro-Averaged ROC AUC (across 12 binary abnormalities)  
 **Secondary Target:** $18,000 Efficiency Prize ($T_{\text{inference}} \le 500$s on Kaggle Dual T4 GPUs)  
 **Current Personal Best (PB):** **0.956** (Version 6, Clean Uniform 50/50 Dual Engine Rank Blend)  
-**Competition Rank:** ~Top 12% (Rank ~120–150 of 1,000+ teams)  
+**Competition Rank:** Rank ~120–150 of 5,815 teams (**Top ~2%**)  
 **Current Date:** October 15, 2026  
 **Immediate Hard Deadline:** **Team Merger Deadline TONIGHT at 11:59 PM UTC (5:29 AM IST, Oct 16)**  
 **Final Submission Deadline:** October 22, 2026  
+**Master Issues Register:** See [RSNA_Knee_Handoff_v2.md](RSNA_Knee_Handoff_v2.md) for the verified external peer audit and issues log.
 
 ---
 

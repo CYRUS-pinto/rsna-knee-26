@@ -5,7 +5,7 @@
 [![Leaderboard Baseline](https://img.shields.io/badge/Verified%20Public%20LB-0.956-brightgreen.svg)]()
 [![Hardware Engine](https://img.shields.io/badge/Hardware-Dual%20Tesla%20T4%20GPUs-purple.svg)]()
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0%20Inductor%20Compiled-red.svg)]()
-[![Zero External Data Track](https://img.shields.io/badge/Compliance-100%25%20Competition%20Clean-orange.svg)]()
+[![Model Track](https://img.shields.io/badge/Track-Frontier%20Ensemble-orange.svg)]()
 
 ---
 
@@ -15,11 +15,11 @@ This repository hosts the production inference and validation pipeline for the *
 
 $$\mathcal{Y} \in \{\text{ACL}, \text{MCL}, \text{Medial Meniscus}, \text{Lateral Meniscus}, \text{Medial OA}, \text{Lateral OA}, \text{PF OA}, \text{Effusion}, \text{Synovitis}, \text{Baker's Cyst}, \text{Contusion}, \text{Fracture}\}$$
 
-Rather than relying on uncalibrated single models or bloated, fragile ensemble scripts, this solution unifies **two fundamentally orthogonal vision paradigms** backed by a **zero-crash fail-safe runtime guard** and **3D physical coordinate registration**:
-1. **Global Multi-Instance Vision Transformer**: Dreaddevelopment / Nartaa **CoAtNet-384 SWA** (capturing global multi-slice ligament continuity).
+Rather than relying on uncalibrated single models or bloated ensemble scripts, this solution unifies **two fundamentally orthogonal vision paradigms** backed by a **zero-crash fail-safe runtime guard** and **3D physical coordinate registration**:
+1. **Global Multi-Instance Vision Transformer**: Dreaddevelopment / Nartaa **CoAtNet-384 SWA** (capturing multi-slice ligament continuity).
 2. **Dense Multi-Scale Pure ConvNet**: Heliosli **Release 7 (R7) ConvNeXt-S6** (with dedicated Osteoarthritis extent heads and synovitis decomposition).
 3. **Anatomical Physics & Volumetric Stackers**: 3D sagittal fluid volumetry for Effusion + 6-tier distention routing for Baker's Cyst.
-4. **Monotonic Percentile Rank Fusion**: Scale-invariant rank ensembling that preserves ranking order across disparate logit distributions.
+4. **Monotonic Percentile Rank Fusion**: Scale-invariant 50/50 uniform rank ensembling that preserves relative ordering across disparate logit distributions.
 
 ---
 
@@ -30,9 +30,9 @@ Rather than relying on uncalibrated single models or bloated, fragile ensemble s
 ```mermaid
 flowchart TD
     subgraph DICOM_INGESTION ["1. 3D Spatial Vector & Physical Geometry Engine"]
-        A["Raw Multi-Series DICOMs (GE / Siemens / Philips)"] --> B["C++ Fastread POSIX pread Loader"]
+        A["Raw Multi-Series DICOMs (GE / Siemens / Philips)"] --> B["Multi-Threaded Binary fastread Loader (_fastread.py)"]
         B --> C["Physical Normal Vector Calculation<br/>n = IOP[0:3] × IOP[3:6]<br/>Depth = IPP · n"]
-        C --> D["Continuous 3D Normal Sorting (Fixes -0.74 Effusion Inversion)"]
+        C --> D["Continuous 3D Normal Sorting (Fixes Inverted Slices)"]
         D --> E["140 mm Physical Joint Crop & Spacing Resampling"]
     end
 
@@ -45,8 +45,8 @@ flowchart TD
     end
 
     subgraph DUAL_ENGINE ["3. Dual-Engine Parallel Inference"]
-        S1 & S2 & S3 & S4 & S5 --> ENG1["Engine 1: CoAtNet-384 SWA<br/>(Hybrid Transformer)<br/>• 42 Temporal 2.5D Windows<br/>• 12 Cross-Attention Heads<br/>• Ligament & Tear Specialist"]
-        S1 & S2 & S3 & S4 & S5 --> ENG2["Engine 2: ConvNeXt-S6 R7<br/>(Pure ConvNet)<br/>• 4-Fold S6 at 352×352<br/>• M4 OA Extent Heads (ext_u)<br/>• Cartilage & Bone Specialist"]
+        S1 & S2 & S3 & S4 & S5 --> ENG1["Engine 1: CoAtNet-384 SWA<br/>(Hybrid Transformer)<br/>• 42 Temporal 2.5D Windows<br/>• 12 Cross-Attention Heads"]
+        S1 & S2 & S3 & S4 & S5 --> ENG2["Engine 2: ConvNeXt-S6 R7<br/>(Pure ConvNet)<br/>• 4-Fold S6 at 352×352<br/>• M4 OA Extent Heads (ext_u)"]
     end
 
     subgraph STACKERS ["4. Volumetric & State Stackers"]
@@ -54,12 +54,12 @@ flowchart TD
         ENG2 --> ST2["6-Class Distention Router<br/>(Baker's Cyst)"]
     end
 
-    subgraph FUSION ["5. Asymmetric Rank Ensembling & Safeguards"]
+    subgraph FUSION ["5. Percentile Rank Ensembling & Safeguards"]
         ENG1 --> R1["Percentile Ranking F_1(p)"]
         ENG2 & ST1 & ST2 --> R2["Percentile Ranking F_2(p)"]
-        R1 & R2 --> ASYM["Anatomical Weighting Matrix<br/>• Tears/Contusion: CoAtNet (55%-65%)<br/>• OA/Cartilage: ConvNeXt (70%)<br/>• Fluid/Baker: Balanced (60%-65%)"]
+        R1 & R2 --> ASYM["Uniform 50/50 Rank Blend<br/>r_final = 0.50 * r_1 + 0.50 * r_2"]
         ASYM --> GUARD["Non-Raising Runtime Correlation Guard<br/>(min_rho ≥ 0.30 Fallback)"]
-        GUARD --> OUT["Verified submission.csv<br/>(Macro ROC AUC: 0.956+)"]
+        GUARD --> OUT["Verified submission.csv<br/>(Macro ROC AUC: 0.956)"]
     end
 ```
 
@@ -115,9 +115,9 @@ Because the competition metric is **Macro-Averaged ROC AUC**, absolute probabili
 | Submission Ref | Score | Forensic Root Cause | Structural Remedy Applied |
 | :--- | :---: | :--- | :--- |
 | **57150837** | `Exception` | Cell 6 asserted `if min(rho_rr) < 0.99: raise RuntimeError`. When blending multi-arm models, correlation naturally diverged to $r \approx 0.97$, crashing the notebook on the hidden test set. | Replaced hard assert with a non-raising runtime guard (`min_rho >= 0.30`). Never crashes the hidden test run. |
-| **57152208** | `0.932` | Hitarth's unverified "Part B" reader (`own_src`) failed to install offline C-bindings for JPEG-lossless DICOMs and sorted slices by filename. It inverted Effusion ($r = -0.74$) and produced random noise on OA ($r = 0.20$). | **Part B permanently excised.** Strict adherence to verified C++ `fastread` threaded decoders with 0 fallbacks. |
-| **57165672** (v6) | `0.956` | Clean dual-engine baseline deployed. Ran with 0 study fallbacks, 450s commit time, and 0 NaNs. | Verified bedrock foundation restored. |
-| **57172886** (v7) | `0.955` | Tested domain-driven anatomical asymmetry (CoAtNet 65% on tears, ConvNeXt 70% on OA). Confirms that uniform 50/50 blend (v6 at 0.956) is mathematically optimal for these two models; pushes to 0.960+ require Engine 3 model diversity. |
+| **57152208** | `0.932` | Experimental "Part B" reader (`own_src`) lacked offline C-bindings for JPEG-lossless DICOMs and sorted slices by filename. It produced inverted slice order on fluid sequences. | **Part B permanently excised.** Standardized on verified threaded `_fastread.py` decoders with 3D normal sorting. |
+| **57165672** (v6) | `0.956` | Clean dual-engine baseline deployed. Ran with 0 study fallbacks, ~450s commit sample time, and 0 NaNs. | Verified bedrock foundation restored. |
+| **57172886** (v7) | `0.955` | Tested domain-driven anatomical asymmetry (CoAtNet 65% on tears, ConvNeXt 70% on OA). Public score was 0.955 (within standard public LB noise). | Retained the simpler uniform 50/50 blend as default. |
 
 
 ---
