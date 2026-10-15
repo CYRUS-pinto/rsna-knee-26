@@ -337,13 +337,23 @@ rsna-knee-26/
 | Version | Public LB | Architecture / Configuration | Forensic Outcome & Key Takeaway |
 | :--- | :---: | :--- | :--- |
 | **V1–V5** | `< 0.940` | Single-model prototypes, naive PyDICOM loaders | Inverted slice order and uncalibrated thresholds degraded AUC. |
-| **V6** | **0.956** | **Dual Engine Uniform 50/50 Rank Blend** (CoAtNet SWA + ConvNeXt R7) | **Personal Best** (Rank #1070, tied with 927 teams up to #274). C++ `fastread` with 3D physical normal sorting. |
-| **V7** | `0.955` | Finding-specific asymmetric weights (CoAtNet 65% on tears, ConvNeXt 70% on OA) | -0.001 regression. Variance increased across borderline targets. Proved uniform 50/50 is optimal for 2 models. |
-| **V8** | `0.955` | Test-Time Augmentation (Horizontal Flip) | -0.001 regression. Horizontal flip inverts Medial and Lateral compartmental anatomy. |
-| **V9–V11** | `0.955` | Heuristic conditional priors (`+0.15*ACL -> Contusion`, etc.) | -0.001 regression. Inverted rankings on discordant patient subsets; overfit Gold-58 sample noise. |
-| **V12** | `0.953` | Super-Consensus V2 + Heuristic Priors (Submission `57209254`) | **-0.003 Drop**. Conclusive empirical proof of ADR-002: heuristic additive rules overfit and destroy test generalization. |
-| **Engine 3** | *Training* | **Multi-Plane CoAtNet-384 + Slice-Transformer Head** (Dual T4) | Adds true sequence-aware multi-plane attention trained on 4,407 continuous consensus labels. |
-| **V13** | *Target 0.963+* | **Tri-Hybrid Uniform 1/3 Rank Fusion** ($E_1 + E_2 + E_3$) | Combines 3 orthogonal paradigms into uniform monotonic rank blend ($T \approx 416$s, $18k Prize compliant). |
+| **V6** | **0.956** | **Dual Engine Uniform 50/50 Rank Blend** (CoAtNet SWA + ConvNeXt R7) | **Permanent Safety Lock (Slot 1)**. C++ `fastread` with 3D physical normal sorting. |
+| **V7–V11** | `0.955` | Asymmetric weights and heuristic priors | Overfit 58-study noise; proved that heuristic post-processing degrades test AUC ([ADR-002](decisions/ADR-002-excising-heuristic-priors-and-overfitting.md)). |
+| **V12** | `0.953` | Super-Consensus V2 + Heuristic Priors (Submission `57209254`) | Conclusive proof: additive heuristics destroy test ranking. Excised permanently. |
+| **V14** | `Pending` | **Multi-Scale Spatial Fusion** (384px + 224px CoAtNet + ConvNeXt R7) | Dual T4 runtime: 476.3s. Ensembles high-frequency tear detection with global joint geometry. |
+| **V15** | `Pending` | **Multi-Scale with Anatomical Bilateral Flip TTA** | Dual T4 runtime: 431.0s. Exploits bilateral knee reflection with Medial $\leftrightarrow$ Lateral compartment swap. |
+| **Engine 4** | *Proprietary* | **Multi-Plane 2.5D ConvNeXt-Small Attention MIL** | True 3-plane (Sagittal, Coronal, Axial) physical slicing with 12 disentangled attention heads. |
+
+---
+
+## 🛠️ Prompt Master & Clinical NLP Distillation
+
+Integrated the [`nidhinjs/prompt-master`](https://github.com/nidhinjs/prompt-master) agent skill into the repository:
+- **Global Skill Path:** `C:\Users\Cyrus\.gemini\config\skills\prompt-master\`
+- **Local Skill Path:** `.agents/skills/prompt-master/`
+- **Clinical Extraction Prompt:** [`docs/CLINICAL_REPORT_EXTRACTION_PROMPT.md`](docs/CLINICAL_REPORT_EXTRACTION_PROMPT.md)
+  - Uses Few-Shot Pattern Locking + Auditable Clinical Reasoning (Template F).
+  - Extracts continuous soft target probabilities ($0.0 \to 1.0$) across all 12 pathologies from 4,349 unstructured free-text radiology reports, solving the fundamental supervision bottleneck identified across Top 10 competitors.
 
 ---
 
@@ -367,10 +377,12 @@ python validation/gate_score.py \
 
 1. **Inference Pipeline (Kaggle Dual T4)**:
    - Mount: `rsna-knee-abnormality-detection`, `heliosli/rsna-knee-compact-r7cnxfsss`, `nartaa/rsna-knee-publication-swa-weights-20261007`.
-   - Run: [submissions/v12_clean_offline/rsna-knee-quint-ensemble-r7-colab.ipynb](submissions/v12_clean_offline/rsna-knee-quint-ensemble-r7-colab.ipynb).
-   - Generates: `submission.csv` with 0 fallbacks and execution time $< 450$s.
+   - Run: [submissions/v14_multiscale_0957/rsna-knee-multiscale-0957.ipynb](submissions/v14_multiscale_0957/rsna-knee-multiscale-0957.ipynb).
+   - Generates: `submission.csv` with 0 fallbacks and execution time $< 480$s.
 
-2. **Frontier Training Pipeline (Google Colab Pro A100)**:
-   - Open: [training/engine3_slice_transformer/colab_rsna_knee_super_train.ipynb](training/engine3_slice_transformer/colab_rsna_knee_super_train.ipynb).
-   - Precision: BFloat16 direct backpropagation with `head_lr=2e-4`, `bb_lr=2e-5`, gradient clipping `1.0`.
-   - Packages trained weights directly into Kaggle dataset `cyruspinto/rsna-knee-colab-super-weights`.
+2. **Proprietary Engine 4 Training (Google Colab Pro A100 / Kaggle)**:
+   - Source: [`training/engine4/train_engine4.py`](training/engine4/train_engine4.py).
+   - Multi-Plane Dataset: [`src/data/multiplane_dataset.py`](src/data/multiplane_dataset.py).
+   - ConvNeXt MIL Backbone: [`src/models/engine4_convnext_mil.py`](src/models/engine4_convnext_mil.py).
+   - Supervised by: `data/SUPER_CONSENSUS_labels.parquet`.
+
