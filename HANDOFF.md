@@ -1,9 +1,12 @@
-# RSNA Knee Abnormality Detection (2026) — Complete Project Handoff & Technical Log
+# RSNA Knee Abnormality Detection (2026) — Project Handoff & Technical Log
+
+> [!IMPORTANT]
+> **Complete Master Reference Available:** See **[MASTER_HANDOFF.md](MASTER_HANDOFF.md)** for the exhaustive 10-section master handoff detailing peer review consensus, the 0.5000 divergence forensic autopsy, small-sample Gold-58 statistics, Google Drive 0-second persistence, ADR summaries, and the final 7-day selection blueprint.
 
 **Repository:** [https://github.com/CYRUS-pinto/rsna-knee-26](https://github.com/CYRUS-pinto/rsna-knee-26)  
 **Target:** RSNA Knee Abnormality Detection  
 **Evaluation Metric:** Macro-Averaged ROC AUC (across 12 binary findings)  
-**Status:** Dual-Engine SOTA Pipeline Verified (0.956 LB Baseline), Zero-Crash Fail-Safe Implemented, Version 6 Running on Hidden Test Set, Version 7 Asymmetric Weights Prepared.
+**Status:** Verified Personal Best **0.956** (Version 6, Clean Uniform Dual Engine), Version 12 Clean Offline Pipeline Prepared, Submission Lock Active.
 
 ---
 
