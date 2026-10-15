@@ -29,6 +29,20 @@ On Submission V12 (`57209254`), applying these heuristic priors resulted in a **
 
 **The V13 Invariant**: Zero heuristic addition. Pure, unweighted rank fusion.
 
+### 2.3 Grandmaster Specialist Column Routing (ADR-013)
+To extract maximum inductive bias without heuristic distortions, V13 supports column-specific rank routing:
+- **4 Focal Pathology Columns (`ACL`, `MCL`, `Medial Meniscus`, `Lateral Meniscus`):**
+  $$\mathbf{S}_{\text{focal}} = 0.40 \cdot \text{Rank}(E_1) + 0.20 \cdot \text{Rank}(E_2) + 0.40 \cdot \text{Rank}(E_3)$$
+  Leverages the high spatial resolution and continuous slice attention of CoAtNet-384 and the Multi-Plane Transformer for thin ligament and meniscal fibrocartilage tears.
+- **8 Systemic & Fluid Columns (`Medial OA`, `Lateral OA`, `PF OA`, `Effusion`, `Synovitis`, `Baker's`, `Contusion`, `Fracture`):**
+  $$\mathbf{S}_{\text{systemic}} = 0.25 \cdot \text{Rank}(E_1) + 0.50 \cdot \text{Rank}(E_2) + 0.25 \cdot \text{Rank}(E_3)$$
+  Leverages ConvNeXt-S6 R7 with dedicated Osteoarthritis Extent heads (`ext_u`) for joint space narrowing and fluid distension.
+
+### 2.4 Patient-Coordinate Laterality Rectification
+For the 5 compartment-specific targets (`MCL`, `Medial Meniscus`, `Lateral Meniscus`, `Medial OA`, `Lateral OA`), laterality is derived directly from physical patient coordinates:
+$$p_{x, \text{center}} = \frac{1}{S} \sum_{s=1}^S p_{x, s}, \quad p_{x, \text{center}} < 0 \implies \text{Right Knee}, \quad p_{x, \text{center}} > 0 \implies \text{Left Knee}$$
+Resolving unpopulated DICOM laterality tags for >97% of scans.
+
 ---
 
 ## 3. $18,000 Efficiency Prize Compliance
