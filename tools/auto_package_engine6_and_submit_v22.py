@@ -9,6 +9,8 @@ import time
 import json
 import shutil
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv('.env')
 import kaggle
 
 KERNEL_ID = "cyruspinto/rsna-knee-engine6-sequence-joint-crop-train"
