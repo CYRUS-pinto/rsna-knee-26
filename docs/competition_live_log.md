@@ -27,3 +27,6 @@
   - Key Specialists: Synovitis **0.8917**, Medial Meniscus **0.8625**, ACL **0.8563**, Contusion **0.8141**, Effusion **0.8138**.
   - Anti-collapse achieved: Mean off-diagonal correlation 0.4490 (vs >0.85 collapsed baseline).
 - [2026-10-16 11:50:00 UTC] **Daily Submission Budget**: 3/5 used today (57253840 V17, 57260494 V18, 57267740 V20). 2 submissions remaining for today.
+- [2026-10-16 12:05:00 UTC] **Full 5-Fold Benchmark (Arm A / CoAtNet-d4)**: Macro-AUC **0.85360** across all 4,407 unique studies in the dataset (tools/eval_arma_5fold.py). Medial Meniscus 0.9144, Synovitis 0.8883, Fracture 0.8818.
+- [2026-10-16 12:07:00 UTC] **ADR-020 Formally Adopted**: Quad-Engine Multi-Plane Specialist Architecture & Full-Dataset Validation.
+- [2026-10-16 12:09:19 UTC] 🚀 **Candidate V21 Pushed to Kaggle Dual T4 GPUs**: cyruspinto/rsna-knee-v21-quad-engine-blend. Status: RUNNING. Quad-Engine Multi-Plane Specialist Blend (Raptor-384, Raptor-224, ConvNeXt R6 3D joint crops, Engine 5 2.5D slice triples).
