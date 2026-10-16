@@ -1,11 +1,8 @@
 """
-Empirical OOF Ensembling & Weight Optimization on 881 Validation Studies.
-Compares:
-1. Arm A (ConvNeXt / Raptor baseline) solo
-2. Engine 4 solo
-3. Linear rank blend (0.5 / 0.5)
-4. Class-specific optimal rank blend
-5. Power-Mean ($p=1.4$) focal tear blend
+Exploratory OOF Audit: Arm A vs Engine 4 on 161 Fold 0 Intersection Studies.
+NOTE: This experiment tests Arm A (ntejas_repo) vs collapsed Engine 4 (macro AUC 0.685).
+It does NOT evaluate Raptor or ConvNeXt R6 (Candidate V17/V20).
+Results are exploratory; tuning 12 weights on n=161 carries ~+0.0015 to +0.0020 selection noise.
 """
 
 import pandas as pd

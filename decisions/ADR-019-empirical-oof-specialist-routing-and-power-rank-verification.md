@@ -1,19 +1,23 @@
-# ADR-019: Empirical Out-of-Fold Specialist Routing and Power-Rank Verification
+# ADR-019: Empirical Out-of-Fold Specialist Routing and Power-Rank Verification (Exploratory / Scoped)
 
-**Status:** ACCEPTED  
+**Status:** EXPLORATORY / SCOPED AUDIT (NOT APPLICABLE AS GROUND TRUTH FOR RAPTOR / CONVNEXT R6)  
 **Date:** 2026-10-16  
 **Author:** Principal ML Systems Engineer & Kaggle Grandmaster Advisory  
-**Context:** RSNA Knee Abnormality Detection (Validation on Fold 0 Cohort)
+**Context:** RSNA Knee Abnormality Detection (Audit of Fold 0 Overlap Experiment)
 
 ---
 
-## 1. Context & Problem Statement
+## 1. Critical Audit & Scope Clarification (Reviewer Truth Gate)
 
-Prior submissions (V7 through V15) relied heavily on intuition and Public Leaderboard feedback for blend weights and heuristic thresholds. In V12, unvalidated heuristic floors degraded Macro ROC-AUC from 0.956 to 0.953. To prevent repeat mistakes, all future ensembling must be empirically validated out-of-fold using exact Wilcoxon-Mann-Whitney ROC-AUC calculation before submitting.
+A ruthless technical audit of `tools/optimize_oof_blend.py` reveals critical constraints:
+1. **Model Scope:** The experiment blended **Arm A** (`scratch/ntejas_repo/oof/armA_oof_fold0.csv`) with **Engine 4** (`models/engine4_kaggle_output/oof_engine4_fold0.parquet`). It did **NOT** test Raptor + ConvNeXt R6 (which form Candidate V17/V20).
+2. **In-Sample Raptor Constraint:** Raptor weights (`raptor_ft_alldata_*.pt`) were trained on all data (`alldata`). Raptor has no clean held-out OOF split; tuning weights locally against Raptor predictions is subject to in-sample memorization.
+3. **Statistical Noise ($n = 161$):** The 161 validation studies represent an intersection of disparate fold definitions. Tuning 12 independent class weights across 21 search steps on 161 samples produces an expected $+0.0015$ to $+0.0020$ gain on pure selection noise.
+4. **Power-Mean ($p=1.4$) Interpretation:** In this experiment, power-mean outperformed linear blending on focal tears because it mitigated the penalty of blending with a collapsed partner model (Engine 4 macro AUC 0.685). It is **not** a general mathematical proof for blending two strong, well-calibrated models.
 
 ---
 
-## 2. Empirical Validation Experiment (`tools/optimize_oof_blend.py`)
+## 2. Experimental Data & Observations (`tools/optimize_oof_blend.py`)
 
 Using the fold 0 validation cohort (161 studies), we evaluated:
 1. **Arm A** (ConvNeXt / Raptor baseline) solo
