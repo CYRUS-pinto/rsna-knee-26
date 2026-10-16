@@ -63,12 +63,18 @@ def simulate_quint_engine_blend(n_samples=25, simulate_failures=None):
         re5 = pct(e5[c].values)
         re6 = pct(e6[c].values)
 
-        if c in ['ACL', 'Medial Meniscus', 'Lateral Meniscus', 'Contusion']:
+        if c == 'Lateral Meniscus':
+            w_rr, w_ro, w_e5, w_e6 = 0.05, 0.60, 0.05, 0.30
+        elif c == 'Medial OA':
+            w_rr, w_ro, w_e5, w_e6 = 0.05, 0.60, 0.05, 0.30
+        elif c == 'Lateral OA':
+            w_rr, w_ro, w_e5, w_e6 = 0.10, 0.60, 0.05, 0.25
+        elif c in ['ACL', 'Medial Meniscus', 'Contusion']:
             w_rr, w_ro, w_e5, w_e6 = 0.30, 0.30, 0.10, 0.30
-        elif c in ['MCL', 'Medial OA', 'Lateral OA']:
+        elif c in ['MCL']:
             w_rr, w_ro, w_e5, w_e6 = 0.30, 0.30, 0.10, 0.30
         elif c in ['Synovitis', 'Effusion', 'PF OA']:
-            w_rr, w_ro, w_e5, w_e6 = 0.35, 0.35, 0.25, 0.05
+            w_rr, w_ro, w_e5, w_e6 = 0.40, 0.20, 0.35, 0.05
         else:
             w_rr, w_ro, w_e5, w_e6 = 0.35, 0.35, 0.15, 0.15
 
