@@ -135,12 +135,12 @@ def main():
         print(f"Loaded {plane} specialist weights from {w_path}")
 
     # Read test study list
-    test_csv = Path('/kaggle/input/rsna-knee-abnormality-detection/test.csv')
-    if not test_csv.is_file():
-        test_csv = Path('test.csv')
+    test_csv = _find_file('test.csv')
+    if test_csv is None:
+        raise FileNotFoundError("Could not find test.csv")
     df_test = pd.read_csv(test_csv)
     test_uids = df_test['StudyInstanceUID'].astype(str).tolist()
-    print(f"Evaluating {len(test_uids)} test studies...")
+    print(f"Evaluating {len(test_uids)} test studies from {test_csv}...")
 
     # Load fastread builder
     import importlib.util as _iu
@@ -160,8 +160,10 @@ def main():
     reader = fr.make_builder('study_lut', 384, SLOTS, hdr_threads=8, px_threads=16)
 
     # Load series records
-    tsdir = '/kaggle/input/rsna-knee-abnormality-detection/test_series'
-    tseries_csv = Path('/kaggle/input/rsna-knee-abnormality-detection/test_series.csv')
+    tseries_csv = _find_file('test_series.csv')
+    if tseries_csv is None:
+        raise FileNotFoundError("Could not find test_series.csv")
+    tsdir = Path(tseries_csv).parent / 'test_series'
     df_series = pd.read_csv(tseries_csv)
     ser_records = {}
     for _, r in df_series.iterrows():
@@ -170,46 +172,11 @@ def main():
     results = []
     with torch.no_grad():
         for sid in test_uids:
-            # Build 96-slice volume
-            rows = ser_records.get(sid, [])
-            vol = np.zeros((96, 384, 384), np.uint8)
-            idx = 0
-            used = set()
-            order_and_meta, read_px, _ = reader
-            
-            for plane, fluid, k in SLOTS:
-                matched_r = None
-                for r in rows:
-                    if r['SeriesInstanceUID'] in used: continue
-                    r_plane = str(r.get('SeriesDescription', '')).lower()
-                    if plane.lower() in r_plane:
-                        matched_r = r; break
-                if matched_r is None and rows:
-                    for r in rows:
-                        if r['SeriesInstanceUID'] not in used:
-                            matched_r = r; break
-                if matched_r is None:
-                    idx += k; continue
-                used.add(matched_r['SeriesInstanceUID'])
-                sdir = f"{tsdir}/{sid}/{matched_r['SeriesInstanceUID']}"
-                files, med_ps = order_and_meta(sdir)
-                if not files:
-                    idx += k; continue
-                n = len(files)
-                lo, hi = int(n * 0.02), max(int(n * 0.02), int(n * 0.98) - 1)
-                picks = np.linspace(lo, hi, k).round().astype(int) if n > 1 else [0] * k
-                sel = [files[min(p, n - 1)] for p in picks]
-                for fp, ps in sel:
-                    if idx >= 96: break
-                    try:
-                        px = read_px(fp)
-                        if px is not None:
-                            loq, hiq = np.percentile(px, [2.0, 98.0])
-                            aw = np.clip((px.astype(np.float32) - loq) / max(hiq - loq, 1e-6), 0, 1)
-                            vol[idx] = (aw * 255.0).astype(np.uint8)
-                    except Exception:
-                        pass
-                    idx += 1
+            try:
+                vol, _ = reader(sid, ser_records, str(tsdir))
+            except Exception as e:
+                print(f"Warning: reader failed for {sid}: {e}")
+                vol = np.zeros((96, 384, 384), np.uint8)
 
             # Predict across specialists
             study_preds = {'StudyInstanceUID': sid}
