@@ -17,7 +17,9 @@ LOCAL_WEIGHTS_DIR = Path("artifacts/models/engine6")
 
 def check_status():
     res = kaggle.api.kernels_status(KERNEL_ID)
-    return res.get('status'), res.get('failureMessage')
+    status = getattr(res, 'status', None)
+    err = getattr(res, 'failure_message', None) or getattr(res, 'failureMessage', None)
+    return str(status).upper() if status else "UNKNOWN", str(err) if err else None
 
 def monitor_and_package():
     print("=" * 80)
@@ -30,12 +32,12 @@ def monitor_and_package():
         elapsed = time.time() - start_time
         print(f"[{time.strftime('%H:%M:%S')}] Status: {status} (Elapsed: {elapsed/60:.1f}m)")
         
-        if status == "COMPLETE":
+        if "COMPLETE" in status:
             print("\n>>> TRAINING KERNEL COMPLETED SUCCESSFULLY! <<<")
             break
-        elif status == "FAILED":
+        elif "FAILED" in status or "ERROR" in status:
             raise RuntimeError(f"Training kernel failed: {err}")
-        elif status == "CANCELLED":
+        elif "CANCEL" in status:
             raise RuntimeError("Training kernel was cancelled.")
             
         time.sleep(60)
