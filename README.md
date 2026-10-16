@@ -50,7 +50,7 @@ Rather than relying on uncalibrated single models or bloated ensemble scripts, t
 | **V16 Placeholder** | *Untested Scratch ETL* | N/A | High | **Permanently Excluded** | **Never Select** |
 
 > [!NOTE]
-> **Breakthrough:** Candidate V17 ([Ref `57253840`](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/submissions)) officially scored **0.958 PB** in **443.4s**, breaking the 0.956 plateau and qualifying for the **$18,000 Efficiency Prize** ($T \le 500$s). Candidate V18 (`57260494`) is actively scoring in the queue.
+> **Breakthrough:** Candidate V17 ([Ref `57253840`](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/submissions)) officially scored **0.958 PB** (443.4s on 3-study offline run), breaking the 0.956 plateau. Candidate V18 (`57260494`) is actively scoring in the queue. Official Kaggle hidden evaluation runtime to be verified in Kaggle Submissions UI.
 > Detailed architectural analysis and strategic roadmaps:
 > - [ADR-016: Strategic Triage and V17 Deployment Truth](decisions/ADR-016-strategic-triage-and-v17-deployment-truth.md)
 > - [ADR-017: External Data Provenance and Ground Truth Independence](decisions/ADR-017-external-data-provenance-and-ground-truth-independence.md)
