@@ -21,3 +21,9 @@
   - **Role**: Current top candidate for **Slot 2**.
 - `[2026-10-16 09:41:46 UTC]` **V18 Kernel Worker Completed** (`KernelWorkerStatus.COMPLETE`). Kaggle hidden metric evaluation in final scoring phase.
 - `[2026-10-16 09:42:24 UTC]` 🚀 **Candidate V20 Pushed to Kaggle Dual T4 GPUs**: `cyruspinto/rsna-knee-v20-power-rank-blend` (Kernel ID: `139004598`). Status: `KernelWorkerStatus.RUNNING`. Generalized Power-Rank ($p=1.4$) continuous focal amplification.
+- [2026-10-16 11:39:31 UTC] 🚀 **Candidate V20 Submitted & Kernel Session Completed** (KernelWorkerStatus.COMPLETE, Ref: 57267740). Kernel: cyruspinto/rsna-knee-v20-power-rank-blend. Kaggle hidden test evaluation in progress.
+- [2026-10-16 11:45:00 UTC] **Engine 5 Multi-Plane Specialist Output Downloaded & Verified**:
+  - Fold 0 OOF Macro-AUC: **0.79853** across all 12 classes (training/engine5_decoupled/kaggle_output/oof/oof_engine5_combined_fold0.parquet).
+  - Key Specialists: Synovitis **0.8917**, Medial Meniscus **0.8625**, ACL **0.8563**, Contusion **0.8141**, Effusion **0.8138**.
+  - Anti-collapse achieved: Mean off-diagonal correlation 0.4490 (vs >0.85 collapsed baseline).
+- [2026-10-16 11:50:00 UTC] **Daily Submission Budget**: 3/5 used today (57253840 V17, 57260494 V18, 57267740 V20). 2 submissions remaining for today.
