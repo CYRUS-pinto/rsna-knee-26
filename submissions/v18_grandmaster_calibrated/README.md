@@ -14,6 +14,10 @@
      - `PF OA`: 0.60 Raptor / 0.40 ConvNeXt.
      - `Baker's`: 0.35 Raptor / 0.65 ConvNeXt.
 
-## 2. Submission Protocol
+## 2. Submission Protocol & Deployment State
+- **Kaggle Kernel ID**: `138982838` (Version 2)
+- **Kaggle URL**: [`cyruspinto/rsna-knee-v18-grandmaster-blend`](https://www.kaggle.com/code/cyruspinto/rsna-knee-v18-grandmaster-blend)
+- **Deployment Status**: Actively pushed and queued on Kaggle Dual Tesla T4 GPUs.
 - Candidate V18 serves as the backup/refinement to V17 if V17 establishes a positive score delta on the hidden test set.
 - Permanently preserves Slot 1 on V6 (`0.956`).
+
