@@ -45,11 +45,15 @@ Rather than relying on uncalibrated single models or bloated ensemble scripts, t
 | **Baseline V6** | Dual-Engine Rank Blend (Raptor + ConvNeXt) | 412s | 0 | **0.956 PB** | **Slot 1 Permanent Lock** (Anchor) |
 | **Candidate V15** | Multi-Scale (384+224) + ConvNeXt R7 Flip TTA | 428s | 0 | **0.956 PB** | Validated Multi-Scale Alternative |
 | **Candidate V17** | Multi-Scale (384+224) + ConvNeXt R6 Flip TTA | **443.4s** | **0** | **Scoring (`57253840`)** | Active Multi-Scale Candidate |
-| **Candidate V18** | Grandmaster Calibrated Multi-Scale + Soft Synovitis Proxy | **474.1s** | **0** | **Scoring (`57260494`)** | Primary High-Upside Slot 2 Alternative |
+| **Candidate V18** | Grandmaster Calibrated Multi-Scale + Soft Synovitis Prior | **474.1s** | **0** | **Scoring (`57260494`)** | Primary High-Upside Slot 2 Alternative |
 | **V16 Placeholder** | *Untested Scratch ETL* | N/A | High | **Permanently Excluded** | **Never Select** |
 
 > [!NOTE]
-> **Kaggle Execution Status:** Both Candidate V17 (`57253840`) and Candidate V18 (`57260494`) have completed dual-T4 offline execution ($<475$s, 0 fallbacks, $18,000 Efficiency Prize eligible) and are actively scoring against the hidden evaluation set.
+> **Kaggle Execution Status:** Both Candidate V17 (`57253840`) and Candidate V18 (`57260494`) have completed dual-T4 offline execution ($<475$s, 0 fallbacks, $18,000 Efficiency Prize eligible) and are actively scoring against the hidden evaluation set (~1,300 studies).
+> Detailed architectural analysis and strategic roadmaps:
+> - [ADR-016: Strategic Triage and V17 Deployment Truth](decisions/ADR-016-strategic-triage-and-v17-deployment-truth.md)
+> - [ADR-017: External Data Provenance and Ground Truth Independence](decisions/ADR-017-external-data-provenance-and-ground-truth-independence.md)
+> - [ADR-018: Competition Data Landscape, Prevalence Shift, and Rank-Quantile Blueprint](decisions/ADR-018-prevalence-shift-and-rank-quantile-grandmaster-blueprint.md)
 
 ---
 
