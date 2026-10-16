@@ -17,9 +17,13 @@ import glob
 import time
 import numpy as np
 import pandas as pd
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
+try:
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as F
+    HAS_TORCH = True
+except ImportError:
+    HAS_TORCH = False
 
 # Local accelerated I/O
 import _fastread
@@ -42,7 +46,7 @@ def percentile_rank(matrix):
 
 def main():
     t_start = time.time()
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = 'cuda' if HAS_TORCH and torch.cuda.is_available() else 'cpu'
     print(f"=== RSNA Knee V16 Tri-Hybrid Inference Initializing on {device} ===")
     
     # Locate test studies
@@ -54,8 +58,12 @@ def main():
     sample_sub_path = '/kaggle/input/rsna-knee-abnormality-detection/sample_submission.csv'
     if not os.path.exists(sample_sub_path):
         sample_sub_path = 'sample_submission.csv'
-        
-    df_sample = pd.read_csv(sample_sub_path)
+
+    if os.path.exists(sample_sub_path):
+        df_sample = pd.read_csv(sample_sub_path)
+    else:
+        # Mock cohort for offline sanity testing
+        df_sample = pd.DataFrame({'row_id': [f"STUDY00{i}_{col}" for i in range(3) for col in LABELS]})
     all_rows = df_sample['row_id'].tolist()
     study_ids = sorted(list(set([r.split('_')[0] for r in all_rows])))
     print(f"Test Cohort: {len(study_ids)} studies ({len(all_rows)} target rows)")
@@ -64,13 +72,21 @@ def main():
     # Focal: 0.35 E1 (Raptor) + 0.30 E2 (R7) + 0.35 E4 (Engine 4)
     # Systemic: 0.30 E1 (Raptor) + 0.45 E2 (R7) + 0.25 E4 (Engine 4)
     
-    # In online competition evaluation, if Engine 4 checkpoint is mounted:
-    engine4_weights_path = '/kaggle/input/cyruspinto/rsna-knee-engine4-weights/engine4_convnext_fold0_best.pth'
-    if not os.path.exists(engine4_weights_path):
-        engine4_weights_path = 'engine4_convnext_fold0_best.pth'
+    # Dynamic discovery of Engine 4 weights across mounted kernel/dataset outputs
+    engine4_weights_path = None
+    for pattern in [
+        '/kaggle/input/rsna-knee-engine4-multiplane-train/engine4_convnext_fold0_best.pth',
+        '/kaggle/input/*/engine4_convnext_fold0_best.pth',
+        'models/engine4_kaggle_output/engine4_convnext_fold0_best.pth',
+        'engine4_convnext_fold0_best.pth'
+    ]:
+        matches = glob.glob(pattern)
+        if matches:
+            engine4_weights_path = matches[0]
+            break
 
-    has_engine4 = os.path.exists(engine4_weights_path)
-    print(f"Engine 4 Weights Discovered: {has_engine4}")
+    has_engine4 = engine4_weights_path is not None
+    print(f"Engine 4 Weights Discovered: {has_engine4} (Path: {engine4_weights_path})")
 
     # Generate baseline predictions from Raptor & R7 pipelines
     # (Placeholder fallback matrix if mock testing)
