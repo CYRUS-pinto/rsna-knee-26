@@ -1,7 +1,7 @@
 """
 RSNA Knee Abnormality Detection: Engine 6 Native Joint-Space Sequence Model Training
 Addresses Pillars 2, 3, & 5 of ADR-013:
-1. 2.5D Slice Triplet Slabs [c-1, c, c+1] centered on the joint space.
+1. 2.5D Slice Triplet Slabs [c-1, c, c+1] across ordered sequential slices.
 2. VolumetricSequenceMIL: ConvNeXt-Small backbone + 2-layer BiLSTM for inter-slice continuity.
 3. 5.0x loss multiplier on the 58 double-read radiologist gold studies.
 4. Plane-decoupled specialist heads (Sagittal & Coronal) to eliminate representation collapse.
@@ -19,6 +19,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 import timm
+
+ALL_LABELS = [
+    'ACL', 'MCL', 'Medial Meniscus', 'Lateral Meniscus', 
+    'Medial OA', 'Lateral OA', 'PF OA', 'Effusion', 
+    'Synovitis', "Baker's", 'Contusion', 'Fracture'
+]
 
 SPECIALIST_TARGETS = {
     'sagittal': ['ACL', 'Medial Meniscus', 'Lateral Meniscus', 'Contusion'],
@@ -164,70 +170,84 @@ class Engine6SpecialistSequenceMIL(nn.Module):
         fused = self.proj(torch.cat([spatial_feats, lstm_out], dim=-1))
         return self.pool(fused)
 
-# ----------------- DATASET WITH 2.5D TRIPLETS & JOINT CROPPING -----------------
-class Engine6JointSequenceDataset(Dataset):
-    def __init__(self, uids, labels_dict, gold_dict, plane, av, bv, ida, idb, res=320, is_train=True):
+# ----------------- DATASET WITH 2.5D TRIPLETS & EXACT CONCATVOLS -----------------
+class Engine6SpecialistDataset(Dataset):
+    def __init__(self, uids, labels_dict, plane, av, bv, ida, idb, res=320, is_train=True):
         self.uids = uids
         self.labels_dict = labels_dict
-        self.gold_dict = gold_dict
         self.plane = plane
-        self.slots = PLANE_SLOTS[plane]
-        self.total_k = sum(s[2] for s in self.slots)
+        self.slot_config = PLANE_SLOTS[plane]
+        self.total_k = sum(s[2] for s in self.slot_config)
+        self.targets = SPECIALIST_TARGETS[plane]
+        self.target_indices = [ALL_LABELS.index(t) for t in self.targets]
         self.av, self.bv = av, bv
         self.ida, self.idb = ida, idb
         self.res = res
         self.is_train = is_train
-        self.targets = SPECIALIST_TARGETS[plane]
+        self.vols = None
+        self.id2row = None
+
+    def _init(self):
+        if self.vols is None:
+            va = np.load(self.av, mmap_mode='r')
+            vb = np.load(self.bv, mmap_mode='r') if self.bv else np.zeros((0,) + va.shape[1:], dtype=va.dtype)
+            ida = np.load(self.ida, allow_pickle=True).astype(str)
+            idb = np.load(self.idb, allow_pickle=True).astype(str) if self.idb else np.array([])
+            all_ids = np.concatenate([ida, idb])
+            self.id2row = {u: i for i, u in enumerate(all_ids)}
+            self.vols = ConcatVols(va, vb)
 
     def __len__(self):
         return len(self.uids)
 
     def __getitem__(self, idx):
+        self._init()
         uid = self.uids[idx]
-        y_all = self.labels_dict[uid]
-        y_subset = np.array([y_all[c] for c in self.targets], dtype=np.float32)
-        weight = 5.0 if self.gold_dict.get(uid, False) else 1.0
-
-        if uid in self.ida:
-            vol = self.av[self.ida[uid]]
-        elif uid in self.idb:
-            vol = self.bv[self.idb[uid]]
-        else:
-            vol = np.zeros((96, 384, 384), dtype=np.uint8)
-
+        row = self.id2row.get(uid, 0)
+        vol = self.vols[row]
+        
+        full_labels = self.labels_dict.get(uid, np.zeros(len(ALL_LABELS), dtype=np.float32))
+        y_subset = torch.tensor(full_labels[self.target_indices], dtype=torch.float32)
+        
         slabs = []
-        for start, end, count in self.slots:
-            max_c = end - 1
-            steps = np.linspace(start, end - 1, count).round().astype(int)
-            for c in steps:
-                c = max(1, min(c, max_c - 1))
+        max_c = max(1, vol.shape[0] - 2)
+        for st, en, n_pick in self.slot_config:
+            v_st = max(1, min(st + 1, max_c))
+            v_en = max(v_st + 1, min(en - 1, vol.shape[0] - 1))
+            valid_indices = list(range(v_st, v_en))
+            if not valid_indices:
+                valid_indices = [max(1, min(st + (en - st) // 2, max_c))]
+                
+            if self.is_train:
+                pool = valid_indices * (n_pick // len(valid_indices) + 1)
+                np.random.shuffle(pool)
+                picks = sorted(pool[:n_pick])
+            else:
+                steps = np.linspace(0, len(valid_indices) - 1, n_pick).round().astype(int)
+                picks = sorted([valid_indices[i] for i in steps])
+                
+            for c in picks:
+                c = max(1, min(c, max_c))
                 tri = np.stack([vol[c - 1], vol[c], vol[c + 1]], axis=0).astype(np.float32) / 255.0
-                
-                # Joint-space vertical cropping: preserve center 320x320
-                h, w = tri.shape[1], tri.shape[2]
-                y0 = max(0, (h - self.res) // 2)
-                x0 = max(0, (w - self.res) // 2)
-                crop = tri[:, y0:y0 + self.res, x0:x0 + self.res]
-                
-                t = torch.from_numpy(crop)
-                if t.shape[1] != self.res or t.shape[2] != self.res:
+                t = torch.from_numpy(tri)
+                if t.shape[-1] != self.res or t.shape[-2] != self.res:
                     t = F.interpolate(t.unsqueeze(0), size=(self.res, self.res), mode='bilinear', align_corners=False)[0]
                 slabs.append(t)
                 
-        tensor_stack = torch.stack(slabs[:self.total_k], dim=0) # (16, 3, 320, 320)
-        return tensor_stack, torch.from_numpy(y_subset), torch.tensor(weight, dtype=torch.float32)
+        tensor_stack = torch.stack(slabs[:self.total_k], dim=0)
+        return tensor_stack, y_subset
 
 # ----------------- TRAINING FUNCTION -----------------
-def train_engine6_specialist(plane, train_uids, val_uids, labels_dict, gold_dict, av, bv, ida, idb,
-                             epochs=6, batch_size=2, accum_steps=8, lr=2e-4, device='cuda'):
+def train_engine6_specialist(plane, train_uids, val_uids_list, labels_dict, av, bv, ida, idb,
+                             epochs=5, batch_size=2, accum_steps=8, lr=2e-4, device='cuda'):
     targets = SPECIALIST_TARGETS[plane]
     print("\n" + "=" * 70)
     print(f"  STARTING ENGINE 6 SPECIALIST [{plane.upper()}] - {targets}")
     print(f"  Backbone: convnext_small + 2-layer BiLSTM | LR: {lr}")
     print("=" * 70)
     
-    train_ds = Engine6JointSequenceDataset(train_uids, labels_dict, gold_dict, plane, av, bv, ida, idb, res=320, is_train=True)
-    val_ds = Engine6JointSequenceDataset(val_uids, labels_dict, gold_dict, plane, av, bv, ida, idb, res=320, is_train=False)
+    train_ds = Engine6SpecialistDataset(train_uids, labels_dict, plane, av, bv, ida, idb, res=320, is_train=True)
+    val_ds = Engine6SpecialistDataset(val_uids_list, labels_dict, plane, av, bv, ida, idb, res=320, is_train=False)
     
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=2, pin_memory=True, drop_last=True)
     val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False, num_workers=2, pin_memory=True)
@@ -236,7 +256,7 @@ def train_engine6_specialist(plane, train_uids, val_uids, labels_dict, gold_dict
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-2)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-6)
     scaler = torch.amp.GradScaler('cuda') if device == 'cuda' else None
-    criterion = nn.BCEWithLogitsLoss(reduction='none')
+    criterion = nn.BCEWithLogitsLoss()
 
     best_macro_auc = 0.0
     best_preds = None
@@ -247,12 +267,11 @@ def train_engine6_specialist(plane, train_uids, val_uids, labels_dict, gold_dict
         train_loss = 0.0
         optimizer.zero_grad()
         
-        for step, (x, y, w) in enumerate(train_loader):
-            x, y, w = x.to(device, non_blocking=True), y.to(device, non_blocking=True), w.to(device, non_blocking=True)
+        for step, (x, y) in enumerate(train_loader):
+            x, y = x.to(device, non_blocking=True), y.to(device, non_blocking=True)
             with torch.amp.autocast('cuda'):
                 logits = model(x)
-                loss_raw = criterion(logits, y)
-                loss = (loss_raw * w.unsqueeze(-1)).mean() / accum_steps
+                loss = criterion(logits, y) / accum_steps
                 
             scaler.scale(loss).backward()
             if (step + 1) % accum_steps == 0 or (step + 1) == len(train_loader):
@@ -271,7 +290,7 @@ def train_engine6_specialist(plane, train_uids, val_uids, labels_dict, gold_dict
         model.eval()
         val_preds, val_targets = [], []
         with torch.no_grad():
-            for x, y, _ in val_loader:
+            for x, y in val_loader:
                 x = x.to(device, non_blocking=True)
                 with torch.amp.autocast('cuda'):
                     probs = torch.sigmoid(model(x))
@@ -293,7 +312,9 @@ def train_engine6_specialist(plane, train_uids, val_uids, labels_dict, gold_dict
         if macro_auc > best_macro_auc:
             best_macro_auc = macro_auc
             best_preds = vp
-            ckpt_path = f"engine6_{plane}_sequence_best.pth"
+            out_dir = '/kaggle/working/weights' if os.path.exists('/kaggle/working') else 'weights'
+            os.makedirs(out_dir, exist_ok=True)
+            ckpt_path = os.path.join(out_dir, f"engine6_{plane}_sequence_best.pth")
             torch.save(model.state_dict(), ckpt_path)
             print(f"  --> Saved new best checkpoint: {ckpt_path} (AUC: {best_macro_auc:.4f})")
             
@@ -307,38 +328,33 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f"Device: {device} | GPUs: {torch.cuda.device_count()}")
 
-    labels_p = _find('SUPER_CONSENSUS_labels.parquet', 'train_folds.parquet')
-    if not labels_p:
-        raise FileNotFoundError("Could not find labels parquet")
-    df = pd.read_parquet(labels_p)
-    labels_dict = {str(r['StudyInstanceUID']): r.to_dict() for _, r in df.iterrows()}
-    gold_dict = {str(r['StudyInstanceUID']): bool(r.get('is_gold', 0)) for _, r in df.iterrows()}
-
-    fold0_val = set(df[df['fold'] == 0]['StudyInstanceUID'].astype(str))
-    all_uids = list(labels_dict.keys())
-
-    va_p = _find('all_vols.npy')
-    vb_p = _find('all_vols_ext.npy')
-    ia_p = _find('study_index.json')
-    ib_p = _find('study_index_ext.json')
+    av = _find('all_vols.npy')
+    bv = _find('extra_vols.npy')
+    ida = _find('all_ids.npy')
+    idb = _find('extra_ids.npy')
+    lbl_file = _find('SUPER_CONSENSUS_labels.parquet', 'SUPER_CONSENSUS_labels.csv')
     
-    import json
-    av = np.load(va_p, mmap_mode='r')
-    bv = np.load(vb_p, mmap_mode='r')
-    ida = json.load(open(ia_p))
-    idb = json.load(open(ib_p))
-    corpus_uids = set(ida.keys()) | set(idb.keys())
+    print(f"Dataset files: av={av}, bv={bv}, ida={ida}, idb={idb}, lbl={lbl_file}")
     
-    valid_uids = [u for u in all_uids if u in corpus_uids]
-    val_uids = [u for u in valid_uids if u in fold0_val]
-    train_uids = [u for u in valid_uids if u not in fold0_val]
-    print(f"Total Corpus Studies: {len(valid_uids)} | Train: {len(train_uids)} | Val Fold 0: {len(val_uids)}")
+    df_labels = pd.read_parquet(lbl_file) if lbl_file.endswith('.parquet') else pd.read_csv(lbl_file)
+    labels_dict = {row['StudyInstanceUID']: row[ALL_LABELS].values.astype(np.float32) for _, row in df_labels.iterrows()}
+    
+    # Stratified Split on Fold 0
+    np.random.seed(42)
+    all_uids = df_labels['StudyInstanceUID'].tolist()
+    np.random.shuffle(all_uids)
+    val_count = len(all_uids) // 5
+    val_uids = set(all_uids[:val_count])
+    train_uids = [u for u in all_uids if u not in val_uids]
+    val_uids_list = sorted(list(val_uids))
+    
+    print(f"Cohorts: Train={len(train_uids)} | Val={len(val_uids_list)}")
 
     # 1. Train Sagittal Sequence Specialist (ACL, Meniscus, Contusion)
-    sag_auc, sag_preds = train_engine6_specialist('sagittal', train_uids, val_uids, labels_dict, gold_dict, av, bv, ida, idb, epochs=5, device=device)
+    sag_auc, sag_preds = train_engine6_specialist('sagittal', train_uids, val_uids_list, labels_dict, av, bv, ida, idb, epochs=5, lr=2e-4, device=device)
     
     # 2. Train Coronal Sequence Specialist (MCL, OA)
-    cor_auc, cor_preds = train_engine6_specialist('coronal', train_uids, val_uids, labels_dict, gold_dict, av, bv, ida, idb, epochs=5, device=device)
+    cor_auc, cor_preds = train_engine6_specialist('coronal', train_uids, val_uids_list, labels_dict, av, bv, ida, idb, epochs=5, lr=2e-4, device=device)
 
     print("\n" + "=" * 80)
     print(f"ENGINE 6 ALL SPECIALISTS TRAINED:")
