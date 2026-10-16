@@ -1,5 +1,5 @@
 """
-Exploratory OOF Audit: Arm A vs Engine 4 on 161 Fold 0 Intersection Studies.
+Exploratory OOF Audit: Arm A (ntejas_repo) vs Engine 4 on 161 Fold 0 Intersection Studies.
 NOTE: This experiment tests Arm A (ntejas_repo) vs collapsed Engine 4 (macro AUC 0.685).
 It does NOT evaluate Raptor or ConvNeXt R6 (Candidate V17/V20).
 Results are exploratory; tuning 12 weights on n=161 carries ~+0.0015 to +0.0020 selection noise.
@@ -7,7 +7,6 @@ Results are exploratory; tuning 12 weights on n=161 carries ~+0.0015 to +0.0020 
 
 import pandas as pd
 import numpy as np
-from scipy.optimize import minimize
 
 LABELS = [
     'ACL', 'MCL', 'Medial Meniscus', 'Lateral Meniscus', 
@@ -44,7 +43,8 @@ merged = arma_df.merge(e4_df, on='StudyInstanceUID', suffixes=('_arma', '_e4'))
 merged = merged.merge(super_df, on='StudyInstanceUID')
 
 print(f"==================================================================")
-print(f"  VALIDATION COHORT: {len(merged)} Studies on Fold 0")
+print(f"  EXPLORATORY AUDIT COHORT: {len(merged)} Studies on Fold 0 Intersection")
+print(f"  Models: Arm A (ntejas_repo) vs Engine 4 (collapsed, macro AUC 0.685)")
 print(f"==================================================================")
 
 # Evaluate Solo Arm A
@@ -77,16 +77,16 @@ macro_e4 = np.mean(list(aucs_e4.values()))
 macro_lin = np.mean(list(aucs_equal_blend.values()))
 macro_pow = np.mean(list(aucs_power_blend.values()))
 
-print(f"\n{'Finding':<18} | {'Arm A':<8} | {'Engine 4':<8} | {'Linear 50/50':<12} | {'Power (p=1.4)':<12}")
-print("-" * 68)
+print(f"\n{'Finding':<18} | {'Arm A (ntejas)':<14} | {'Engine 4':<8} | {'Linear 50/50':<12} | {'Power (p=1.4)':<12}")
+print("-" * 74)
 for col in LABELS:
-    print(f"{col:<18} | {aucs_arma[col]:.4f}   | {aucs_e4[col]:.4f}   | {aucs_equal_blend[col]:.4f}       | {aucs_power_blend[col]:.4f}")
-print("-" * 68)
-print(f"{'MACRO ROC-AUC':<18} | {macro_arma:.4f}   | {macro_e4:.4f}   | {macro_lin:.4f}       | {macro_pow:.4f}")
+    print(f"{col:<18} | {aucs_arma[col]:.4f}         | {aucs_e4[col]:.4f}   | {aucs_equal_blend[col]:.4f}       | {aucs_power_blend[col]:.4f}")
+print("-" * 74)
+print(f"{'MACRO ROC-AUC':<18} | {macro_arma:.4f}         | {macro_e4:.4f}   | {macro_lin:.4f}       | {macro_pow:.4f}")
 print("==================================================================")
 
 # 3. Find optimal weight w_arma in [0, 1] per finding
-print("\n>>> OPTIMIZING PER-CLASS WEIGHTS (w_arma vs 1 - w_arma) FOR MAXIMUM AUC <<<")
+print("\n>>> IN-SAMPLE GRID SEARCH WEIGHTS (w_arma vs 1 - w_arma) <<<")
 opt_weights = {}
 opt_aucs = {}
 
@@ -115,13 +115,16 @@ for col in LABELS:
 
 macro_opt = np.mean(list(opt_aucs.values()))
 
-print(f"\n{'Finding':<18} | {'Solo Arm A':<10} | {'Optimal Weight (Arm A)':<24} | {'Optimal AUC':<12} | {'Delta':<8}")
-print("-" * 76)
+print(f"\n{'Finding':<18} | {'Arm A Solo':<10} | {'Grid-Search Weight (Arm A)':<28} | {'In-Sample AUC':<14} | {'Delta':<8}")
+print("-" * 84)
 for col in LABELS:
     delta = opt_aucs[col] - aucs_arma[col]
     sign = "+" if delta >= 0 else ""
-    print(f"{col:<18} | {aucs_arma[col]:.4f}     | {opt_weights[col]:<24.2f} | {opt_aucs[col]:.4f}      | {sign}{delta:.4f}")
-print("-" * 76)
-print(f"{'MACRO ROC-AUC':<18} | {macro_arma:.4f}     | {'---':<24} | {macro_opt:.4f}      | +{macro_opt - macro_arma:.4f}")
+    print(f"{col:<18} | {aucs_arma[col]:.4f}     | {opt_weights[col]:<28.2f} | {opt_aucs[col]:.4f}        | {sign}{delta:.4f}")
+print("-" * 84)
+print(f"{'MACRO ROC-AUC':<18} | {macro_arma:.4f}     | {'---':<28} | {macro_opt:.4f}        | +{macro_opt - macro_arma:.4f}")
 print("==================================================================")
-
+print("CAVEAT: The +0.0022 in-sample gain is within expected selection noise")
+print("        (~+0.0015 expected for a 21-weight grid search across 12 classes on n=161).")
+print("        This test does NOT evaluate Raptor or ConvNeXt R6.")
+print("==================================================================")
