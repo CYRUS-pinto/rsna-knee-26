@@ -1,0 +1,21 @@
+{
+  "id": "cyruspinto/rsna-knee-engine5-decoupled-train",
+  "title": "RSNA Knee Engine5 Decoupled Train",
+  "code_file": "train_engine5_specialists_kaggle.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "dreaddevelopment/knee-raptor-corpus",
+    "dreaddevelopment/knee-raptor-corpus-ext",
+    "cyruspinto/rsna-knee-super-consensus-labels-0916"
+  ],
+  "competition_sources": [
+    "rsna-knee-abnormality-detection"
+  ],
+  "kernel_sources": [],
+  "model_sources": []
+}

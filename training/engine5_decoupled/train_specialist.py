@@ -67,7 +67,11 @@ def train_specialist_fold(plane='sagittal', fold=0, epochs=6, batch_size=2, accu
     print(f"  Backbone LR: {backbone_lr} (Warmup Epoch 1 Frozen) | Head LR: {head_lr}")
     print("=" * 75)
     
-    # 1. Load Labels
+    # 1. Load Labels & Folds
+    folds_file = os.path.join(data_path, 'train_folds.parquet')
+    if not os.path.exists(folds_file):
+        folds_file = 'train_folds.parquet'
+        
     labels_file = os.path.join(data_path, 'SUPER_CONSENSUS_labels.parquet')
     if not os.path.exists(labels_file):
         labels_file = 'SUPER_CONSENSUS_labels.parquet'
@@ -76,17 +80,27 @@ def train_specialist_fold(plane='sagittal', fold=0, epochs=6, batch_size=2, accu
     from src.data.plane_datasets import ALL_LABELS
     labels_dict = {row['StudyInstanceUID']: row[ALL_LABELS].values.astype(np.float32) for _, row in df_labels.iterrows()}
     
-    # 5-Fold Stratified Split by UID
-    all_uids = df_labels['StudyInstanceUID'].tolist()
-    np.random.seed(42 + fold)
-    shuffled_uids = list(all_uids)
-    np.random.shuffle(shuffled_uids)
-    val_count = len(shuffled_uids) // 5
-    val_uids = set(shuffled_uids[fold * val_count : (fold + 1) * val_count])
-    train_uids = [u for u in shuffled_uids if u not in val_uids]
-    val_uids_list = sorted(list(val_uids))
-    
-    print(f"  Cohort: Train={len(train_uids)} | Val={len(val_uids_list)}")
+    # Official Stratified Folds with Gold Isolation
+    if os.path.exists(folds_file):
+        df_folds = pd.read_parquet(folds_file)
+        # Exclude Gold-58 studies strictly from train and val
+        non_gold = df_folds[~df_folds['is_gold']]
+        train_uids = non_gold[non_gold['fold'] != fold]['StudyInstanceUID'].tolist()
+        val_uids_list = sorted(non_gold[non_gold['fold'] == fold]['StudyInstanceUID'].tolist())
+        gold_uids_list = sorted(df_folds[df_folds['is_gold']]['StudyInstanceUID'].tolist())
+        print(f"  [Official Folds]: Train={len(train_uids)} | Val={len(val_uids_list)} | Gold Holdout={len(gold_uids_list)}")
+    else:
+        # Fallback split
+        all_uids = df_labels['StudyInstanceUID'].tolist()
+        np.random.seed(42 + fold)
+        shuffled_uids = list(all_uids)
+        np.random.shuffle(shuffled_uids)
+        val_count = len(shuffled_uids) // 5
+        val_uids = set(shuffled_uids[fold * val_count : (fold + 1) * val_count])
+        train_uids = [u for u in shuffled_uids if u not in val_uids]
+        val_uids_list = sorted(list(val_uids))
+        gold_uids_list = []
+        print(f"  [Fallback Split]: Train={len(train_uids)} | Val={len(val_uids_list)}")
     
     # 2. Datasets & Loaders
     train_ds = PlaneSpecialistDataset(
