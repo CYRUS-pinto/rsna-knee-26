@@ -122,7 +122,9 @@ for col in LABELS:
     sign = "+" if delta >= 0 else ""
     print(f"{col:<18} | {aucs_arma[col]:.4f}     | {opt_weights[col]:<28.2f} | {opt_aucs[col]:.4f}        | {sign}{delta:.4f}")
 print("-" * 84)
-print(f"{'MACRO ROC-AUC':<18} | {macro_arma:.4f}     | {'---':<28} | {macro_opt:.4f}        | +{macro_opt - macro_arma:.4f}")
+macro_delta = macro_opt - macro_arma
+sign_macro = "+" if macro_delta >= 0 else ""
+print(f"{'MACRO ROC-AUC':<18} | {macro_arma:.4f}     | {'---':<28} | {macro_opt:.4f}        | {sign_macro}{macro_delta:.4f}")
 print("==================================================================")
 print("CAVEAT: The +0.0022 in-sample gain is within expected selection noise")
 print("        (~+0.0015 expected for a 21-weight grid search across 12 classes on n=161).")

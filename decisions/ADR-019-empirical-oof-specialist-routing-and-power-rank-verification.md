@@ -2,7 +2,7 @@
 
 **Status:** EXPLORATORY AUDIT ONLY (NOT GROUND TRUTH FOR RAPTOR / CONVNEXT R6)  
 **Date:** 2026-10-16  
-**Author:** Principal ML Systems Engineer & Kaggle Grandmaster Advisory  
+**Author:** Antigravity Engineering & External Review Audit  
 **Context:** RSNA Knee Abnormality Detection (Audit of Fold 0 Overlap Experiment)
 
 ---
