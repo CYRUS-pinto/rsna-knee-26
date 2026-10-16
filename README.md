@@ -44,12 +44,12 @@ Rather than relying on uncalibrated single models or bloated ensemble scripts, t
 | :--- | :--- | :---: | :---: | :---: | :--- |
 | **Baseline V6** | Dual-Engine Rank Blend (Raptor + ConvNeXt) | 412s | 0 | **0.956 PB** | **Slot 1 Permanent Lock** (Anchor) |
 | **Candidate V15** | Multi-Scale (384+224) + ConvNeXt R7 Flip TTA | 428s | 0 | **0.956 PB** | Validated Multi-Scale Alternative |
-| **Candidate V17** | Multi-Scale (384+224) + ConvNeXt R6 Flip TTA | **443.4s** | **0** | **Pending Scoring (`57253840`)** | Active High-Upside Candidate |
-| **Candidate V18** | Grandmaster Calibrated Multi-Scale + Soft Synovitis Proxy | **<450s** | **0** | **Staged & Ready** | Primary Alternative for Slot 2 |
+| **Candidate V17** | Multi-Scale (384+224) + ConvNeXt R6 Flip TTA | **443.4s** | **0** | **Scoring (`57253840`)** | Active Multi-Scale Candidate |
+| **Candidate V18** | Grandmaster Calibrated Multi-Scale + Soft Synovitis Proxy | **474.1s** | **0** | **Scoring (`57260494`)** | Primary High-Upside Slot 2 Alternative |
 | **V16 Placeholder** | *Untested Scratch ETL* | N/A | High | **Permanently Excluded** | **Never Select** |
 
-> [!IMPORTANT]
-> **Kaggle Compute State:** Currently at **2/2 concurrent GPU batch sessions** (`57253840` scoring evaluation + `engine5-decoupled-train` training). Candidate V18 is verified, staged, and ready to submit as soon as a batch GPU slot clears.
+> [!NOTE]
+> **Kaggle Execution Status:** Both Candidate V17 (`57253840`) and Candidate V18 (`57260494`) have completed dual-T4 offline execution ($<475$s, 0 fallbacks, $18,000 Efficiency Prize eligible) and are actively scoring against the hidden evaluation set.
 
 ---
 

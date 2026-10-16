@@ -17,7 +17,9 @@
 ## 2. Submission Protocol & Deployment State
 - **Kaggle Kernel ID**: `138982838` (Version 2)
 - **Kaggle URL**: [`cyruspinto/rsna-knee-v18-grandmaster-blend`](https://www.kaggle.com/code/cyruspinto/rsna-knee-v18-grandmaster-blend)
-- **Deployment Status**: Actively pushed and queued on Kaggle Dual Tesla T4 GPUs.
-- Candidate V18 serves as the backup/refinement to V17 if V17 establishes a positive score delta on the hidden test set.
-- Permanently preserves Slot 1 on V6 (`0.956`).
+- **Official Submission Ref**: **`57260494`** (Submitted `2026-10-16 07:48:55 UTC`)
+- **Evaluation Status**: **`SubmissionStatus.PENDING`** (Scoring against hidden test set)
+- **Verification**: 474.1s runtime, 0 fallbacks, 100% schema matched.
+- **Role in Portfolio**: Primary high-upside alternative for **Slot 2** (Slot 1 permanently locked to V6 `0.956`).
+
 
