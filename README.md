@@ -3,8 +3,11 @@
 [![Kaggle Competition](https://img.shields.io/badge/Kaggle-RSNA%20Knee%202026-blue.svg)](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection)
 [![Target Metric](https://img.shields.io/badge/Metric-Macro--Averaged%20ROC%20AUC-success.svg)]()
 [![Leaderboard Baseline](https://img.shields.io/badge/Verified%20Public%20LB-0.956-brightgreen.svg)]()
+[![Candidate V17](https://img.shields.io/badge/V17%20Submission-Scoring%20(443.4s)-orange.svg)]()
+[![Candidate V18](https://img.shields.io/badge/V18%20Grandmaster-Staged%20&%20Ready-blueviolet.svg)]()
 [![Target Tier](https://img.shields.io/badge/Target-Gold%20Tier%20(0.963%2B)-gold.svg)]()
 [![Efficiency Prize](https://img.shields.io/badge/Efficiency%20Prize-$18,000%20(T%20≤%20450s)-purple.svg)]()
+[![Domain Axioms](https://img.shields.io/badge/Grandmaster%20Axioms-200%20Rules%20Codified-yellow.svg)](docs/domain_master_axioms_200.md)
 [![Interactive Visualizer](https://img.shields.io/badge/Visualizer-Live%20HTML%20Demo-cyan.svg)](docs/multiplane_transformer_visualizer.html)
 
 ---
@@ -32,6 +35,21 @@ Rather than relying on uncalibrated single models or bloated ensemble scripts, t
 2. **Engine 2 (Pure Modern ConvNet)**: Heliosli **Release 7 (R7) ConvNeXt-S6** (with dedicated Osteoarthritis extent heads and synovitis decomposition).
 3. **Engine 3 (Sequence-Aware Multi-Plane Transformer)**: Our **Multi-Plane Slice-Transformer Head** (capturing contiguous 3D anatomical disruption across Sagittal, Coronal, and Axial planes with learned plane embeddings).
 4. **Monotonic Percentile Rank Fusion**: Scale-invariant uniform 1/3 rank ensembling that preserves relative ordering across disparate logit distributions ($T \approx 416$s, $18,000 Efficiency Prize compliant).
+
+---
+
+## ⚡ Live Competition Status & Candidates (Final 6 Days)
+
+| Submission Candidate | Pipeline Architecture | Verified Runtime | Fallbacks | Kaggle Status | Role in Selection |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| **Baseline V6** | Dual-Engine Rank Blend (Raptor + ConvNeXt) | 412s | 0 | **0.956 PB** | **Slot 1 Permanent Lock** (Anchor) |
+| **Candidate V15** | Multi-Scale (384+224) + ConvNeXt R7 Flip TTA | 428s | 0 | **0.956 PB** | Validated Multi-Scale Alternative |
+| **Candidate V17** | Multi-Scale (384+224) + ConvNeXt R6 Flip TTA | **443.4s** | **0** | **Pending Scoring (`57253840`)** | Active High-Upside Candidate |
+| **Candidate V18** | Grandmaster Calibrated Multi-Scale + Soft Synovitis Proxy | **<450s** | **0** | **Staged & Ready** | Primary Alternative for Slot 2 |
+| **V16 Placeholder** | *Untested Scratch ETL* | N/A | High | **Permanently Excluded** | **Never Select** |
+
+> [!IMPORTANT]
+> **Kaggle Compute State:** Currently at **2/2 concurrent GPU batch sessions** (`57253840` scoring evaluation + `engine5-decoupled-train` training). Candidate V18 is verified, staged, and ready to submit as soon as a batch GPU slot clears.
 
 ---
 
