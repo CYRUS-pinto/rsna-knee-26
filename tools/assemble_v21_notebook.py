@@ -256,8 +256,16 @@ def main():
     stage3_src = stage3_src.replace(
         "ours = pd.read_csv(WORK / 'ours_sub.csv', dtype={'StudyInstanceUID': str})",
         "ours = pd.read_csv(WORK / 'ours_sub.csv', dtype={'StudyInstanceUID': str})\n"
-        "e5 = pd.read_csv(WORK / 'engine5_sub.csv', dtype={'StudyInstanceUID': str})\n"
+        "e5 = pd.read_csv(WORK / 'engine5_sub.csv', dtype={'StudyInstanceUID': str})"
+    )
+    stage3_src = stage3_src.replace(
+        "ours = ours.set_index('StudyInstanceUID').loc[test_ids, labels]",
+        "ours = ours.set_index('StudyInstanceUID').loc[test_ids, labels]\n"
         "e5 = e5.set_index('StudyInstanceUID').loc[test_ids, labels]"
+    )
+    stage3_src = stage3_src.replace(
+        "for df, nm in ((ours, 'ours'), (raw, 'raptor_raw'), (rsub, 'raptor_sub'), (raw224, 'raptor224_raw'), (rsub224, 'raptor224_sub')):",
+        "for df, nm in ((ours, 'ours'), (e5, 'engine5'), (raw, 'raptor_raw'), (rsub, 'raptor_sub'), (raw224, 'raptor224_raw'), (rsub224, 'raptor224_sub')):"
     )
     
     # Update blending weights:
