@@ -20,4 +20,7 @@ This directory maintains the immutable decision log for the RSNA 2026 Knee Abnor
 | **[ADR-012](ADR-012-interactive-multiplane-attention-architecture-visualizer.md)** | Interactive Multi-Plane Visualizer Architecture | **Accepted** | Standalone browser-executable HTML visualizer (`docs/multiplane_transformer_visualizer.html`) for 12 findings. |
 | **[ADR-013](ADR-013-grandmaster-blueprint-pseudo-labeling-and-anatomical-rectification.md)** | Grandmaster Blueprint: Pseudo-Labeling, Rectification & Specialist Routing | **Accepted** | Iterative Bayesian pseudo-labeling, laterality rectification, dual-stream FOV, SWA, and 4-focal/8-systemic column routing. |
 | **[ADR-014](ADR-014-engine4-multiplane-convnext-mil-training.md)** | Proprietary Engine 4: Multi-Plane 2.5D ConvNeXt Attention MIL | **Accepted** | True 5-slot multi-plane physical sorting, 12 disentangled Gated Attention MIL heads, and continuous soft supervision to break the 0.956 plateau. |
+| **[ADR-015](ADR-015-plane-decoupled-specialists-anti-collapse.md)** | Plane-Decoupled Finding Specialists & Anti-Collapse Protocol | **Accepted** | Decouples Sagittal (cruciate/menisci/contusion), Coronal (collateral/OA), and Axial specialists; lifts Sagittal ACL to 0.8636. |
+| **[ADR-016](ADR-016-strategic-triage-and-v17-deployment-truth.md)** | Strategic Triage, Engine 5 Post-Mortem & V17 Inference Truth | **Accepted** | Forensic audit of Engine 5 dataset slice variance & missing test DICOM ETL; confirms V17 443.4s dual-arm pipeline and locks competition strategy. |
+
 
