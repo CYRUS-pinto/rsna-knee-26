@@ -2,8 +2,9 @@
 
 ### Active Candidate Status
 - **V6 (0.956)**: [Ref `57165672`] - Slot 1 **PERMANENTLY LOCKED** (Benchmark Anchor).
-- **V17 (MultiScale 384+224 + ConvNeXt R6 Flip TTA)**: [Ref `57253840`] - Status: **`COMPLETE` -> `0.958`** (443.4s on 3-study offline run; check Kaggle UI for hidden evaluation runtime).
-- **V18 (Grandmaster MultiScale + Asymmetric Weights + Soft Synovitis Prior)**: [Ref `57260494`] - Status: `SubmissionStatus.PENDING` (Submitted `2026-10-16 07:48:55 UTC`).
+- **V17 (MultiScale 384+224 + ConvNeXt R6 Flip TTA)**: [Ref `57253840`] - Status: **`COMPLETE` -> `0.958`** (443.4s on 3-study offline run; check Kaggle UI for hidden evaluation runtime). Top candidate for Slot 2.
+- **V18 (Grandmaster MultiScale + Asymmetric Weights + Soft Synovitis Prior)**: [Ref `57260494`] - Status: `SubmissionStatus.PENDING` (Submitted `2026-10-16 07:48:55 UTC`). Kernel execution completed; scoring in progress.
+- **V20 (Generalized Power-Rank Master Blend $p=1.4$)**: Kernel ID: `139004598` - Status: `KernelWorkerStatus.RUNNING` on Kaggle Dual Tesla T4 GPUs.
 
 ---
 
@@ -18,5 +19,5 @@
   - **Uplift**: Broke the 0.956 barrier (`0.956 -> 0.958`).
   - **Runtime**: 443.4s on the 3-study offline run; Kaggle hidden evaluation runtime to be verified in Kaggle Submissions UI.
   - **Role**: Current top candidate for **Slot 2**.
-- `[2026-10-16 08:54:57 UTC]` **V17 SUBMISSION COMPLETE!** Public Score: `0.958` (Ref: `57253840`)
-- `[2026-10-16 08:55:38 UTC]` V18 Status Error: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+- `[2026-10-16 09:41:46 UTC]` **V18 Kernel Worker Completed** (`KernelWorkerStatus.COMPLETE`). Kaggle hidden metric evaluation in final scoring phase.
+- `[2026-10-16 09:42:24 UTC]` 🚀 **Candidate V20 Pushed to Kaggle Dual T4 GPUs**: `cyruspinto/rsna-knee-v20-power-rank-blend` (Kernel ID: `139004598`). Status: `KernelWorkerStatus.RUNNING`. Generalized Power-Rank ($p=1.4$) continuous focal amplification.
