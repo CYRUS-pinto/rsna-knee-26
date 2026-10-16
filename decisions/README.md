@@ -22,5 +22,6 @@ This directory maintains the immutable decision log for the RSNA 2026 Knee Abnor
 | **[ADR-014](ADR-014-engine4-multiplane-convnext-mil-training.md)** | Proprietary Engine 4: Multi-Plane 2.5D ConvNeXt Attention MIL | **Accepted** | True 5-slot multi-plane physical sorting, 12 disentangled Gated Attention MIL heads, and continuous soft supervision to break the 0.956 plateau. |
 | **[ADR-015](ADR-015-plane-decoupled-specialists-anti-collapse.md)** | Plane-Decoupled Finding Specialists & Anti-Collapse Protocol | **Accepted** | Decouples Sagittal (cruciate/menisci/contusion), Coronal (collateral/OA), and Axial specialists; lifts Sagittal ACL to 0.8636. |
 | **[ADR-016](ADR-016-strategic-triage-and-v17-deployment-truth.md)** | Strategic Triage, Engine 5 Post-Mortem & V17 Inference Truth | **Accepted** | Forensic audit of Engine 5 dataset slice variance & missing test DICOM ETL; confirms V17 443.4s dual-arm pipeline and locks competition strategy. |
+| **[ADR-017](ADR-017-external-data-provenance-and-ground-truth-independence.md)** | External Data Provenance & Ground Truth Independence | **Accepted** | Audits OAI, fastMRI, SKM-TEA data compliance; proves 0.90 report discrepancy barrier and confirms bundle fe055406 integrity. |
 
 
