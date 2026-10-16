@@ -105,26 +105,29 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f"[Stage 2b] Engine 5 Specialists starting on {device}...")
     
-    # Locate weights from mounted kernel
-    weight_dir = None
-    for cand in [
-        '/kaggle/input/rsna-knee-engine5-decoupled-train/weights',
-        '/kaggle/input/datasets/cyruspinto/rsna-knee-engine5-decoupled-train/weights',
-        'training/engine5_decoupled/kaggle_output/weights'
-    ]:
-        if os.path.isdir(cand):
-            weight_dir = Path(cand)
-            break
-            
-    if weight_dir is None:
-        raise FileNotFoundError("Could not find Engine 5 weights directory")
-        
+    def _find_file(filename, root='/kaggle/input'):
+        for r, _, files in os.walk(root):
+            for f in files:
+                if filename.lower() == f.lower():
+                    return os.path.join(r, f)
+        # Check current working directory as fallback
+        for r, _, files in os.walk('.'):
+            for f in files:
+                if filename.lower() == f.lower():
+                    return os.path.join(r, f)
+        return None
+
     # Load models
     models = {}
     for plane in ['sagittal', 'coronal', 'axial']:
+        fname = f"engine5_{plane}_fold0_best.pth"
+        w_path = _find_file(fname)
+        if w_path is None:
+            all_in = [os.path.join(r, f) for r, _, files in os.walk('/kaggle/input') for f in files]
+            raise FileNotFoundError(f"Could not find {fname}. Available input files: {all_in[:30]}")
+            
         num_classes = len(SPECIALIST_TARGETS[plane])
         m = SpecialistMIL(num_classes=num_classes).to(device)
-        w_path = weight_dir / f"engine5_{plane}_fold0_best.pth"
         sd = torch.load(w_path, map_location=device, weights_only=True)
         m.load_state_dict(sd)
         m.eval()

@@ -30,3 +30,8 @@
 - [2026-10-16 12:05:00 UTC] **Full 5-Fold Benchmark (Arm A / CoAtNet-d4)**: Macro-AUC **0.85360** across all 4,407 unique studies in the dataset (tools/eval_arma_5fold.py). Medial Meniscus 0.9144, Synovitis 0.8883, Fracture 0.8818.
 - [2026-10-16 12:07:00 UTC] **ADR-020 Formally Adopted**: Quad-Engine Multi-Plane Specialist Architecture & Full-Dataset Validation.
 - [2026-10-16 12:09:19 UTC] 🚀 **Candidate V21 Pushed to Kaggle Dual T4 GPUs**: cyruspinto/rsna-knee-v21-quad-engine-blend. Status: RUNNING. Quad-Engine Multi-Plane Specialist Blend (Raptor-384, Raptor-224, ConvNeXt R6 3D joint crops, Engine 5 2.5D slice triples).
+- `[2026-10-16 12:46:05 UTC]` **V18 SUBMISSION COMPLETE!** Public Score: `0.957` (Ref: `57260494`)
+- `[2026-10-16 12:46:05 UTC]` Both V17 and V18 submissions have completed evaluation!
+- [2026-10-16 12:46:05 UTC] **V18 Evaluation Complete: 0.957 Public Score** (Ref: 57260494). Underperforms V17 (0.958). Decision Rule Executed: **Candidate V17 (0.958) remains locked in Slot 2**.
+- [2026-10-16 12:49:06 UTC] **Kaggle Dataset Created**: cyruspinto/rsna-knee-engine5-weights (Status: ready).
+- [2026-10-16 12:51:11 UTC] 🚀 **Candidate V21 Version 2 Pushed to Kaggle Dual T4 GPUs**: cyruspinto/rsna-knee-v21-quad-engine-blend. Status: RUNNING. Quad-Engine Multi-Plane Specialist Blend connected directly to cyruspinto/rsna-knee-engine5-weights.

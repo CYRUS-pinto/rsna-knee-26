@@ -14,11 +14,10 @@
   "dataset_sources": [
     "heliosli/rsna-knee-r6-frozen-fe055406-w1",
     "nartaa/rsna-knee-publication-swa-weights-20261007",
-    "heliosli/rsna-orthofoundation-fold0-epoch7-20261004"
+    "heliosli/rsna-orthofoundation-fold0-epoch7-20261004",
+    "cyruspinto/rsna-knee-engine5-weights"
   ],
-  "kernel_sources": [
-    "cyruspinto/rsna-knee-engine5-decoupled-train"
-  ],
+  "kernel_sources": [],
   "competition_sources": [
     "rsna-knee-abnormality-detection"
   ],
