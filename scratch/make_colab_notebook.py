@@ -65,11 +65,12 @@ cells.append({
     "source": [
         "import os\n",
         "os.makedirs('/root/.kaggle', exist_ok=True)\n",
-        "# Direct Access Token authentication\n",
-        "os.environ['KAGGLE_API_TOKEN'] = 'KGAT_f10b3b14e370d1fdb87c640a42898ac2'\n",
-        "with open('/root/.kaggle/access_token', 'w') as f:\n",
-        "    f.write('KGAT_f10b3b14e370d1fdb87c640a42898ac2')\n",
-        "os.chmod('/root/.kaggle/access_token', 0o600)\n",
+        "# Kaggle authentication via environment variable or kaggle.json\n",
+        "kaggle_token = os.environ.get('KAGGLE_API_TOKEN', '')\n",
+        "if kaggle_token:\n",
+        "    with open('/root/.kaggle/access_token', 'w') as f:\n",
+        "        f.write(kaggle_token)\n",
+        "    os.chmod('/root/.kaggle/access_token', 0o600)\n",
         "\n",
         "!kaggle -v\n",
         "print('Kaggle API authenticated successfully.')"
