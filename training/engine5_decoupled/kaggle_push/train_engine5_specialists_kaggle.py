@@ -216,10 +216,13 @@ class SpecialistKaggleDataset(Dataset):
         y_subset = torch.tensor(full_labels[self.target_indices], dtype=torch.float32)
         
         slabs = []
+        max_c = max(1, vol.shape[0] - 2)
         for st, en, n_pick in self.slot_config:
-            valid_indices = list(range(max(1, st + 1), min(vol.shape[0] - 1, en - 1)))
+            v_st = max(1, min(st + 1, max_c))
+            v_en = max(v_st + 1, min(en - 1, vol.shape[0] - 1))
+            valid_indices = list(range(v_st, v_en))
             if not valid_indices:
-                valid_indices = [st + (en - st) // 2]
+                valid_indices = [max(1, min(st + (en - st) // 2, max_c))]
                 
             if self.is_train:
                 pool = valid_indices * (n_pick // len(valid_indices) + 1)
@@ -230,6 +233,7 @@ class SpecialistKaggleDataset(Dataset):
                 picks = sorted([valid_indices[i] for i in steps])
                 
             for c in picks:
+                c = max(1, min(c, max_c)) # Strict boundary clamp
                 tri = np.stack([vol[c - 1], vol[c], vol[c + 1]], axis=0).astype(np.float32) / 255.0
                 t = torch.from_numpy(tri)
                 if t.shape[-1] != self.res or t.shape[-2] != self.res:
@@ -343,9 +347,11 @@ def train_single_specialist(plane, train_uids, val_uids_list, labels_dict, av, b
         if macro_auc > best_macro_auc:
             best_macro_auc = macro_auc
             best_preds = val_preds
-            os.makedirs('weights', exist_ok=True)
-            torch.save(model.state_dict(), f"weights/engine5_{plane}_fold0_best.pth")
-            print(f">> Saved Best [{plane.upper()}] Weights (AUC: {macro_auc:.5f}) <<")
+            out_dir = '/kaggle/working/weights' if os.path.exists('/kaggle/working') else 'weights'
+            os.makedirs(out_dir, exist_ok=True)
+            weight_path = os.path.join(out_dir, f"engine5_{plane}_fold0_best.pth")
+            torch.save(model.state_dict(), weight_path)
+            print(f">> Saved Best [{plane.upper()}] Weights to {weight_path} (AUC: {macro_auc:.5f}) <<")
             
     return best_macro_auc, best_preds
 
@@ -393,8 +399,11 @@ def main():
     # Combine & Evaluate 12 Classes
     df_oof = pd.DataFrame(all_oof)
     df_oof['StudyInstanceUID'] = val_uids_list
-    os.makedirs('oof', exist_ok=True)
-    df_oof.to_parquet('oof/oof_engine5_combined_fold0.parquet', index=False)
+    oof_dir = '/kaggle/working/oof' if os.path.exists('/kaggle/working') else 'oof'
+    os.makedirs(oof_dir, exist_ok=True)
+    combined_path = os.path.join(oof_dir, 'oof_engine5_combined_fold0.parquet')
+    df_oof.to_parquet(combined_path, index=False)
+    print(f">> Saved Combined 12-Class OOF to {combined_path} <<")
     
     print("\n" + "=" * 70)
     print("  ENGINE 5 OVERALL 12-CLASS PERFORMANCE")
