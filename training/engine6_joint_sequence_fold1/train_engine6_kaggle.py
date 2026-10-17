@@ -41,12 +41,23 @@ PLANE_SLOTS = {
     'coronal': [(48, 66, 8), (66, 78, 8)]      # 16 sequential slices total
 }
 
-def exact_roc_auc(y_true, y_score):
-    """Zero-dependency exact Wilcoxon-Mann-Whitney ROC-AUC."""
-    y_true = np.asarray(y_true, bool)
-    y_score = np.asarray(y_score, float)
-    pos = y_score[y_true]
-    neg = y_score[~y_true]
+def exact_roc_auc(y_true, y_score, threshold=0.25):
+    """
+    Exact Wilcoxon-Mann-Whitney ROC-AUC.
+    If y_true contains continuous probabilities, threshold them at `threshold`
+    to establish clean positive vs negative cohorts for ranking evaluation.
+    """
+    y_true_arr = np.asarray(y_true, float)
+    y_score_arr = np.asarray(y_score, float)
+    
+    # If continuous soft targets, threshold into binary classes
+    if np.any((y_true_arr > 0.0) & (y_true_arr < 1.0)):
+        y_bool = (y_true_arr >= threshold)
+    else:
+        y_bool = (y_true_arr > 0.5)
+        
+    pos = y_score_arr[y_bool]
+    neg = y_score_arr[~y_bool]
     n_pos, n_neg = len(pos), len(neg)
     if n_pos == 0 or n_neg == 0:
         return 0.5

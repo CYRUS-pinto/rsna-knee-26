@@ -41,12 +41,23 @@ PLANE_SLOTS = {
     'coronal': [(48, 66, 8), (66, 78, 8)]      # 16 sequential slices total
 }
 
-def exact_roc_auc(y_true, y_score):
-    """Zero-dependency exact Wilcoxon-Mann-Whitney ROC-AUC."""
-    y_true = np.asarray(y_true, bool)
-    y_score = np.asarray(y_score, float)
-    pos = y_score[y_true]
-    neg = y_score[~y_true]
+def exact_roc_auc(y_true, y_score, threshold=0.25):
+    """
+    Exact Wilcoxon-Mann-Whitney ROC-AUC.
+    If y_true contains continuous probabilities, threshold them at `threshold`
+    to establish clean positive vs negative cohorts for ranking evaluation.
+    """
+    y_true_arr = np.asarray(y_true, float)
+    y_score_arr = np.asarray(y_score, float)
+    
+    # If continuous soft targets, threshold into binary classes
+    if np.any((y_true_arr > 0.0) & (y_true_arr < 1.0)):
+        y_bool = (y_true_arr >= threshold)
+    else:
+        y_bool = (y_true_arr > 0.5)
+        
+    pos = y_score_arr[y_bool]
+    neg = y_score_arr[~y_bool]
     n_pos, n_neg = len(pos), len(neg)
     if n_pos == 0 or n_neg == 0:
         return 0.5
@@ -339,16 +350,32 @@ def main():
     df_labels = pd.read_parquet(lbl_file) if lbl_file.endswith('.parquet') else pd.read_csv(lbl_file)
     labels_dict = {row['StudyInstanceUID']: row[ALL_LABELS].values.astype(np.float32) for _, row in df_labels.iterrows()}
     
-    # Stratified Split on Fold 0
-    np.random.seed(42)
+    # Check for competition train.csv with 58 multi-reader gold studies
+    train_csv_file = _find('train.csv')
+    gold_ids = set()
+    if train_csv_file:
+        tr_df = pd.read_csv(train_csv_file)
+        tr_df['StudyInstanceUID'] = tr_df['StudyInstanceUID'].astype(str)
+        gold_df = tr_df[tr_df[ALL_LABELS].notna().all(axis=1)].set_index('StudyInstanceUID')
+        gold_ids = set(gold_df.index)
+        for u in gold_ids:
+            if u in gold_df.index:
+                labels_dict[u] = gold_df.loc[u, ALL_LABELS].values.astype(np.float32)
+        print(f"Found {len(gold_ids)} gold-anchor studies in {train_csv_file}. Overwriting with true binary targets.")
+
     all_uids = df_labels['StudyInstanceUID'].tolist()
-    np.random.shuffle(all_uids)
-    val_count = len(all_uids) // 5
-    val_uids = set(all_uids[:val_count])
-    train_uids = [u for u in all_uids if u not in val_uids]
-    val_uids_list = sorted(list(val_uids))
+    if len(gold_ids) > 0:
+        val_uids_list = sorted([u for u in gold_ids if u in labels_dict])
+        train_uids = [u for u in all_uids if u not in gold_ids]
+    else:
+        np.random.seed(42)
+        np.random.shuffle(all_uids)
+        val_count = len(all_uids) // 5
+        val_uids = set(all_uids[:val_count])
+        train_uids = [u for u in all_uids if u not in val_uids]
+        val_uids_list = sorted(list(val_uids))
     
-    print(f"Cohorts: Train={len(train_uids)} | Val={len(val_uids_list)}")
+    print(f"Cohorts: Train={len(train_uids)} | Val (Gold Anchor)={len(val_uids_list)}")
 
     # 1. Train Sagittal Sequence Specialist (ACL, Meniscus, Contusion)
     sag_auc, sag_preds = train_engine6_specialist('sagittal', train_uids, val_uids_list, labels_dict, av, bv, ida, idb, epochs=5, lr=2e-4, device=device)
