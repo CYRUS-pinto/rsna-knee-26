@@ -2,14 +2,12 @@
 
 **Repository:** [https://github.com/CYRUS-pinto/rsna-knee-26](https://github.com/CYRUS-pinto/rsna-knee-26)  
 **Competition:** [RSNA Knee Abnormality Detection Challenge](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection)  
-**Target Metric:** Macro-Averaged ROC AUC (across 12 binary abnormalities)  
-**Secondary Target:** $18,000 Efficiency Prize ($T_{\text{inference}} \le 500$s on Kaggle Dual T4 GPUs)  
-**Current Personal Best (PB):** **0.956** (Version 6, Clean Uniform 50/50 Dual Engine Rank Blend)  
-**Competition Rank:** Rank ~120–150 of 5,815 teams (**Top ~2%**)  
-**Current Date:** October 15, 2026  
-**Immediate Hard Deadline:** **Team Merger Deadline TONIGHT at 11:59 PM UTC (5:29 AM IST, Oct 16)**  
-**Final Submission Deadline:** October 22, 2026  
-**Master Issues Register:** See [RSNA_Knee_Handoff_v2.md](RSNA_Knee_Handoff_v2.md) for the verified external peer audit and issues log.
+**Target Metric:** Macro-Averaged ROC AUC (across 12 binary abnormalities, baseline sample_submission = 0.500)  
+**Standing & Benchmark PB:** **0.958** (Candidate V17 Ref `57253840` & Candidate V20 Ref `57267740`, 23 total entries). High leaderboard density (~400 teams per 0.001 AUC); private LB (70%) determines all medals.  
+**Current Date:** October 18, 2026 (4 days until final deadline)  
+**Final Submission Deadline:** **October 22, 2026 at 23:59 UTC** (Monday Oct 19 Hard Code Freeze)  
+**Displacement Gate:** Never change final selections for a $\le 0.001$ noise move. A candidate must score **$\ge 0.961$** to displace a final slot.  
+**Master Issues Register:** See [RSNA_Knee_Handoff_v2.md](RSNA_Knee_Handoff_v2.md), [decisions/ADR-035-silver-defense-runtime-reality-and-unconfounded-slot2.md](decisions/ADR-035-silver-defense-runtime-reality-and-unconfounded-slot2.md), and [decisions/ADR-036-e11-diagnostic-audit-and-noise-risk.md](decisions/ADR-036-e11-diagnostic-audit-and-noise-risk.md).
 
 ---
 
@@ -99,18 +97,28 @@ An external professional evaluation (conducted via Claude) reviewed our log file
 
 ---
 
-## 3. The Score History & Forensic Autopsy (V1–V12)
+## 3. The Score History & Forensic Autopsy (V1–V26)
 
 | Version | Public LB | Status | Model Configuration | Forensic Finding & Key Takeaway |
 | :---: | :---: | :---: | :--- | :--- |
 | **V1–V5** | `< 0.940` | Retired | Single-model prototypes, naive PyDICOM | Inverted slice order and uncalibrated thresholds degraded AUC. |
-| **V6** | **0.956** | **Personal Best** | **Dual Engine Uniform 50/50 Rank Blend** (CoAtNet SWA + ConvNeXt R7) | **Verified Bedrock.** C++ `fastread` with 3D physical normal sorting. Minimum variance rank fusion. |
-| **V7** | `0.955` | Evaluated | Finding-specific asymmetric weights (CoAtNet 65% on tears, ConvNeXt 70% on OA) | -0.001 shift. On ~400 public test cases, 0.001 is within statistical noise. Proved that shifting weights between two models yields no empirical gain. |
-| **V8** | `0.955` | Evaluated | Test-Time Augmentation (Horizontal Flip) | -0.001 shift. Horizontal flip inverts Medial and Lateral compartmental anatomy without compartment-aware label swapping. |
-| **V9–V11** | `0.955` | Evaluated | Heuristic conditional priors (`+0.15*ACL -> Contusion`, etc.) | -0.001 shift. Improved Gold-58 locally (+0.016) but showed zero public gain. Inverts rankings on discordant patient subsets ($ACL^- / \text{Contusion}^+$). |
-| **V12 (Kaggle)** | *Running* | Live Running | Super-Consensus V2 Weights + Priors | Earlier Kaggle iteration launched before local pipeline cleanup. |
-| **V12 (Local)** | *Ready* | **Offline Verified** | **All heuristic priors excised**. Pure uniform rank blending restored | Cleaned, unadjusted candidate ready for submission if needed. |
-| **Engine 3** | *Halted* | Halted | CoAtNet-2 384 + 3D Slice-Transformer (A100) | Diverged at Epoch 2 (AUC 0.5000) due to BF16 GradScaler + LR 1e-3. Halted to conserve compute credits. |
+| **V6** (Ref `57165672`) | **0.956** | **Slot 1 Permanent Lock** | **Dual Engine Uniform 50/50 Rank Blend** (CoAtNet SWA + ConvNeXt R7) | **Verified Bedrock.** C++ `fastread` with 3D physical normal sorting. Minimum variance rank fusion. |
+| **V7–V11** | `0.955` | Evaluated | Heuristic conditional priors (`+0.15*ACL -> Contusion`, etc.) & naive flips | -0.001 drop. Improved Gold-58 locally (+0.016) but showed zero public gain. Inverts discordant subsets. |
+| **V15** (Ref `57238387`) | **0.956** | Evaluated | Multi-Scale (384 + 224) + ConvNeXt R7 with Anatomical Flip TTA | Verified multi-scale stability. |
+| **V17** (Ref `57253840`) | **0.958** | **Slot 2 Personal Best** | **MultiScale (384+224) + ConvNeXt R6 Flip TTA with Calibrated Finding Weights** | **Current Benchmark PB.** Reached 0.958 plateau with clean dual-engine multi-scale representations. |
+| **V18** (Ref `57260494`) | `0.957` | Evaluated | Grandmaster MultiScale + ConvNeXt R6 Flip TTA + Calibrated Weights + Heuristic Clamping Floor | Heuristic clamping floor introduced edge noise, dropping 0.001. |
+| **V20** (Ref `57267740`) | **0.958** | **Co-PB** | Power-Rank Focal Blend ($p=1.4$) | Reached 0.958, demonstrating power-rank curvature behaves similarly to uniform ranking on this plateau. |
+| **V21** (Ref `57273256`) | `0.949` | Evaluated | Quad-Engine Blend (Apex V21) | Catastrophic correlation breakdown caused by untracked missing series in unaligned engines. |
+| **V22** (Ref `57280117`) | `0.957` | Evaluated | Decoupled Compartmental Blend (ADR-022) | Attempted to decouple Medial/Lateral weights based on a 3-row Spearman artifact; confirmed -0.001 drop. |
+| **V23** (Ref `57293215`) | `0.957` | Evaluated | 384px R7 MultiScale + Raptor Dual-Crop + ADR-022 Decoupled | Proved that the 0.957 ceiling was caused by the decoupled weight inversion, leading to ADR-024. |
+| **V24** (Ref `57298964`) | `0.956` | Evaluated | **ADR-024 Uniform Master Blend** (0.50 / 0.50 across all 12 classes) | Rectified weights back to uniform 50/50 balance across all compartments. |
+| **V25** (Ref `57301656`) | `0.956` | Evaluated | **Flagship Master**: 384px R7 MultiScale + Raptor Dual-Crop + ADR-024 Uniform + **ConvNeXt Flip TTA** | High-capacity blend; confirmed Flip TTA yields no score gain on this public slice set. |
+| **V26-Fast** (Ref `57300862`) | **0.949** | **Complete** | **Pure MultiScale Raptor** (384 + 224, 65/35, Pure Fastread) | **$18k Efficiency Frontier Benchmark.** Measured ~150s runtime; proved ConvNeXt adds +0.009 AUC ensembling gain. |
+| **V28** (Ref `57308728`) | `0.957` | **Evaluated** | **Calibrated Grandmaster**: 384px R7 + Raptor + Specialist Weights + Flip TTA | Ran for >5h in queue; regressed to 0.957. Commit run was 878.6s (setup 552.5s). Proved micro-weights overfit noise. |
+| **V30** | — | **Complete (427s)** | **Lightning Power Master** (Stride-2 Window Pruning, 262 windows) | Successfully proved Stride-2 cuts forward passes by ~48% with zero compute bottlenecks. |
+| **V31** | — | **Purged** | 4-Fold Capacity Bloat (Collinear Averaging) | Cancelled to release GPU concurrency for orthogonal representations. |
+| **V32** | — | **Ready for Quota** | **Tri-Engine Non-FS Medical Master** (Raptor + R7 + RadImageNet ResNet-50 E11) | Adds Non-Fat-Suppressed anatomical plane features. Patched with slice-count tie-breaker and verified via direct `exec()`. |
+| **V32-Ablation** | — | **Ready for Quota** | **Stride-2 Control Twin** (Raptor + R7 Stride-2, `W_RAD = 0.0`) | Bit-for-bit control twin isolating the RadImageNet arm lift from Stride-2. Verified via direct `exec()`. |
 
 ---
 
@@ -274,6 +282,35 @@ Every core engineering decision is formally catalogued in [`decisions/`](decisio
 - **[ADR-010: $18,000 Efficiency Prize Compliance & Uniform 1/3 Fusion](decisions/ADR-010-efficiency-prize-and-rank-fusion.md)**: Pure uniform rank averaging ($T \le 450$s) preserves eligibility for the $18k Efficiency Prize.
 - **[ADR-011: T4 GPU Cloud Training Memory Guardrails](decisions/ADR-011-t4-memory-guardrails-and-gradient-checkpointing.md)**: Gradient checkpointing, native FP16 GradScaler, and chunk_size=8 eliminate cuDNN crashes and CUDA OOM on Kaggle T4.
 - **[ADR-012: Interactive Multi-Plane Visualizer Architecture](decisions/ADR-012-interactive-multiplane-attention-architecture-visualizer.md)**: Browser-executable visualizer (`docs/multiplane_transformer_visualizer.html`) for all 12 pathologies.
+- **[ADR-013: Grandmaster Blueprint Pseudo-Labeling & Anatomical Rectification](decisions/ADR-013-grandmaster-blueprint-pseudo-labeling-and-anatomical-rectification.md)**: Cross-plane spatial consistency and soft-label thresholds.
+- **[ADR-014: Engine 4 MultiPlane ConvNeXt-MIL Training Protocol](decisions/ADR-014-engine4-multiplane-convnext-mil-training.md)**: Isolated plane encoders for multi-task stability.
+- **[ADR-015: Plane-Decoupled Specialists Anti-Collapse](decisions/ADR-015-plane-decoupled-specialists-anti-collapse.md)**: Partitioning heads to prevent gradient interference.
+- **[ADR-016: Strategic Triage and V17 Deployment Truth](decisions/ADR-016-strategic-triage-and-v17-deployment-truth.md)**: Establishing Candidate V17 (`0.958`, Ref `57253840`) as our primary benchmark.
+- **[ADR-017: External Data Provenance & Ground Truth Independence](decisions/ADR-017-external-data-provenance-and-ground-truth-independence.md)**: OAI dataset integration rules and mask discipline.
+- **[ADR-018: Prevalence Shift & Rank Quantile Grandmaster Blueprint](decisions/ADR-018-prevalence-shift-and-rank-quantile-grandmaster-blueprint.md)**: Handling distribution shifts between training text reports and radiologist test evaluation.
+- **[ADR-019: Empirical OOF Specialist Routing & Power-Rank Verification](decisions/ADR-019-empirical-oof-specialist-routing-and-power-rank-verification.md)**: Verification of focal power-rank curvature ($p=1.4$, V20 co-PB `0.958`).
+- **[ADR-020: Quad-Engine Multi-Plane Specialist Architecture](decisions/ADR-020-quad-engine-multiplane-specialist-architecture.md)**: Architectural analysis of multi-engine fusion failures (V21 collapse to `0.949`).
+- **[ADR-021: Post-Plateau 30-Submission Roadmap](decisions/ADR-021-post-plateau-30-submission-roadmap.md)**: Discipline for final competition week and submission quota budgeting.
+- **[ADR-022: Resolution of Negative Spearman Rank Inversion](decisions/ADR-022-resolution-of-negative-spearman-rank-inversion.md)**: Preliminary hypothesis that medial/lateral compartmental finding weights were inverted.
+- **[ADR-023: R7 MultiScale Decoupled Architecture](decisions/ADR-023-r7-multiscale-decoupled-architecture.md)**: Implementation of 384px R7 + Raptor Dual-Crop candidate.
+- **[ADR-024: Empirical Refutation of Spearman Inversion](decisions/ADR-024-empirical-refutation-of-spearman-inversion.md)**: Complete 120-study empirical audit (0 failures) proved +0.88 agreement, refuting ADR-022 and reinstating the Uniform Master Blend (0.50 / 0.50). *Post-evaluation addendum: Candidate V24 scored 0.956, demonstrating that naive uniform blending across all classes degrades specialist performance on Synovitis and Lateral OA.*
+- **[ADR-025: Efficiency Prize Frontier & Fast Raptor](decisions/ADR-025-efficiency-prize-frontier-and-fast-raptor.md)**: Harvesting 5,985 teams, mathematical derivation of the 69.1-second exchange rate per +0.001 AUC, and deployment of Candidate V26-Fast.
+- **[ADR-026: Standalone Raptor Efficiency Benchmark & ConvNeXt Ensembling Gain](decisions/ADR-026-standalone-raptor-efficiency-benchmark-and-ensembling-gain.md)**: Official empirical measurement of Candidate V26-Fast (`0.949`), proving ConvNeXt provides a +0.009 AUC ensembling gain.
+- **[ADR-027: Radiological Mirror Invariance & Candidate V26.1 / V27](decisions/ADR-027-radiological-mirror-invariance-and-v26-1-v27-architectures.md)**: Mathematical and radiological proof of mirror invariance without column swapping, and 75/25 capacity re-weighting.
+- **[ADR-028: Calibrated Grandmaster Resolution & Candidate V28](decisions/ADR-028-calibrated-grandmaster-resolution.md)**: Full forensic autopsy of the V24 regression and deployment of Candidate V28 (Ref `57308728`) restoring calibrated specialist weights with ConvNeXt R7 Flip TTA.
+- **[ADR-029: High-Speed Pruning & Power-Mean Hybrid (Candidate V29)](decisions/ADR-029-high-speed-pruning-and-power-mean-hybrid-v29.md)**: Dynamic single-fold pruning of ConvNeXt (`models = ['E_lrprior_s0_f0.pt']`) combined with Power-Mean ($p=1.5$) ensembling; verified in 423.8s commit run.
+- **[ADR-030: Stride-2 Window Pruning & V30 Lightning Master](decisions/ADR-030-stride-2-window-pruning-and-v30-lightning-master.md)**: 4 loader workers + Stride-2 slice windowing (cutting windows from 528 to 262), delivering **2.033s GPU time per study**; primary contender for the $18,000 Efficiency Prize track.
+- **[ADR-031: Stride-2 Four-Fold Capacity & Rank Power Master (Candidate V31)](decisions/ADR-031-stride-2-four-fold-capacity-and-rank-power-master-v31.md)**: Reinstates all 4 cross-validation folds (`s0_f0` through `s0_f3`) under Stride-2 windowing and 4 workers (~8.1s GPU time per study, ~2.9 hours total) with Rank Power-Mean ($p=1.8$) for the Main Grandmaster Track ($\ge 0.960\text{--}0.963$).
+- **[ADR-032: Official Competition Rules, Prevalence Shift & Final Prize Compliance](decisions/ADR-032-official-competition-rules-prevalence-shift-and-final-prize-compliance.md)**: Clarification of official macro-AUC formula and submission requirements.
+- **[ADR-033: Tri-Engine Non-Fat-Suppressed Medical Backbone V32](decisions/ADR-033-tri-engine-non-fat-suppressed-medical-backbone-v32.md)**: Architecture incorporating RadImageNet ResNet-50 E11 arm across non-fat-suppressed planes (`SAG_NOFS`, `COR_NOFS`, `AX_NOFS`).
+- **[ADR-034: Grandmaster Postmortem on V28 Regression & Kaggle Concurrency](decisions/ADR-034-rank-1-engineering-postmortem-and-v32-verification-protocol.md)**: Five rank-1 protocols; elimination of collinear TTA and establishment of heartbeats.
+- **[ADR-035: Silver Defense, Empirical Run Time Deconstruction & Unconfounded Slot 2](decisions/ADR-035-silver-defense-runtime-reality-and-unconfounded-slot2.md)**: Proof that V6/V17 take 3.5+ hours on hidden test set, eliminating the pseudo-efficiency hedge. Both slots dedicated to the Main Track.
+- **[ADR-036: E11 Diagnostic Audit & Noise Risk](decisions/ADR-036-e11-diagnostic-audit-and-noise-risk.md)**: Forensic audit proving Antoine's E11 RadImageNet weights reproduced at only 0.825 AUC due to severe uncalibrated background noise. Prevented degrading the 0.958 baseline.
+- **[ADR-037: Championship Freeze & Two-Track Gated Offense](decisions/ADR-037-championship-freeze-and-two-track-protocol.md)**: Locked Track 1 (V17: 0.958 and V6: 0.956) in Kaggle UI. Established Track 2 (Gated Offense) requiring Gold-58 AUC >= 0.900 and paired bootstrap CI > 0 before any new candidate touches Slot 2.
+- **[ADR-038: Engine 8 Multi-Plane ConvNeXt & Candidate V33 Tri-Hybrid](decisions/ADR-038-engine8-multiplane-convnext-and-v33-tri-hybrid.md)**: Autopsy of DINOv2 (failed Gate 1 at 0.5607; defense protected). Discovery of Cyrus Super-CoAtNet-384 (Gold AUC 0.9139, Synovitis 0.8554, Meniscus 0.9627). Deployment of Candidate V33 and Engine 8 on Colab A100.
+- **[ADR-039: Engine 9 ConvNeXt-384 2.5D MIL & External-Data Sovereignty Protocol](decisions/ADR-039-engine9-convnext-384-mil-and-external-data-sovereignty.md)**: Training of Engine 9 (ConvNeXt-Small 384px 2.5D MIL) on Colab A100 reaching **`0.8325` Gold-58 Macro AUC** (+0.13 over Engine 8). Weights published to Kaggle (`cyruspinto/rsna-knee-engine9-384-weights`). Full regulatory audit of external data in public 0.958 models (fastMRI/OAI post-freeze DQ hazard).
+- **[ADR-040: Engine 10 (Swin-Base-384 Focal MIL) & Candidate V35 Sovereign Trident Master](decisions/ADR-040-engine10-swin-transformer-and-v35-sovereign-trident.md)**: Training of Engine 10 (Hierarchical Vision Transformer with Asymmetric Focal Loss) reaching **`0.7372` Gold AUC** (Medial OA `0.9256`, Effusion `0.9491`, Lateral OA `0.8453`, Synovitis `0.7999`). Weights published (`cyruspinto/rsna-knee-engine10-swin-weights`). Built and pushed Candidate V35 Trident Master.
+- **[ADR-041: Engine 11 (ConvNeXt-Base 384px 2.5D MIL) — Apex Sovereign Performance (0.8712 Gold AUC)](decisions/ADR-041-engine11-convnext-base-8712-apex.md)**: Scaled capacity to ConvNeXt-Base (88M params) achieving **`0.8712` Gold-58 Macro AUC** — the highest single convolutional model score in the campaign. In addition, Engine 9 Fold 1 reached **`0.8553` Gold AUC**. Published weights to Kaggle (`cyruspinto/rsna-knee-engine11-weights`, `cyruspinto/rsna-knee-engine9-fold1-weights`). Built and pushed Candidate V36 Sovereign Quintet Titan Master.
 
 ---
 
@@ -281,32 +318,45 @@ Every core engineering decision is formally catalogued in [`decisions/`](decisio
 
 ```mermaid
 timeline
-    title RSNA Knee 2026 Final Timeline
-    October 15 (ACTIVE)  : Cloud GPU Training: cyruspinto/rsna-knee-multiplane-engine3-train (Dual T4)
-                         : Harvest fold 0 checkpoint (engine3_multiplane_fold0_best.pth)
-                         : Package into submissions/v13_tri_hybrid_aligned/submission.py
-    October 16           : Run Gate Scoring (validation/gate_score.py) on fold 0 OOF predictions
-                         : Push V13 Tri-Hybrid submission kernel to Kaggle
-    October 17 - 20      : Monitor V13 leaderboard scoring (Target 0.963+ Gold Tier)
-                         : Verify total inference latency remains <= 450s for $18,000 Efficiency Prize
-    October 21 - 22      : Final Submissions Lock on Kaggle UI:
-                         : Selection 1 -> Submission 57165672 (V6 PB 0.956)
-                         : Selection 2 -> V13 Tri-Hybrid Aligned (Target 0.963+ Gold Tier)
+    title RSNA Knee 2026 Final Execution Timeline (Code Freeze Oct 19, Deadline Oct 22)
+    October 18 (LIVE NOW): Candidate V34 Quad-Grandmaster Sovereign Fusion RUNNING on Kaggle GPU Dual T4
+                         : Candidate V35 Sovereign Trident Master Pushed to Kaggle
+                         : Candidate V36 Sovereign Quintet Titan Master Pushed to Kaggle
+                         : Engine 11 ConvNeXt-Base (0.8712 Gold AUC) Apex Model Trained & Published
+                         : Engine 9 Fold 1 (0.8553 Gold AUC) & Fold 0 (0.8325 Gold AUC) Published
+                         : Engine 10 Swin-Base (0.7372 Gold AUC) Focal ViT Published
+                         : Track 1 Defense 100% Locked: Slot 1 (V17, 0.958) & Slot 2 (V6, 0.956)
+    October 19 (Monday)  : 5 Fresh Submissions Reset at 00:00 UTC
+                         : HARD CODE FREEZE (23:59 UTC) — No new model architectures or weight churn
+    October 21 - 22      : Final Hard Submissions Lock in Kaggle Web UI:
+                         : Slot 1 -> Ref 57253840 (Candidate V17, 0.958) [Verified Silver/Gold Anchor]
+                         : Slot 2 -> Candidate V36 / V35 / V34 (if Public LB >= 0.9610) OR Ref 57165672 (V6, 0.956)
 ```
 
-### The Two Final Submissions Plan:
+### The Sovereign Quintet Portfolio:
 
-1. **Final Selection 1 (Bedrock Personal Best):**
-   * **Version 6 (`0.956`, Submission `57165672`)**
-   * Clean dual-engine baseline: Raptor CoAtNet-384 SWA + Heliosli ConvNeXt-S6 R7.
-   * Pure uniform 50/50 percentile rank blending, C++ `fastread` threaded loader, 3D physical normal sorting, 0 study fallbacks.
-   * Proven, stable baseline.
+| Engine | Architecture | Parameters | Input Res | Gold-58 Macro-AUC | Sovereign Status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Cyrus Super-CoAtNet** | CoAtNet-384 | 42M | 384x384 | **`0.9139`** | 100% Compliant |
+| **Engine 11 (APEX)** | ConvNeXt-Base | 88M | 384x384 | **`0.8712`** | 100% Compliant |
+| **Engine 9 Fold 1** | ConvNeXt-Small | 50M | 384x384 | **`0.8553`** | 100% Compliant |
+| **Engine 9 Fold 0** | ConvNeXt-Small | 50M | 384x384 | **`0.8325`** | 100% Compliant |
+| **Engine 10** | Swin-Base-384 | 88M | 384x384 | **`0.7372`** | 100% Compliant |
 
-2. **Final Selection 2 (Frontier Tri-Hybrid Aligned):**
-   * **V13 Tri-Hybrid Aligned Pipeline** (`submissions/v13_tri_hybrid_aligned/submission.py`)
-   * Combines Engine 1 (CoAtNet-384 SWA) + Engine 2 (ConvNeXt-S6 R7) + Engine 3 (Our Multi-Plane Slice-Transformer).
-   * Pure uniform 1/3 percentile rank averaging (zero destructive heuristic priors).
-   * Target: **0.963+ Gold Tier**, with verified inference time $\approx 416$s ($18,000 Efficiency Prize compliant).
+### The Final Submissions Plan (Strict Grandmaster Discipline):
+
+1. **Final Selection 1 (Anchor):**
+   * **Candidate V17 (`0.958`, Submission `57253840`)**
+   * MultiScale (384+224) Raptor CoAtNet + ConvNeXt R6 with Flip TTA and calibrated weights.
+   * Proven benchmark PB; holds top tier. Permanently locked.
+
+2. **Final Selection 2 (Sovereign Clean Track / Offensive Strike):**
+   * **Candidate V6 (`0.956`, Submission `57165672`)** [Baseline Lock].
+   * **Displacement Candidate:** Candidate V36 Sovereign Quintet Titan or Candidate V35/V34.
+   * **Strict Displacement Gate:** A new candidate must score **$\ge 0.9610$** on the public leaderboard to be considered for displacing Slot 2. Otherwise, Slot 2 remains locked as V6 (`57165672`).
+   * **Sovereign Advantage:** V36 incorporates all 5 internally trained models (Super-CoAtNet `0.9139`, Engine 11 Base `0.8712`, Engine 9 Fold 1 `0.8553`, Engine 9 Fold 0 `0.8325`, Engine 10 Swin `0.7372`). These models are 100% clean and compliant with RSNA Rule 6.a (zero fastMRI, zero OAI), guaranteeing safety against post-freeze disqualifications.
+
+
 
 ---
 
