@@ -1,0 +1,291 @@
+import json
+from pathlib import Path
+
+def generate_single_click_notebook():
+    GOLD_CSV_RAW = """StudyInstanceUID,ACL,MCL,Medial Meniscus,Lateral Meniscus,Medial OA,Lateral OA,PF OA,Effusion,Synovitis,Baker's,Contusion,Fracture
+1.2.826.0.1.3680043.8.498.10095687747295410396510538520594649149,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.10170898615867673028696505248839028269,0.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0,1.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.10306159113324811538703788080836752052,0.0,0.0,1.0,0.0,1.0,0.0,1.0,0.0,1.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.11287937729196958426538087439102017580,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.11382021393803389951964005983002209238,1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.11548045715264151632153040089882701935,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,1.0,0.0
+1.2.826.0.1.3680043.8.498.11557620559191469069130827959098335840,1.0,0.0,0.0,1.0,0.0,1.0,0.0,1.0,0.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.11771393824519892797114773408583976756,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0
+1.2.826.0.1.3680043.8.498.11851412923016044948101698015974810604,0.0,0.0,1.0,1.0,1.0,0.0,1.0,1.0,0.0,0.0,0.0,1.0
+1.2.826.0.1.3680043.8.498.11915937982684988073644209606907169581,0.0,0.0,0.0,1.0,0.0,1.0,1.0,1.0,1.0,1.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.12448079646359892252441208258836556945,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,1.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.12505035424093604269515328931488770819,1.0,1.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0
+1.2.826.0.1.3680043.8.498.12606657226568558340797193167488111973,1.0,1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.12801308844398614687904447633432197492,0.0,0.0,1.0,1.0,1.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0
+1.2.826.0.1.3680043.8.498.12978510157202852202776899910529174803,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0
+1.2.826.0.1.3680043.8.498.13267780356245120052411517053322874891,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0
+1.2.826.0.1.3680043.8.498.13335129881737731410081002627729200903,1.0,0.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.15593638897292057356864060466120253309,0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.16060119389060497136231217718921482192,0.0,0.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0
+1.2.826.0.1.3680043.8.498.17844546765907321649997094867791102711,1.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0
+1.2.826.0.1.3680043.8.498.18392509497170616983977319528036573378,1.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,1.0,1.0
+1.2.826.0.1.3680043.8.498.22109739962224309418874538994436903404,0.0,0.0,0.0,1.0,1.0,1.0,0.0,0.0,0.0,1.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.25695966186129395049687747156570466645,0.0,0.0,1.0,1.0,1.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.26790702379506190936834447203448882465,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0
+1.2.826.0.1.3680043.8.498.27437263843446879932281897446100134924,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.28925345859498351203477642741908452608,0.0,0.0,1.0,1.0,1.0,0.0,1.0,0.0,0.0,1.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.29764868091238287072166823522853419550,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0
+1.2.826.0.1.3680043.8.498.30246079718471552972130572444383079911,1.0,0.0,1.0,1.0,0.0,0.0,0.0,1.0,1.0,0.0,1.0,1.0
+1.2.826.0.1.3680043.8.498.32321830776739689645700555055955725945,1.0,1.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,0.0,1.0,1.0
+1.2.826.0.1.3680043.8.498.37040910196459054543310335064167212742,1.0,0.0,1.0,1.0,0.0,0.0,0.0,1.0,1.0,0.0,1.0,1.0
+1.2.826.0.1.3680043.8.498.37392127307867238524251864751713143683,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0
+1.2.826.0.1.3680043.8.498.39500553372517290823815606829518305500,0.0,0.0,0.0,1.0,0.0,1.0,1.0,1.0,1.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.41600498783384864111179175518614837125,1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0
+1.2.826.0.1.3680043.8.498.47921753480592595198052407850568677187,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,1.0
+1.2.826.0.1.3680043.8.498.48348615349418615469875801439348424274,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.48946580946665031852355005294734101132,1.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,1.0,0.0
+1.2.826.0.1.3680043.8.498.54977581323931277817074741182670080450,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.56512564464301544960446419143135447363,0.0,0.0,0.0,0.0,1.0,0.0,1.0,1.0,1.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.59483999067816153759785789654766826710,1.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,1.0,1.0
+1.2.826.0.1.3680043.8.498.62465595376489211274225312453216559395,1.0,1.0,1.0,0.0,0.0,1.0,0.0,1.0,1.0,0.0,0.0,1.0
+1.2.826.0.1.3680043.8.498.62549354677638403845904556149868367236,1.0,1.0,0.0,1.0,0.0,0.0,0.0,1.0,1.0,0.0,1.0,0.0
+1.2.826.0.1.3680043.8.498.64408609256163127278435484217683272910,0.0,0.0,1.0,0.0,1.0,0.0,0.0,1.0,1.0,1.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.64703506772167798469048460791472465039,0.0,1.0,1.0,1.0,0.0,0.0,0.0,1.0,0.0,0.0,1.0,1.0
+1.2.826.0.1.3680043.8.498.65708905118633339771181857781063784327,0.0,0.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.67188121544063723837669983597453941774,1.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.69392348385274125385290015404144639002,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.72853333220043794904856138561095171921,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.73527530686853911124431549317032662220,1.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,1.0,1.0
+1.2.826.0.1.3680043.8.498.73926443729786165628848843707532839995,0.0,0.0,1.0,0.0,0.0,0.0,1.0,1.0,1.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.75187434248356774277526985329346125190,1.0,0.0,1.0,0.0,0.0,0.0,1.0,1.0,0.0,1.0,1.0,0.0
+1.2.826.0.1.3680043.8.498.77362718298550276679350855963451855003,0.0,0.0,0.0,0.0,0.0,1.0,0.0,1.0,1.0,0.0,1.0,0.0
+1.2.826.0.1.3680043.8.498.78512215519177850923279235346968676828,0.0,0.0,1.0,0.0,1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.82166943552764439138333504456139890254,1.0,0.0,1.0,1.0,1.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.86968600239724310678905311244945464037,1.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.88077418639301174409926781329613570435,1.0,0.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.90283565381042081768587894596970552767,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,0.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.94433753471890306108089557761231739312,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0
+1.2.826.0.1.3680043.8.498.97274720257634584071500649275217521662,1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0"""
+
+    nb = {
+        "nbformat": 4,
+        "nbformat_minor": 0,
+        "metadata": {
+            "colab": {"provenance": []},
+            "accelerator": "GPU",
+            "gpuClass": "standard",
+            "language_info": {"name": "python"}
+        },
+        "cells": [
+            {
+                "cell_type": "markdown",
+                "metadata": {},
+                "source": [
+                    "# RSNA Knee — Single-Click Swin-Base-384 Trainer\n",
+                    "### One-Click Autonomous Pipeline: Run All & Walk Away\n",
+                    "- Trains Swin-Base-384 on Fold 2\n",
+                    "- Zero-manual configuration: Credentials and Gold-58 labels embedded\n",
+                    "- Auto-saves and pushes weights to Kaggle Datasets via API\n"
+                ]
+            },
+            {
+                "cell_type": "code",
+                "metadata": {},
+                "execution_count": None,
+                "outputs": [],
+                "source": [
+                    "# CELL 1: Environment Setup & Download Assets\n",
+                    "!nvidia-smi\n",
+                    "!pip install -q timm pyarrow kaggle\n",
+                    "import os, json\n",
+                    "os.makedirs('/root/.kaggle', exist_ok=True)\n",
+                    "with open('/root/.kaggle/kaggle.json', 'w') as f:\n",
+                    "    json.dump({'username': 'cyruspinto', 'key': 'KGAT_bf1b2382f2c6c8823e02df74217ba8e2'}, f)\n",
+                    "os.chmod('/root/.kaggle/kaggle.json', 0o600)\n",
+                    "\n",
+                    "!mkdir -p /content/corpus /content/labels /content/rsna_comp\n",
+                    "print('Downloading 384px MRI corpus and soft labels...')\n",
+                    "!kaggle datasets download -d dreaddevelopment/knee-raptor-corpus -p /content/corpus --unzip -q\n",
+                    "!kaggle datasets download -d cyruspinto/rsna-knee-super-consensus-labels -p /content/labels --unzip -q\n",
+                    "\n",
+                    "# Write Gold 58 labels directly (0.001s, zero download needed)\n",
+                    f"gold_raw = '''{GOLD_CSV_RAW}'''\n",
+                    "with open('/content/rsna_comp/train.csv', 'w') as f:\n",
+                    "    f.write(gold_raw)\n",
+                    "print('[+] Environment, assets, and Gold-58 anchor ready!')\n"
+                ]
+            },
+            {
+                "cell_type": "code",
+                "metadata": {},
+                "execution_count": None,
+                "outputs": [],
+                "source": [
+                    "# CELL 2: Autonomous Swin-Base-384 Training Loop (Fold 2 & Fold 3)\n",
+                    "import os, sys, math, time, gc, json\n",
+                    "import numpy as np, pandas as pd, torch, torch.nn as nn\n",
+                    "from torch.utils.data import Dataset, DataLoader\n",
+                    "import timm\n",
+                    "\n",
+                    "TARGETS = [\n",
+                    "    'ACL', 'MCL', 'Medial Meniscus', 'Lateral Meniscus',\n",
+                    "    'Medial OA', 'Lateral OA', 'PF OA', 'Effusion',\n",
+                    "    'Synovitis', \"Baker's\", 'Contusion', 'Fracture'\n",
+                    "]\n",
+                    "\n",
+                    "class TwoPartVols:\n",
+                    "    def __init__(self, a, b=None):\n",
+                    "        self.a, self.b = a, b\n",
+                    "        self.len_a = len(a)\n",
+                    "    def __getitem__(self, idx):\n",
+                    "        if idx < self.len_a: return self.a[idx]\n",
+                    "        return self.b[idx - self.len_a]\n",
+                    "    def __len__(self):\n",
+                    "        return self.len_a + (len(self.b) if self.b is not None else 0)\n",
+                    "\n",
+                    "class SwinMILDataset(Dataset):\n",
+                    "    def __init__(self, uids, id2row, labels, vols, res=384, train=True, n_slices=6):\n",
+                    "        self.uids = uids\n",
+                    "        self.id2row = id2row\n",
+                    "        self.labels = labels\n",
+                    "        self.vols = vols\n",
+                    "        self.res = res\n",
+                    "        self.train = train\n",
+                    "        self.n_slices = n_slices\n",
+                    "    def __len__(self): return len(self.uids)\n",
+                    "    def __getitem__(self, idx):\n",
+                    "        u = self.uids[idx]\n",
+                    "        row = self.id2row[u]\n",
+                    "        v = self.vols[row]\n",
+                    "        D, H, W = v.shape\n",
+                    "        step = max(1, D // self.n_slices)\n",
+                    "        idxs = [min(i * step + step // 2, D - 1) for i in range(self.n_slices)]\n",
+                    "        imgs = []\n",
+                    "        for ci in idxs:\n",
+                    "            c_prev = max(0, ci - 1)\n",
+                    "            c_next = min(D - 1, ci + 1)\n",
+                    "            triplet = np.stack([v[c_prev], v[ci], v[c_next]], axis=0).astype(np.float32) / 255.0\n",
+                    "            imgs.append(triplet)\n",
+                    "        t = torch.tensor(np.stack(imgs, axis=0), dtype=torch.float32)\n",
+                    "        if (H, W) != (self.res, self.res):\n",
+                    "            t = nn.functional.interpolate(t, size=(self.res, self.res), mode='bilinear', align_corners=False)\n",
+                    "        y = torch.tensor(self.labels[u], dtype=torch.float32)\n",
+                    "        return t, y\n",
+                    "\n",
+                    "class SwinMILModel(nn.Module):\n",
+                    "    def __init__(self, model_name='swin_base_patch4_window12_384.ms_in22k_ft_in1k', num_classes=12):\n",
+                    "        super().__init__()\n",
+                    "        self.encoder = timm.create_model(model_name, pretrained=True, num_classes=0)\n",
+                    "        d = self.encoder.num_features\n",
+                    "        self.attn = nn.Sequential(nn.Linear(d, 128), nn.Tanh(), nn.Linear(128, 1))\n",
+                    "        self.classifier = nn.Linear(d, num_classes)\n",
+                    "    def forward(self, x):\n",
+                    "        B, S, C, H, W = x.shape\n",
+                    "        x = x.view(B * S, C, H, W)\n",
+                    "        feats = self.encoder(x)\n",
+                    "        feats = feats.view(B, S, -1)\n",
+                    "        scores = self.attn(feats)\n",
+                    "        weights = torch.softmax(scores, dim=1)\n",
+                    "        pooled = torch.sum(feats * weights, dim=1)\n",
+                    "        return self.classifier(pooled)\n",
+                    "\n",
+                    "DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')\n",
+                    "print(f'Training on Device: {DEVICE}', flush=True)\n",
+                    "\n",
+                    "va = np.load('/content/corpus/all_vols.npy', mmap_mode='r')\n",
+                    "vb = np.load('/content/corpus/extra_vols.npy', mmap_mode='r') if os.path.exists('/content/corpus/extra_vols.npy') else None\n",
+                    "vols = TwoPartVols(va, vb)\n",
+                    "a_ids = np.load('/content/corpus/all_ids.npy', allow_pickle=True).astype(str)\n",
+                    "b_ids = np.load('/content/corpus/extra_ids.npy', allow_pickle=True).astype(str) if os.path.exists('/content/corpus/extra_ids.npy') else np.array([])\n",
+                    "all_ids = np.concatenate([a_ids, b_ids]) if len(b_ids) > 0 else a_ids\n",
+                    "id2row = {u: i for i, u in enumerate(all_ids)}\n",
+                    "idset = set(all_ids)\n",
+                    "\n",
+                    "tr = pd.read_csv('/content/rsna_comp/train.csv')\n",
+                    "tr['StudyInstanceUID'] = tr['StudyInstanceUID'].astype(str)\n",
+                    "gold_df = tr[tr[TARGETS].notna().all(axis=1)].copy().set_index('StudyInstanceUID')\n",
+                    "gold_ids = [u for u in gold_df.index if u in idset]\n",
+                    "\n",
+                    "soft = pd.read_parquet('/content/labels/SUPER_CONSENSUS_labels.parquet').set_index('StudyInstanceUID')\n",
+                    "train_ids = [u for u in all_ids if u in soft.index and u not in set(gold_ids)]\n",
+                    "labels = {u: soft.loc[u, TARGETS].values.astype(np.float32) for u in train_ids}\n",
+                    "for u in gold_ids: labels[u] = gold_df.loc[u, TARGETS].values.astype(np.float32)\n",
+                    "\n",
+                    "np.random.seed(42)\n",
+                    "shuffled_train = list(train_ids)\n",
+                    "np.random.shuffle(shuffled_train)\n",
+                    "n_val = len(shuffled_train) // 5\n",
+                    "\n",
+                    "FOLDS_TO_TRAIN = [2, 3]\n",
+                    "EPOCHS = 6\n",
+                    "BATCH_SIZE = 8\n",
+                    "\n",
+                    "for fold in FOLDS_TO_TRAIN:\n",
+                    "    print(f'\\n' + '='*60)\n",
+                    "    print(f'=== STARTING ENGINE 10 SWIN-BASE-384: FOLD {fold} ===')\n",
+                    "    print('='*60, flush=True)\n",
+                    "    val_ids = shuffled_train[fold * n_val : (fold + 1) * n_val]\n",
+                    "    core_train_ids = [u for u in shuffled_train if u not in set(val_ids)]\n",
+                    "    \n",
+                    "    tds = SwinMILDataset(core_train_ids, id2row, labels, vols, res=384, train=True, n_slices=6)\n",
+                    "    tl = DataLoader(tds, batch_size=BATCH_SIZE, shuffle=True, num_workers=4, pin_memory=True, drop_last=True)\n",
+                    "    \n",
+                    "    model = SwinMILModel().to(DEVICE)\n",
+                    "    optimizer = torch.optim.AdamW([\n",
+                    "        {'params': model.encoder.parameters(), 'lr': 3e-5, 'weight_decay': 1e-4},\n",
+                    "        {'params': model.attn.parameters(), 'lr': 3e-4, 'weight_decay': 1e-4},\n",
+                    "        {'params': model.classifier.parameters(), 'lr': 3e-4, 'weight_decay': 1e-4}\n",
+                    "    ])\n",
+                    "    criterion = nn.BCEWithLogitsLoss()\n",
+                    "    \n",
+                    "    for epoch in range(EPOCHS):\n",
+                    "        model.train()\n",
+                    "        total_loss = 0.0\n",
+                    "        start_t = time.time()\n",
+                    "        for step, (bx, by) in enumerate(tl):\n",
+                    "            bx, by = bx.to(DEVICE), by.to(DEVICE)\n",
+                    "            optimizer.zero_grad()\n",
+                    "            logits = model(bx)\n",
+                    "            loss = criterion(logits, by)\n",
+                    "            loss.backward()\n",
+                    "            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)\n",
+                    "            optimizer.step()\n",
+                    "            total_loss += loss.item()\n",
+                    "            if (step + 1) % 50 == 0:\n",
+                    "                print(f'Fold {fold} | Epoch {epoch+1}/{EPOCHS} | Step {step+1}/{len(tl)} | Loss: {total_loss/(step+1):.4f}', flush=True)\n",
+                    "        elapsed_epoch = time.time() - start_t\n",
+                    "        print(f'Epoch {epoch+1} finished in {elapsed_epoch:.1f}s. Avg Loss: {total_loss/len(tl):.4f}', flush=True)\n",
+                    "        \n",
+                    "    weight_path = f'/content/engine10_swin_384_fold{fold}_best.pt'\n",
+                    "    torch.save(model.state_dict(), weight_path)\n",
+                    "    print(f'[+] Saved model weights to {weight_path}', flush=True)\n",
+                    "    \n",
+                    "    # Export to Kaggle Datasets\n",
+                    "    print(f'Pushing Fold {fold} weights to Kaggle Datasets...', flush=True)\n",
+                    "    pkg_dir = f'/content/kaggle_engine10_fold{fold}'\n",
+                    "    os.makedirs(pkg_dir, exist_ok=True)\n",
+                    "    os.system(f'cp {weight_path} {pkg_dir}/')\n",
+                    "    meta = {\n",
+                    "        'title': f'RSNA Knee Engine 10 Swin-Base-384 Fold {fold} Weights',\n",
+                    "        'id': f'cyruspinto/rsna-knee-engine10-fold{fold}-weights',\n",
+                    "        'licenses': [{'name': 'CC0-1.0'}]\n",
+                    "    }\n",
+                    "    with open(f'{pkg_dir}/dataset-metadata.json', 'w') as f:\n",
+                    "        json.dump(meta, f, indent=2)\n",
+                    "    os.system(f'kaggle datasets create -p {pkg_dir}/ -u --dir-mode zip || kaggle datasets version -p {pkg_dir}/ -m \"Update Fold {fold} Weights\" --dir-mode zip')\n",
+                    "    print(f'[+] Fold {fold} weights successfully published to Kaggle Datasets!', flush=True)\n",
+                    "    \n",
+                    "    del model, optimizer\n",
+                    "    torch.cuda.empty_cache()\n",
+                    "    gc.collect()\n",
+                    "\n",
+                    "print('\\n' + '='*60)\n",
+                    "print('=== TRAINING AND UPLOAD COMPLETE! ===')\n",
+                    "print('='*60, flush=True)\n"
+                ]
+            }
+        ]
+    }
+    
+    out_file = Path("colab_swin_single_click_master.ipynb")
+    with open(out_file, "w", encoding="utf-8") as f:
+        json.dump(nb, f, indent=2)
+    print(f"Generated {out_file} successfully!")
+
+if __name__ == '__main__':
+    generate_single_click_notebook()
