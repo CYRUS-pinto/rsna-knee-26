@@ -47,8 +47,10 @@ The guardrail validates five critical invariants:
   - Fallback logic operates correctly when a model arm is missing or errors.
 
 ### 5. Efficiency Prize Optimization Gate
-- **Formula:**
-  $$\text{Efficiency} = \frac{\text{AUC}}{\text{Benchmark} - \max\text{AUC}} + \frac{\text{RuntimeSeconds}}{32400}$$
-- **Budget:** Keep total inference time under $500\text{ seconds}$ on Dual T4 GPUs.
-  - Every $1,000\text{s}$ saved is equivalent to $+0.0143\text{ AUC}$ on the efficiency leaderboard.
-  - Never sacrifice pipeline speed for marginal gain ($< 0.0005$ AUC).
+- **Official formula (see ADR-032; corrected 2026-10-20 — the previous version here was wrong):**
+  $$E = \frac{\text{AUC} - M}{B - M} - \frac{T}{32400}$$
+  $M$ = sample-submission baseline AUC, $B$ = best private AUC, $T$ = hidden-test runtime in seconds.
+- **Trade-off:** 1,000 s of runtime costs $1000/32400 \approx 0.031$ of E, i.e. $\approx 0.031\,(B-M)$ AUC (≈ 0.014 AUC if $B-M \approx 0.47$). Verify $M$ before relying on this.
+- **Eligibility:** only a submission that is one of the team's 2 selected finals (and beats the baseline) counts.
+- **Runtime evidence:** use the runtime Kaggle reports for the hidden-test submission, never a 3-study interactive run.
+- **Main-LB note:** the main leaderboard allows up to 9 h; do not cap the max-AUC candidate at 500 s.
