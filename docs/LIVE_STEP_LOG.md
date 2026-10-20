@@ -169,3 +169,9 @@ Earlier history (Oct 12–19) is in `docs/competition_live_log.md`, `MASTER_HAND
 - **Result:** Candidate V46 (57426806) completed scoring at 0.957; Candidate V47 (57429824, 208m elapsed) remains actively PENDING in Kaggle scoring queue; refreshed LIVE_STATE.md (60.0h left, 2 subs remaining today)
 - **Evidence:** task-20445; docs/LIVE_STATE.md
 - **Next:** task-20445 continues tracking Candidate V47 until score arrival
+
+### [2026-10-20 12:09 UTC] STEP — Ingested trained Engine 13 Swin-Base-384 checkpoint and uploaded to Kaggle Dataset
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Verified C:\\Users\\Cyrus\\Downloads\\engine13_swin_base_best.pt (332.6 MB, Gold Macro AUC: 0.8577, ACL: 0.9142, Medial OA: 0.9581, Fracture: 0.9042); uploaded to cyruspinto/rsna-knee-engine13-swin-base-weights via Kaggle API (333MB live)
+- **Evidence:** C:\\Users\\Cyrus\\Downloads\\engine13_swin_base_best.pt; cyruspinto/rsna-knee-engine13-swin-base-weights
+- **Next:** Build Candidate V48 Quad-Arm Sovereign Ensemble integrating both Engine 12 (0.8808) and Engine 13 (0.8577)
