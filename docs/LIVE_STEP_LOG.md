@@ -277,3 +277,9 @@ Earlier history (Oct 12–19) is in `docs/competition_live_log.md`, `MASTER_HAND
 - **Result:** Created docs/NEW_AGENT_ONBOARDING_AND_CURRENT_SPRINT.md with complete 60s briefing, complete assets table, in-progress items, next actions, and 11 hard rules; updated AGENTS.md reading chain
 - **Evidence:** docs/NEW_AGENT_ONBOARDING_AND_CURRENT_SPRINT.md; AGENTS.md
 - **Next:** Monitor V48 evaluation completion; run parallel multi-fold Colab training on wake-up
+
+### [2026-10-20 16:26 UTC] STEP — Verified completed Kaggle fold datasets and updated MODEL_REGISTRY.md
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Confirmed Engine 10 has all 5 folds on Kaggle; Engine 12 and 13 have Fold 0 completed; Fold 1 datasets are placeholders waiting for training; colab_engine12_fold1_master.ipynb and colab_engine13_fold1_master.ipynb verified ready to run
+- **Evidence:** kaggle datasets files; docs/MODEL_REGISTRY.md
+- **Next:** User runs colab_engine13_fold1_master on Tab 1 and colab_engine12_fold1_master on Tab 2

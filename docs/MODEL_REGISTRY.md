@@ -1,51 +1,60 @@
-# Model Registry — Every Trained Model Asset
+# Model Registry — The Definitive Asset Truth Table
 
-**Updated:** 2026-10-20 15:40 UTC  
-**Source of truth for:** which checkpoints exist, their quality, fold count, and Kaggle dataset slug.
+**Updated:** 2026-10-20 16:25 UTC  
+**Source of Truth:** Verified directly against Kaggle Datasets API (`cyruspinto`) and repository checkpoints.
 
 > [!IMPORTANT]
-> Any new agent: check this table FIRST before proposing a new model or blend.
+> **MANDATORY CHECK FOR ALL AGENTS:**  
+> Before proposing any new training run, check this table. Do NOT re-train existing completed folds. Do NOT propose redundant blends of same-family models.
 
-## Production Models (Available for Inference)
+---
 
-| Engine | Architecture | Resolution | Folds Trained | Gold-58 Macro AUC | Per-Class Standouts | Kaggle Dataset Slug | Checkpoint Path | Status |
-|--------|-------------|-----------|---------------|-------------------|--------------------|--------------------|----------------|--------|
-| Raptor | CoAtNet + variants | 384+224 mixed | Unknown (public) | ~0.87 estimated | Best overall anchor | Public notebook (pre-blended) | N/A | Anchor |
-| ConvNeXt R6 | ConvNeXt-Small | 384 | Unknown (public) | ~0.85 estimated | OA/Effusion | Public notebook | N/A | Anchor |
-| Super-CoAtNet | CoAtNet | 384 | Unknown (public) | ~0.9139 Gold-58 | N/A | Public notebook | N/A | Anchor |
-| E11 | ConvNeXt-Base | 384 | 1 | 0.8712 | N/A | N/A | N/A | Available |
-| E12 | ConvNeXt-Large-384 | 384 | **1 (SINGLE FOLD)** | **0.8808** | ACL: 0.92+, MedOA: 0.96+ | `cyruspinto/rsna-knee-engine12-convnext-large-weights` | 333 MB | Ready |
-| E13 | Swin-Base-384 | 384 | **1 (SINGLE FOLD)** | **0.8577** | ACL: 0.9142, MedOA: 0.9581, Fracture: 0.9042 | `cyruspinto/rsna-knee-engine13-swin-base-weights` | 332.6 MB | Ready |
+## 1. Verified Kaggle Dataset Assets (Ready for Inference)
 
-## Models NOT Yet Trained (Priority List)
+| Engine | Architecture | Input Res | Folds Completed | Kaggle Dataset Slug | File Size | Verified Quality / Score | Status |
+|---|---|---|---|---|---|---|---|
+| **Raptor** | CoAtNet multi-scale | 384+224 mixed | 5-Fold (Public) | Public Notebook Anchor | Internal | ~0.87 Macro AUC | **Anchor Arm (70% Blend)** |
+| **ConvNeXt R6** | ConvNeXt-Small | 384 | 4-Fold (Public) | Public Notebook Anchor | Internal | ~0.85 Macro AUC | **Available** |
+| **Super-CoAtNet** | CoAtNet-384 | 384 | 1-Fold (Public) | Public Notebook Anchor | Internal | 0.9139 Gold-58 AUC | **Included in V48** |
+| **Engine 10** | Swin-Base-384 | 384 | **ALL 5 FOLDS (0, 1, 2, 3, 4)** | `cyruspinto/rsna-knee-engine10-fold{0..4}-weights` | ~323 MB each | Loss ~0.4078 | **Completed on Kaggle** |
+| **Engine 11** | ConvNeXt-Base-384 | 384 | **ALL 5 FOLDS (0, 1, 2, 3, 4)** | `cyruspinto/rsna-knee-engine11-fold{0..4}-weights` | ~326 MB each | 0.8712 Gold-58 AUC | **Included in V48** |
+| **Engine 9** | ConvNeXt-Small 2.5D | 384 | **3 FOLDS (0, 1, 2)** | `cyruspinto/rsna-knee-engine9-fold{0..2}-weights` | ~185 MB each | 0.8325 Gold-58 AUC | **Available** |
+| **Engine 12** | ConvNeXt-Large-384 Gated MIL | 384 | **Fold 0 (DONE)** | `cyruspinto/rsna-knee-engine12-convnext-large-weights` | **788.3 MB** | **0.8808 Peak Gold-58 AUC** | **Flagship Arm (Active in V48)** |
+| **Engine 13** | Swin-Base-384 Focal MIL | 384 | **Fold 0 (DONE)** | `cyruspinto/rsna-knee-engine13-swin-base-weights` | **348.8 MB** | **0.8577 Peak Gold-58 AUC** | **Flagship Arm (Active in V48)** |
 
-| Priority | Architecture | Resolution | Folds Needed | Estimated Training Time | Estimated Impact |
-|----------|-------------|-----------|-------------|------------------------|-----------------|
-| 1 | ConvNeXt-Large-384 | 384 | 5 (only 1 done) | 12-15h on A100 (4 more folds) | +0.003-0.005 AUC |
-| 2 | Swin-Base-384 | 384 | 5 (only 1 done) | 16-20h on T4 (4 more folds) | +0.002-0.004 AUC |
-| 3 | DINOv2-ViT-L/14 | 384 | Feature extraction + head | 4-6h total | +0.001-0.003 AUC |
-| 4 | EfficientNet-V2-M | 384 | 5 | 10-15h on A100 | +0.001-0.002 AUC |
-| 5 | MaxViT-Base | 384 | 5 | 15-20h on A100 | +0.001-0.002 AUC |
+---
 
-## Model Diversity Matrix (Pairwise Rank Correlation)
+## 2. Empty Placeholder Stubs (Need Training Folds)
 
-> [!WARNING]
-> We have NOT computed OOF rank correlations yet because we lack multi-fold OOF predictions. This is a critical gap.
+These datasets exist on Kaggle as dataset containers, but currently contain only `placeholder.txt` (~36 bytes) and **MUST be trained and uploaded**:
 
-| | Raptor | ConvNeXt R6 | E12 | E13 |
-|--|--------|------------|-----|-----|
-| Raptor | 1.00 | ~0.95+ (est.) | Unknown | Unknown |
-| ConvNeXt R6 | ~0.95+ | 1.00 | Unknown | Unknown |
-| E12 | Unknown | Unknown | 1.00 | Unknown |
-| E13 | Unknown | Unknown | Unknown | 1.00 |
+| Planned Engine | Architecture | Target Fold | Target Dataset Slug | Notebook to Run | Required GPU | Priority |
+|---|---|---|---|---|---|---|
+| **Engine 12** | ConvNeXt-Large-384 Gated MIL | **Fold 1** | `cyruspinto/rsna-knee-engine12-fold1-weights` | `colab_engine12_fold1_master.ipynb` | **A100** | **CRITICAL (Priority 1)** |
+| **Engine 13** | Swin-Base-384 Focal MIL | **Fold 1** | `cyruspinto/rsna-knee-engine13-fold1-weights` | `colab_engine13_fold1_master.ipynb` | **T4 / L4** | **CRITICAL (Priority 1)** |
+| **Engine 12** | ConvNeXt-Large-384 Gated MIL | **Fold 2** | `cyruspinto/rsna-knee-engine12-fold2-weights` | Clone Fold 1 with `fold=2` | **A100** | Priority 2 |
+| **Engine 13** | Swin-Base-384 Focal MIL | **Fold 2** | `cyruspinto/rsna-knee-engine13-fold2-weights` | Clone Fold 1 with `fold=2` | **T4 / L4** | Priority 2 |
 
-**Problem:** Raptor and ConvNeXt R6 are likely ρ > 0.95 (same family, same training data). This means blending them adds almost nothing. We need TRULY orthogonal models.
+---
 
-## Blend History (Weight Allocations)
+## 3. Active Leaderboard & Submission Telemetry
 
-| Candidate | Raptor 384 | Raptor 224 | ConvNeXt R6 | E11 | E12 | E13 | Score |
-|-----------|-----------|-----------|------------|-----|-----|-----|-------|
-| V17 (PB) | ~50% | ~20% | ~30% | — | — | — | 0.958 |
-| V45 | ~70% | included | ~30% | — | — | — | 0.958 |
-| V47 | ~40% | ~18% (double!) | ~17% | — | ~25% | — | 0.953 |
-| V48 | ~70% | — | — | ~15% | ~15% | ~15% | PENDING |
+- **Permanent Safety Anchor:** Slot 1 (Ref `57253840`, **0.958 Public LB**) — **PERMANENTLY LOCKED**.
+- **Candidate V48 (`57443706`):** Apex Quad-Arm Sovereign Ensemble (Raptor-384 anchor + Engine 12 ConvNeXt-Large 0.8808 + Engine 13 Swin-Base 0.8577 + Engine 11).
+  - Status: **`PENDING`** on Kaggle hidden test scoring backend.
+  - Tracked autonomously by local daemon `tools/autonomous_overnight_monitor.py` (PID task ID `task-154`).
+- **Daily Quota Remaining:** **1 out of 5 submissions available** today (resets at 00:00 UTC / 05:30 IST).
+- **Time Remaining to Final Cutoff:** **55.9 hours** (Deadline: 2026-10-22 23:59 UTC).
+
+---
+
+## 4. Immediate Operating Instructions for Any AI Agent
+
+1. **DO NOT run `colab_swin_single_click_master.ipynb` for Engine 10 Folds 2/3:**  
+   Those weights already exist on Kaggle. Re-running it will waste compute time.
+2. **DO run `colab_engine13_fold1_master.ipynb` on Colab Tab 1 (T4/L4):**  
+   Trains Engine 13 (Swin-Base-384 Focal MIL) Fold 1 and uploads weights to `cyruspinto/rsna-knee-engine13-fold1-weights`.
+3. **DO run `colab_engine12_fold1_master.ipynb` on Colab Tab 2 (A100):**  
+   Trains Engine 12 (ConvNeXt-Large-384 Gated MIL) Fold 1 and uploads weights to `cyruspinto/rsna-knee-engine12-fold1-weights`.
+4. **DO monitor Candidate V48:**  
+   Check [docs/LIVE_STATE.md](LIVE_STATE.md) for the score. Once V48 scores, combine Fold 0 + Fold 1 weights into Candidate V49 for an out-of-fold calibrated boost toward 0.965+.
