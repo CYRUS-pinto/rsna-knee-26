@@ -73,3 +73,9 @@ Earlier history (Oct 12–19) is in `docs/competition_live_log.md`, `MASTER_HAND
 - **Result:** Created and initialized cyruspinto/rsna-knee-engine12-fold1-weights and engine13-fold1-weights on Kaggle (both verified 'ready'); compiled colab_engine12_fold1_master.ipynb and colab_engine13_fold1_master.ipynb with 80/20 stratified split and dual OOF/Gold-58 validation; copied to C:/Users/Cyrus/Downloads
 - **Evidence:** tools/build_exact_fold1_notebooks.py; C:/Users/Cyrus/Downloads/colab_engine12_fold1_master.ipynb; C:/Users/Cyrus/Downloads/colab_engine13_fold1_master.ipynb
 - **Next:** Monitor Colab Tab 2 completion of Epoch 8 and push V47 to Kaggle
+
+### [2026-10-20 08:02 UTC] STEP — Launched automated V47 deploy watcher daemon
+- **Agent:** Gemini 3.8 Flash
+- **Result:** task-20232 active; continuously polls cyruspinto/rsna-knee-engine12-convnext-large-weights and triggers instant kernel push + competition submission (Submission 3/5) upon weight detection
+- **Evidence:** tools/auto_deploy_v47_when_weights_ready.py; task-20232
+- **Next:** Wait for Tab 2 Epoch 8 upload and V46 scoring result
