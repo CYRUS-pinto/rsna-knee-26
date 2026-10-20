@@ -1,11 +1,11 @@
 # LIVE STATE (auto-generated — do not hand-edit)
 
-- **Generated:** 2026-10-20 07:22 UTC by `tools/state_snapshot.py`
-- **Deadline:** 2026-10-22 23:59 UTC — **64.6 h remaining**
+- **Generated:** 2026-10-20 08:12 UTC by `tools/state_snapshot.py`
+- **Deadline:** 2026-10-22 23:59 UTC — **63.8 h remaining**
 
 ## Leaderboard
 
-- **Our rank:** 694 / 6255 — score **0.958** (34 subs)
+- **Our rank:** 697 / 6260 — score **0.958** (34 subs)
 - **#1:** RB & Matheus & Tucker & Tony — 0.969
 - **Rank 10 cutoff:** 0.967
 - **Rank 15 cutoff:** 0.966
@@ -16,8 +16,8 @@
 - Teams ≥ 0.966: 15
 - Teams ≥ 0.964: 31
 - Teams ≥ 0.962: 66
-- Teams ≥ 0.96: 132
-- Teams ≥ 0.958: 1549
+- Teams ≥ 0.96: 133
+- Teams ≥ 0.958: 1553
 
 ## Submissions
 

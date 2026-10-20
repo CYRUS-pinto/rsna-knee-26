@@ -79,3 +79,9 @@ Earlier history (Oct 12–19) is in `docs/competition_live_log.md`, `MASTER_HAND
 - **Result:** task-20232 active; continuously polls cyruspinto/rsna-knee-engine12-convnext-large-weights and triggers instant kernel push + competition submission (Submission 3/5) upon weight detection
 - **Evidence:** tools/auto_deploy_v47_when_weights_ready.py; task-20232
 - **Next:** Wait for Tab 2 Epoch 8 upload and V46 scoring result
+
+### [2026-10-20 08:12 UTC] STEP — Uploaded 788MB Engine 12 weights and triggered Candidate V47 deployment
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Engine 12 ConvNeXt-Large (0.8808 Gold AUC) uploaded to Kaggle dataset cyruspinto/rsna-knee-engine12-convnext-large-weights; auto-deployer task-20232 verified upload and pushed Candidate V47 (cyruspinto/rsna-knee-v47-apex-tri-arm-ensemble) to Kaggle; commit execution QUEUED/RUNNING
+- **Evidence:** task-20266; task-20232; cyruspinto/rsna-knee-v47-apex-tri-arm-ensemble
+- **Next:** Auto-submit V47 to leaderboard upon commit completion and monitor scoring
