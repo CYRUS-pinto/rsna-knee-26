@@ -283,3 +283,9 @@ Earlier history (Oct 12–19) is in `docs/competition_live_log.md`, `MASTER_HAND
 - **Result:** Confirmed Engine 10 has all 5 folds on Kaggle; Engine 12 and 13 have Fold 0 completed; Fold 1 datasets are placeholders waiting for training; colab_engine12_fold1_master.ipynb and colab_engine13_fold1_master.ipynb verified ready to run
 - **Evidence:** kaggle datasets files; docs/MODEL_REGISTRY.md
 - **Next:** User runs colab_engine13_fold1_master on Tab 1 and colab_engine12_fold1_master on Tab 2
+
+### [2026-10-20 17:23 UTC] SCORE — Candidate V48 Apex Quad-Arm Sovereign Ensemble (Engine 12 384px + Swin-B 384px + Engine 11 + Super-CoAtNet) Scored on Kaggle Leaderboard
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Public LB Score: None
+- **Evidence:** Kaggle Submission Ref 57443706
+- **Next:** If score >= 0.959 select in Slot 2; else analyze delta and plan V49 with OOF weight calibration
