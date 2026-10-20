@@ -1,7 +1,7 @@
 # LIVE STATE (auto-generated — do not hand-edit)
 
-- **Generated:** 2026-10-20 09:52 UTC by `tools/state_snapshot.py`
-- **Deadline:** 2026-10-22 23:59 UTC — **62.1 h remaining**
+- **Generated:** 2026-10-20 10:00 UTC by `tools/state_snapshot.py`
+- **Deadline:** 2026-10-22 23:59 UTC — **62.0 h remaining**
 
 ## Leaderboard
 
@@ -17,7 +17,7 @@
 - Teams ≥ 0.964: 31
 - Teams ≥ 0.962: 66
 - Teams ≥ 0.96: 134
-- Teams ≥ 0.958: 1571
+- Teams ≥ 0.958: 1572
 
 ## Submissions
 
