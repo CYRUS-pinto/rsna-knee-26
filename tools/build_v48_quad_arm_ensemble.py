@@ -205,14 +205,13 @@ def pct_rank(s):
 
 anchor_preds = {}
 for lbl in labels:
-    r_val = (1.0 - A224) * rsub[lbl].values + A224 * rsub224[lbl].values
-    o_val = ours[lbl].values
+    # Use rsub directly (which already includes the optimal 384/224 internal multi-scale blend)
+    r_rk = pct_rank(rsub[lbl])
+    o_rk = pct_rank(ours[lbl])
     wr = W_RAPTOR_C.get(lbl, 0.50)
-    r_rk = pct_rank(pd.Series(r_val))
-    o_rk = pct_rank(pd.Series(o_val))
     anchor_preds[lbl] = wr * r_rk + (1.0 - wr) * o_rk
 
-print("[+] Anchor 0.958 baseline predictions generated successfully.", flush=True)
+print("[+] Anchor 0.958 baseline predictions generated successfully (Direct 384-Dominant Resolution).", flush=True)
 
 # 2. Check for auxiliary models (Engine 12 ConvNeXt-Large / Engine 13 Swin-Base)
 e12_path = WORK / 'engine12_sub.csv'

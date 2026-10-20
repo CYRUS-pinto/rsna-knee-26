@@ -49,6 +49,7 @@
 | B20 | **Too-short training** (8 epochs single fold) under-fits large backbones. | Val AUC still rising at last epoch. | Log per-epoch AUC; extend if still rising and compute allows. |
 | B21 | **Model collapse** — all 12 heads output near-identical ranks. | Mean off-diagonal head correlation > 0.85. | Already measured for Engine 5 (0.449). Check for every new engine. |
 | B22 | **TTA that hurts** (flip on asymmetric anatomy without label swap). | OOF with/without TTA. | Only keep TTA proven on OOF. |
+| B23 ✅ | **Spatial resolution dilution via recursive re-blending** (V47 fell to 0.953 via double-blending 224px into 384px pipeline). | LB drop / effective 224px weight > 35%. | ADR-048: never re-blend pre-blended outputs; maintain ≥70% 384px resolution dominance. |
 
 ## C. Training-infrastructure risks (Colab)
 

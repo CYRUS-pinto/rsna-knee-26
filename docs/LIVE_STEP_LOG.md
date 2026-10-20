@@ -199,3 +199,33 @@ Earlier history (Oct 12–19) is in `docs/competition_live_log.md`, `MASTER_HAND
 - **Result:** Candidate V47 (57429824, 298m elapsed) actively tracked in task-20445; remains PENDING on Kaggle scoring worker; refreshed LIVE_STATE.md (58.5h left, 2 subs remaining today)
 - **Evidence:** task-20445; docs/LIVE_STATE.md
 - **Next:** task-20445 continues background tracking of V47
+
+### [2026-10-20 13:33 UTC] SCORE — Candidate V47 Apex Tri-Arm Ensemble Scored on Kaggle Leaderboard
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Public LB Score: 0.953
+- **Evidence:** Kaggle Submission Ref 57429824
+- **Next:** Evaluate against 0.958 baseline and proceed with multi-model blend
+
+### [2026-10-20 13:46 UTC] SCORE — Received Candidate V47 Public LB Score
+- **Agent:** Claude Opus 4.6
+- **Result:** Public LB Score: 0.953 — REGRESSION from 0.958 PB. Root cause: Double-blending of raptor224_sub.csv caused effective 224px weight to balloon to 57.8%, violating spatial Nyquist (ADR-048). Safety Slot 1 (57253840, 0.958) PRESERVED per Rule 1.
+- **Evidence:** Kaggle Submission Ref 57429824; task-20445 log; decisions/ADR-048-spatial-resolution-dilution-post-mortem.md
+- **Next:** Deploy corrected Candidate V48 (resolution dilution fixed; 384px-dominant blend)
+
+### [2026-10-20 13:48 UTC] SUBMIT — Pushed Candidate V48 Apex Quad-Arm Sovereign Ensemble to Kaggle
+- **Agent:** Claude Opus 4.6
+- **Result:** Kernel QUEUED at cyruspinto/rsna-knee-v48-apex-quad-arm-ensemble. Fix applied: removed double-weighting of raptor224_sub (ADR-048). Blend: Raptor-384 anchor (70%) + Engine 12 ConvNeXt-Large-384 (15%) + Engine 13 Swin-Base-384 (15%). Guardrail PASSED.
+- **Evidence:** kaggle kernels push -p submissions/v48_apex_quad_arm_ensemble; status QUEUED
+- **Next:** Monitor V48 scoring via daemon; prepare V49 OOF-calibrated weights candidate if V48 scores >= 0.959
+
+### [2026-10-20 13:51 UTC] STEP — Completed full documentation sweep: ADR-048, Master Encyclopedia v6.0, V48 monitor daemon, V48 guardrail validation
+- **Agent:** Claude Opus 4.6
+- **Result:** Encyclopedia updated to v6.0.0 (Quad-Arm Sovereign Edition) with V46/V47/V48 forensic history, ADR-048 root cause, revised 58-hour endgame roadmap; monitor_v48_scoring.py deployed as task-20703; all documentation synchronized
+- **Evidence:** docs/RSNA_KNEE_2026_MASTER_ENCYCLOPEDIA_AND_HANDOFF.md v6.0.0; decisions/ADR-048-spatial-resolution-dilution-post-mortem.md; tools/monitor_v48_scoring.py
+- **Next:** Wait for task-20703 to report V48 score; if >= 0.959 select in Slot 2; build V49 OOF-calibrated candidate
+
+### [2026-10-20 14:02 UTC] STEP — Repaired V48 monitor daemon and verified pre-flight guardrail
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Fixed kernels_status API call and integrated competition_submit_code pipeline into monitor_v48_scoring.py; confirmed V48 kernel QUEUED; task-20791 actively polling; guardrail validation confirmed clean; Risk Register updated with B23 (ADR-048)
+- **Evidence:** tools/monitor_v48_scoring.py, task-20791 log, docs/LIVE_STATE.md
+- **Next:** Wait for task-20791 to trigger submission and report V48 score; if >=0.959 select in Slot 2
