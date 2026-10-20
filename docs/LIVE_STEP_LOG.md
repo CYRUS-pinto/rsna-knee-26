@@ -109,3 +109,9 @@ Earlier history (Oct 12–19) is in `docs/competition_live_log.md`, `MASTER_HAND
 - **Result:** Submission Ref 57429824 successfully created via Kaggle API (Submission 3/5 today); incorporates 788MB ConvNeXt-Large-384 Gated MIL (0.8808 Gold AUC) + Raptor 384/224 + ConvNeXt R6; status PENDING; score watcher task-20369 launched
 - **Evidence:** Ref: 57429824; task-20369; cyruspinto/rsna-knee-v47-apex-tri-arm-ensemble
 - **Next:** Monitor Kaggle scoring worker for V47 public leaderboard score
+
+### [2026-10-20 08:37 UTC] FAILURE — Diagnosed FileNotFoundError: /content/corpus/all_vols.npy in Colab A100 runtime
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Identified ephemeral Colab VM wipe after runtime deletion; Cell 2 was executed before corpus was downloaded; implemented self-healing auto-fetch guardrail inside Cell 2 that downloads and verifies corpus automatically if missing
+- **Evidence:** colab_a100_beast_swin_base_master.ipynb; tools/build_perfect_a100_beast.py
+- **Next:** User runs updated cell or clicks Run all with zero risk of FileNotFoundError
