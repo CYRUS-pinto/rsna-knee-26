@@ -1,9 +1,9 @@
 # ADR-018: Competition Data Landscape, Prevalence Shift Vulnerability, and the Rank-Quantile Grandmaster Blueprint
 
-**Status:** ACCEPTED  
+**Status:** SUPERSEDED (Overclaim on rank-quantile vs AUC invariance; external data and runtime claims unsourced)  
 **Date:** 2026-10-16  
 **Author:** Principal ML Systems Engineer & Kaggle Grandmaster Team  
-**Context:** RSNA Knee Abnormality Detection (7 Days Remaining to Final Deadline)
+**Context:** RSNA Knee Abnormality Detection (5 Days Remaining to Final Deadline)
 
 ---
 

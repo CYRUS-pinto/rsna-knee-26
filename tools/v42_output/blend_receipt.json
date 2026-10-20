@@ -1,0 +1,11 @@
+{
+ "mode": "Candidate V42 Sovereign Live-Inference Master (True Live 3-Way Grandmaster Ensembling)",
+ "rows": 3,
+ "weights": {
+  "raptor": 0.35,
+  "ours": 0.35,
+  "sovereign": 0.3
+ },
+ "power_sharpening_acute": 1.3,
+ "status": "COMPLETE"
+}

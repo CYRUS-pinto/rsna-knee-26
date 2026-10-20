@@ -147,12 +147,39 @@ def find_test_root():
         if os.path.exists(b + "/test.csv"):
             return b
     for d, _, f in os.walk("/kaggle/input"):
-        if "test.csv" in f and (os.path.isdir(d + "/test_series") or os.path.isdir(d + "/test_images")):
-            return d
-    for d, _, f in os.walk("/kaggle/input"):
         if "test.csv" in f:
             return d
     raise RuntimeError("no test root under /kaggle/input")
+
+def find_weight_file(fname):
+    direct = [
+        f"/kaggle/input/{fname}",
+        f"/kaggle/input/rsna-knee-engine11-weights/{fname}",
+        f"/kaggle/input/datasets/cyruspinto/rsna-knee-engine11-weights/{fname}",
+        f"/kaggle/input/rsna-knee-engine11-fold2-weights/{fname}",
+        f"/kaggle/input/datasets/cyruspinto/rsna-knee-engine11-fold2-weights/{fname}",
+        f"/kaggle/input/rsna-knee-engine11-fold3-weights/{fname}",
+        f"/kaggle/input/datasets/cyruspinto/rsna-knee-engine11-fold3-weights/{fname}",
+        f"/kaggle/input/rsna-knee-engine11-fold4-weights/{fname}",
+        f"/kaggle/input/datasets/cyruspinto/rsna-knee-engine11-fold4-weights/{fname}",
+        f"/kaggle/input/rsna-knee-engine9-fold1-weights/{fname}",
+        f"/kaggle/input/datasets/cyruspinto/rsna-knee-engine9-fold1-weights/{fname}",
+        f"/kaggle/input/rsna-knee-engine10-fold1-weights/{fname}",
+        f"/kaggle/input/datasets/cyruspinto/rsna-knee-engine10-fold1-weights/{fname}",
+        f"/kaggle/input/rsna-knee-colab-super-weights/{fname}",
+        f"/kaggle/input/datasets/cyruspinto/rsna-knee-colab-super-weights/{fname}",
+    ]
+    for p in direct:
+        if os.path.exists(p):
+            return p
+    import glob
+    for d in sorted(glob.glob("/kaggle/input/*/")):
+        if "competition" in d.lower() or "abnormality-detection" in d:
+            continue
+        hits = glob.glob(os.path.join(d, "**", fname), recursive=True)
+        if hits:
+            return hits[0]
+    return None
 
 def main():
     t0 = time.time()
@@ -160,12 +187,12 @@ def main():
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print(f"Inference device: {device}", flush=True)
 
-    # 1. Load available Sovereign models
+    # 1. Load available Sovereign models dynamically
     loaded_models = []
 
     # Engine 11 Fold 0/1 (Base 384, 88M params)
-    p = Path('/kaggle/input/rsna-knee-engine11-weights/engine11_convnext_base_384_best.pt')
-    if p.exists():
+    p = find_weight_file('engine11_convnext_base_384_best.pt')
+    if p:
         print(f"Loading Engine 11 Base Fold 0/1 from {p}...", flush=True)
         ck = torch.load(p, map_location='cpu')
         m = Engine9MIL(feat_dim=1024, model_name='convnext_base.fb_in22k_ft_in1k_384').to(device)
@@ -174,8 +201,8 @@ def main():
         loaded_models.append(('e11_f0', m))
 
     # Engine 11 Fold 2 (Base 384, 88M params)
-    p = Path('/kaggle/input/rsna-knee-engine11-fold2-weights/engine11_convnext_base_384_fold2_best.pt')
-    if p.exists():
+    p = find_weight_file('engine11_convnext_base_384_fold2_best.pt')
+    if p:
         print(f"Loading Engine 11 Base Fold 2 from {p}...", flush=True)
         ck = torch.load(p, map_location='cpu')
         m = Engine9MIL(feat_dim=1024, model_name='convnext_base.fb_in22k_ft_in1k_384').to(device)
@@ -184,8 +211,8 @@ def main():
         loaded_models.append(('e11_f2', m))
 
     # Engine 11 Fold 3 (Base 384, 88M params)
-    p = Path('/kaggle/input/rsna-knee-engine11-fold3-weights/engine11_convnext_base_384_fold3_best.pt')
-    if p.exists():
+    p = find_weight_file('engine11_convnext_base_384_fold3_best.pt')
+    if p:
         print(f"Loading Engine 11 Base Fold 3 from {p}...", flush=True)
         ck = torch.load(p, map_location='cpu')
         m = Engine9MIL(feat_dim=1024, model_name='convnext_base.fb_in22k_ft_in1k_384').to(device)
@@ -194,8 +221,8 @@ def main():
         loaded_models.append(('e11_f3', m))
 
     # Engine 11 Fold 4 (Base 384, 88M params)
-    p = Path('/kaggle/input/rsna-knee-engine11-fold4-weights/engine11_convnext_base_384_fold4_best.pt')
-    if p.exists():
+    p = find_weight_file('engine11_convnext_base_384_fold4_best.pt')
+    if p:
         print(f"Loading Engine 11 Base Fold 4 from {p}...", flush=True)
         ck = torch.load(p, map_location='cpu')
         m = Engine9MIL(feat_dim=1024, model_name='convnext_base.fb_in22k_ft_in1k_384').to(device)
@@ -204,8 +231,8 @@ def main():
         loaded_models.append(('e11_f4', m))
 
     # Engine 9 Fold 1 (Small 384, 50M params)
-    p = Path('/kaggle/input/rsna-knee-engine9-fold1-weights/engine9_convnext_384_fold1_best.pt')
-    if p.exists():
+    p = find_weight_file('engine9_convnext_384_fold1_best.pt')
+    if p:
         print(f"Loading Engine 9 Fold 1 from {p}...", flush=True)
         ck = torch.load(p, map_location='cpu')
         m = Engine9MIL(feat_dim=768, model_name='convnext_small.fb_in22k_ft_in1k_384').to(device)
@@ -214,8 +241,8 @@ def main():
         loaded_models.append(('e9_f1', m))
 
     # Engine 10 Fold 1 (Swin-Base 384, 88M params)
-    p = Path('/kaggle/input/rsna-knee-engine10-fold1-weights/engine10_swin_384_fold1_best.pt')
-    if p.exists():
+    p = find_weight_file('engine10_swin_384_fold1_best.pt')
+    if p:
         print(f"Loading Engine 10 Swin Fold 1 from {p}...", flush=True)
         ck = torch.load(p, map_location='cpu')
         m = SwinMILModel(num_classes=12).to(device)

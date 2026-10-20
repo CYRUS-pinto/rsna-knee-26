@@ -1,7 +1,7 @@
 # ADR-021: 6-Day 30-Submission Top-1 Strategic Roadmap (Oct 17 – Oct 22)
 
 ## Status
-ACCEPTED / STRATEGIC BASELINE
+SUPERSEDED (25 of the 30 planned submissions rely on models that failed or do not exist; locked to single-change verification)
 
 ## Context
 1. Competition Deadline: **October 22, 2026, 23:59:00 UTC**.

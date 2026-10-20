@@ -1,7 +1,7 @@
 # ADR-022: Resolution of Negative Spearman Rank Inversion on Lateral Meniscus and Medial OA via Compartmental Decoupling
 
 ## Status
-ACCEPTED / IMPLEMENTED
+SUPERSEDED by ADR-024 (Empirically refuted on N=120 studies in Kaggle kernel cyruspinto/rsna-knee-arm-audit-120-studies V3; measured rho is +0.822 for Lateral Meniscus and +0.886 for Medial OA. The -0.5 was an N=3 dummy test artifact.)
 
 ## Context & Empirical Finding
 An exhaustive audit of Candidate V17 (`cyruspinto/rsna-knee-v17-multiscale-r6-fliptta-blend`) via its production receipt (`blend_receipt.json`) revealed the exact mathematical mechanism causing the `0.953–0.958` leaderboard plateau across Candidate V9 through V20:

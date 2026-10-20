@@ -1,7 +1,7 @@
 # ADR-020: Quint-Engine Master Architecture, Cross-Slice Sequence MIL, and Anti-Queue-Trap Release Protocol
 
 ## Status
-ACCEPTED / IN-FLIGHT
+SUPERSEDED (Engine 6 failed at Gate 2 with offline AUC 0.52-0.54; weights and p=1.4 untested)
 
 ## Context
 1. **Competition Timeline:**

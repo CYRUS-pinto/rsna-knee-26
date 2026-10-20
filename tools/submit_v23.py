@@ -26,7 +26,7 @@ def submit_v23():
             message='Candidate V23 (384px R7 MultiScale + Raptor Dual-Crop + ADR-022 Decoupled)',
             competition='rsna-knee-abnormality-detection',
             kernel=kernel_slug,
-            kernel_version=1
+            kernel_version=3
         )
         print("Submission Response:", res)
         return True, res
