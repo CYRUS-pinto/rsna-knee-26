@@ -91,3 +91,9 @@ Earlier history (Oct 12–19) is in `docs/competition_live_log.md`, `MASTER_HAND
 - **Result:** Configured batch_size=8, k=16 triplets (48 slices/study), chunk_size=16 for full 80GB VRAM saturation; achieves ~16-20 min total 8-epoch training (vs 5.5h on T4); copied to Downloads
 - **Evidence:** tools/build_a100_beast_swin.py; C:/Users/Cyrus/Downloads/colab_a100_beast_swin_base_master.ipynb
 - **Next:** User runs single cell on A100 tab to train Swin-Base in 18 minutes
+
+### [2026-10-20 08:22 UTC] STEP — Fixed A100 notebook syntax and built turnkey standalone master
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Eliminated nested multiline string escape bug; validated syntax with Python compile(); notebook includes automated dataset download, 80GB VRAM saturated training (batch_size=8, k=16 triplets, chunk=16), and auto-upload to Kaggle; copied to Downloads
+- **Evidence:** tools/build_perfect_a100_beast.py; C:/Users/Cyrus/Downloads/colab_a100_beast_swin_base_master.ipynb
+- **Next:** User uploads notebook to fresh A100 session and clicks Run all
