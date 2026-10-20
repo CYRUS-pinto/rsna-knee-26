@@ -37,3 +37,33 @@ Earlier history (Oct 12–19) is in `docs/competition_live_log.md`, `MASTER_HAND
 - **Result:** Background task-19900 running: will automatically submit V46 as Submission 2/5 upon kernel completion and update docs/LIVE_STATE.md
 - **Evidence:** task-19900; tools/auto_submit_v46_when_ready.py
 - **Next:** Build V47 Tri-Arm ensemble notebook and multi-fold parallel Colab suite
+
+### [2026-10-20 06:56 UTC] SUBMIT — Candidate V46 Auto-Submitted to Kaggle
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Kernel completed in 311s; submitted as Ref 57426806 (Submission 2/5 for today); currently PENDING scoring
+- **Evidence:** task-19900; kaggle Ref 57426806
+- **Next:** Monitor Ref 57426806 score; let Colab Engine 12 reach Epoch 8 on A100
+
+### [2026-10-20 06:58 UTC] STEP — Compiled Absolute Ceiling & Limitations Playbook (docs/THE_ABSOLUTE_CEILING_AND_LIMITATIONS_PLAYBOOK.md)
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Codified Nyquist physical MRI resolution limits, 25 fatal failure modes across 4 categories, and 10 foundational long-run assets. Confirmed Colab E12/E13 must continue running.
+- **Evidence:** docs/THE_ABSOLUTE_CEILING_AND_LIMITATIONS_PLAYBOOK.md
+- **Next:** Await V46 score completion and Colab Engine 12 Epoch 8 weights upload
+
+### [2026-10-20 07:07 UTC] STEP — Embedded Engine 12 PyTorch inference stage directly into Candidate V47
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Eliminated the missing-inference trap; V47 now executes ConvNeXt-Large-384 on test data and passed pre-flight guardrail validation
+- **Evidence:** tools/embed_engine12_inference_in_v47.py; submissions/v47_apex_tri_arm_ensemble
+- **Next:** Await V46 score and Colab Engine 12 Epoch 8 completion
+
+### [2026-10-20 07:17 UTC] STEP — Pre-created Engine 12 and Engine 13 Kaggle datasets
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Both datasets successfully created on Kaggle via API (cyruspinto/rsna-knee-engine12-convnext-large-weights, cyruspinto/rsna-knee-engine13-swin-base-weights); eliminates post-training upload failures
+- **Evidence:** task-20069
+- **Next:** Fix V47 notebook cell 7 overwrite and restore ours_sub generation
+
+### [2026-10-20 07:26 UTC] STEP — Embedded concurrent Engine 12/13 inference into Candidate V47
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Engine 12 ConvNeXt-Large and Engine 13 Swin-Base embedded into high-speed Raptor consumer loop; eliminates redundant DICOM I/O; validated by kernel guardrail (zero fatal asserts, N=1500 simulation PASSED)
+- **Evidence:** tools/embed_concurrent_engines_in_v47.py; submissions/v47_apex_tri_arm_ensemble
+- **Next:** Monitor Colab training completion and V46 submission score

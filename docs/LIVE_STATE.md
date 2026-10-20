@@ -1,11 +1,11 @@
 # LIVE STATE (auto-generated — do not hand-edit)
 
-- **Generated:** 2026-10-20 06:39 UTC by `tools/state_snapshot.py`
-- **Deadline:** 2026-10-22 23:59 UTC — **65.3 h remaining**
+- **Generated:** 2026-10-20 07:22 UTC by `tools/state_snapshot.py`
+- **Deadline:** 2026-10-22 23:59 UTC — **64.6 h remaining**
 
 ## Leaderboard
 
-- **Our rank:** 690 / 6255 — score **0.958** (34 subs)
+- **Our rank:** 694 / 6255 — score **0.958** (34 subs)
 - **#1:** RB & Matheus & Tucker & Tony — 0.969
 - **Rank 10 cutoff:** 0.967
 - **Rank 15 cutoff:** 0.966
@@ -16,16 +16,17 @@
 - Teams ≥ 0.966: 15
 - Teams ≥ 0.964: 31
 - Teams ≥ 0.962: 66
-- Teams ≥ 0.96: 130
-- Teams ≥ 0.958: 1543
+- Teams ≥ 0.96: 132
+- Teams ≥ 0.958: 1549
 
 ## Submissions
 
-- **Used today (UTC 2026-10-20):** 1 / 5 — **4 remaining** (team-wide quota)
+- **Used today (UTC 2026-10-20):** 2 / 5 — **3 remaining** (team-wide quota)
 - **Best public score:** 0.958
 
 | Ref | UTC | Status | Public | Description |
 |---|---|---|---|---|
+| 57426806 | 2026-10-20 06:55 | PENDING | — | Candidate V46 Cross-View Rank Master (Multi-Planar Spatial Decoupling) |
 | 57415889 | 2026-10-20 01:01 | COMPLETE | 0.958 | Candidate V45 Sovereign Rank Master (Percentile Rank Ensembling & Biom |
 | 57409858 | 2026-10-19 21:25 | COMPLETE | 0.954 | Candidate V44 Sovereign Pinnacle Master (Biomechanical Interaction & T |
 | 57409533 | 2026-10-19 21:11 | COMPLETE | 0.954 | Candidate V43 Sovereign Apex Master (12-Model Ensemble: 5x ConvNeXt-Ba |
@@ -45,7 +46,6 @@
 | 57280117 | 2026-10-16 18:58 | COMPLETE | 0.957 | Candidate V22 Decoupled Compartmental Blend (ADR-022 Resolving Spearma |
 | 57273256 | 2026-10-16 15:02 | COMPLETE | 0.949 |  |
 | 57267740 | 2026-10-16 11:39 | COMPLETE | 0.958 |  |
-| 57260494 | 2026-10-16 07:48 | COMPLETE | 0.957 | V18 Grandmaster MultiScale (384+224) + ConvNeXt R6 Flip TTA + Calibrat |
 
 ## Manual checks this script CANNOT do (verify in Kaggle UI)
 
