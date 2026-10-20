@@ -38,6 +38,7 @@ python tools/log_step.py --agent "<model name>" --kind <STEP|DECISION|FAILURE|SU
 8. **No credentials in files, notebooks, logs or prompts.** Use env vars / Colab Secrets.
 9. **State only what you verified.** If you did not run it, say "unverified".
 10. **Quota is team-wide (5 members) and resets 00:00 UTC (05:30 IST).** Check LIVE_STATE before submitting.
+11. **Resolution Dominance & Zero Redundant Blending.** Native $\ge 384\text{px}$ backbones must represent $\ge 70\%$ of the ensemble; low-resolution ($224\text{px}$) components must never exceed $30\%$. Never re-blend a multi-scale output file (`raptor_sub.csv`) with constituent single-scale files (`raptor224_sub.csv`) (ADR-048: V47 double-blended 224px to $58\%$, dropping score to 0.953 due to spatial Nyquist blur of meniscal/fracture tears). Enforced automatically by `python tools/validate_kernel_guardrail.py <notebook>`.
 
 ## 4. Session end
 

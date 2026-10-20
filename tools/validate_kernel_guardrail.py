@@ -17,6 +17,8 @@ CRITICAL_PATTERNS = [
     (r"if\s+n\s*>\s*20\s+and[\s\S]*?raise\s+RuntimeError", "Conditional scale-dependent runtime error tripped on large hidden test set"),
     # Pattern 3: Unhandled finite assertions on GPU logits
     (r"assert\s+torch\.isfinite\(logits\)\.all\(\)", "Fatal assertion on FP16 logits without prior nan_to_num sanitization"),
+    # Pattern 4: ADR-048 Redundant low-resolution / 224px re-blending
+    (r"rsub.*?\+.*?rsub224|rsub224.*?\+.*?rsub", "ADR-048 Redundant 224px re-blending detected! raptor_sub is already a multi-scale blend; re-blending with 224px dilutes spatial resolution below Nyquist limit."),
 ]
 
 def scan_notebook(nb_path: Path):

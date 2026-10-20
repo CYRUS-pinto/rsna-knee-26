@@ -229,3 +229,9 @@ Earlier history (Oct 12–19) is in `docs/competition_live_log.md`, `MASTER_HAND
 - **Result:** Fixed kernels_status API call and integrated competition_submit_code pipeline into monitor_v48_scoring.py; confirmed V48 kernel QUEUED; task-20791 actively polling; guardrail validation confirmed clean; Risk Register updated with B23 (ADR-048)
 - **Evidence:** tools/monitor_v48_scoring.py, task-20791 log, docs/LIVE_STATE.md
 - **Next:** Wait for task-20791 to trigger submission and report V48 score; if >=0.959 select in Slot 2
+
+### [2026-10-20 14:38 UTC] DECISION — Hardened pre-flight guardrail and created ensemble-resolution-guardrail skill
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Created ensemble-resolution-guardrail skill, updated validate_kernel_guardrail.py to catch redundant 224px blending, verified rejection of V47 and pass of V48, added Rule 11 to AGENTS.md
+- **Evidence:** tools/validate_kernel_guardrail.py, AGENTS.md, C:\Users\Cyrus\.gemini\config\skills\ensemble-resolution-guardrail\SKILL.md
+- **Next:** Monitor Candidate V48 execution and score
