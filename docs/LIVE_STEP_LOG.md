@@ -127,3 +127,9 @@ Earlier history (Oct 12–19) is in `docs/competition_live_log.md`, `MASTER_HAND
 - **Result:** Candidate V47 (57429824, 57m elapsed) and Candidate V46 (57426806, 160m elapsed) both remain PENDING in Kaggle scoring queue; refreshed LIVE_STATE.md; 2 daily submissions remain in reserve
 - **Evidence:** task-20369; task-19900; docs/LIVE_STATE.md
 - **Next:** Score watchers continue background monitoring
+
+### [2026-10-20 09:52 UTC] STEP — Relaunched unified persistent watcher task-20445 for V46 and V47
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Replaced timed-out watcher with 6-hour unified monitor (task-20445); verified both 57426806 and 57429824 remain actively PENDING on Kaggle scoring worker; LIVE_STATE.md refreshed at 09:52 UTC (62.1h left, 2 subs remaining today)
+- **Evidence:** task-20445; docs/LIVE_STATE.md
+- **Next:** task-20445 logs score and updates state upon Kaggle worker completion
