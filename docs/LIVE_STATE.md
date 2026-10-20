@@ -1,11 +1,11 @@
 # LIVE STATE (auto-generated — do not hand-edit)
 
-- **Generated:** 2026-10-20 17:23 UTC by `tools/state_snapshot.py`
-- **Deadline:** 2026-10-22 23:59 UTC — **54.6 h remaining**
+- **Generated:** 2026-10-20 19:47 UTC by `tools/state_snapshot.py`
+- **Deadline:** 2026-10-22 23:59 UTC — **52.2 h remaining**
 
 ## Leaderboard
 
-- **Our rank:** 742 / 6276 — score **0.958** (36 subs)
+- **Our rank:** 754 / 6285 — score **0.958** (36 subs)
 - **#1:** RB & Matheus & Tucker & Tony — 0.969
 - **Rank 10 cutoff:** 0.967
 - **Rank 15 cutoff:** 0.966
@@ -13,19 +13,20 @@
 - **Rank 100 cutoff:** 0.96
 - Teams ≥ 0.969: 1
 - Teams ≥ 0.967: 11
-- Teams ≥ 0.966: 16
-- Teams ≥ 0.964: 34
-- Teams ≥ 0.962: 66
-- Teams ≥ 0.96: 137
-- Teams ≥ 0.958: 1612
+- Teams ≥ 0.966: 17
+- Teams ≥ 0.964: 35
+- Teams ≥ 0.962: 67
+- Teams ≥ 0.96: 140
+- Teams ≥ 0.958: 1625
 
 ## Submissions
 
-- **Used today (UTC 2026-10-20):** 4 / 5 — **1 remaining** (team-wide quota)
+- **Used today (UTC 2026-10-20):** 5 / 5 — **0 remaining** (team-wide quota)
 - **Best public score:** 0.958
 
 | Ref | UTC | Status | Public | Description |
 |---|---|---|---|---|
+| 57448780 | 2026-10-20 18:03 | PENDING | — | Candidate V48 Apex Quad-Arm Sovereign Ensemble (Engine 12 384px + Swin |
 | 57443706 | 2026-10-20 15:22 | PENDING | — | Candidate V48 Apex Quad-Arm Sovereign Ensemble (Engine 12 384px + Swin |
 | 57429824 | 2026-10-20 08:32 | COMPLETE | 0.953 | Candidate V47 Apex Tri-Arm Sovereign Ensemble (Engine 12 ConvNeXt-Larg |
 | 57426806 | 2026-10-20 06:55 | COMPLETE | 0.957 | Candidate V46 Cross-View Rank Master (Multi-Planar Spatial Decoupling) |
@@ -45,7 +46,6 @@
 | 57300862 | 2026-10-17 07:16 | COMPLETE | 0.949 | Candidate V26 Fast MultiScale Raptor Frontier Measurement (A224=0.35,  |
 | 57298964 | 2026-10-17 06:25 | COMPLETE | 0.956 | Candidate V24 (384px R7 MultiScale + Raptor Dual-Crop + ADR-024 Unifor |
 | 57293215 | 2026-10-17 03:21 | COMPLETE | 0.957 | Candidate V23 (384px R7 MultiScale + Raptor Dual-Crop + ADR-022 Decoup |
-| 57280117 | 2026-10-16 18:58 | COMPLETE | 0.957 | Candidate V22 Decoupled Compartmental Blend (ADR-022 Resolving Spearma |
 
 ## Manual checks this script CANNOT do (verify in Kaggle UI)
 

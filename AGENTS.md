@@ -8,10 +8,19 @@ The user switches AI agents often. **Continuity depends entirely on the files be
 1. `python tools/state_snapshot.py` → regenerates [docs/LIVE_STATE.md](docs/LIVE_STATE.md) from the Kaggle API (rank, quota, scores, hours left).
 2. Read [docs/LIVE_STATE.md](docs/LIVE_STATE.md) — the **only** source for numbers. If any other doc disagrees, LIVE_STATE wins.
 3. Read the last 30 entries of [docs/LIVE_STEP_LOG.md](docs/LIVE_STEP_LOG.md) — what the previous agent did and what it planned next.
-4. Read [docs/NEW_AGENT_ONBOARDING_AND_CURRENT_SPRINT.md](docs/NEW_AGENT_ONBOARDING_AND_CURRENT_SPRINT.md) — exact summary of what is complete, what is running, and what to do next.
-5. Read [docs/RISK_REGISTER_TOP10.md](docs/RISK_REGISTER_TOP10.md) — everything that can go wrong.
-6. Read [docs/RSNA_KNEE_2026_MASTER_ENCYCLOPEDIA_AND_HANDOFF.md](docs/RSNA_KNEE_2026_MASTER_ENCYCLOPEDIA_AND_HANDOFF.md) — history, architecture, rules.
-7. Only then act.
+4. Read [docs/RISK_REGISTER_TOP10.md](docs/RISK_REGISTER_TOP10.md) — everything that can go wrong.
+5. Read [docs/MASTER_COMPREHENSIVE_DOCUMENTATION.md](docs/MASTER_COMPREHENSIVE_DOCUMENTATION.md) — **THE BIBLE**: complete forensic trajectory, 10 fatal failure modes, Tri-Arm architecture, codebase inventory, Two-Track Defense, endgame roadmap.
+6. Read [docs/TOP1_LIMITATIONS_AND_CEILING_PLAYBOOK.md](docs/TOP1_LIMITATIONS_AND_CEILING_PLAYBOOK.md) — mathematical proofs (Theorems 1-7), root cause forensics, limitation analysis, execution path to 0.969.
+7. Read [docs/10_LONG_RUN_FOUNDATIONAL_ASSETS.md](docs/10_LONG_RUN_FOUNDATIONAL_ASSETS.md) — the 10 permanent assets that survive agent switches.
+8. Read [docs/RSNA_KNEE_2026_MASTER_ENCYCLOPEDIA_AND_HANDOFF.md](docs/RSNA_KNEE_2026_MASTER_ENCYCLOPEDIA_AND_HANDOFF.md) — history, architecture, rules (v6.0.0+).
+9. Only then act.
+
+**Canonical Documentation Chain:**
+```
+AGENTS.md → LIVE_STATE.md → LIVE_STEP_LOG.md → RISK_REGISTER_TOP10.md 
+    → MASTER_COMPREHENSIVE_DOCUMENTATION.md → TOP1_LIMITATIONS_AND_CEILING_PLAYBOOK.md 
+    → 10_LONG_RUN_FOUNDATIONAL_ASSETS.md → MASTER_ENCYCLOPEDIA.md → decisions/ADR-*
+```
 
 ## 2. Logging rule — after EVERY meaningful step (no exceptions)
 
