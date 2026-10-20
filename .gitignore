@@ -16,6 +16,8 @@ gate_root/
 results/
 scratch/
 v12_output/
+submissions/**/output/
+submissions/**/output*/
 
 # Python & Checkpoints
 __pycache__/

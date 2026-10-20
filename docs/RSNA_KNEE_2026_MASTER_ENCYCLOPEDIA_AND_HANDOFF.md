@@ -308,7 +308,7 @@ Rule: Replaced ONLY if Score >= 0.9610                                  Rule: Ne
 
 | Time Remaining | Phase | Primary Operational Action | Success Gate |
 | :---: | :--- | :--- | :--- |
-| **Hours 58–54** | **V48 Score Capture** | Monitor `task-20703`. When V48 scores: if $\ge 0.9610$, select in Slot 2; else analyze delta. Quota: 2 subs remaining today. | V48 score confirmed. Slot 1 still locked. |
+| **Hours 58–54** | **V48 Score Capture** | Monitor `task-20791`. When V48 scores: if $\ge 0.9610$, select in Slot 2; else analyze delta. Quota: 2 subs remaining today. | V48 score confirmed. Slot 1 still locked. |
 | **Hours 54–50** | **V49: OOF Weight Calibration** | If V48 scores 0.958–0.960: run `tools/optimize_pathology_stacking_oof.py` with E12+E13 OOF preds. Derive per-pathology arm weights instead of flat 15%. | OOF-optimized blend weights confirmed. |
 | **Hours 50–44** | **V49 Build & Deploy** | Build `submissions/v49_oof_calibrated_quad_arm`. Run guardrail. Submit as Submission 1/5 for 2026-10-21 (after midnight UTC). | V49 LB $\ge 0.960$. |
 | **Hours 44–32** | **V50: Multi-Fold Swin Arm** | If quota allows, train 2nd Swin-Base fold in Colab. Add as 4th arm at 10% weight, reducing anchor to 60%, E12→15%, E13→15%. | V50 LB $\ge 0.962$. |
@@ -337,5 +337,5 @@ If you are an AI model (Gemini, Claude, GPT/Codex, or Antigravity) resuming this
 ### Critical DOs
 - `python tools/validate_kernel_guardrail.py <notebook>` before every Kaggle push.
 - `python tools/log_step.py ...` after every meaningful action (submit, score, train start/finish, error, decision).
-- Monitor `task-20703` for V48 score. If V48 $\ge 0.9610$, select in Slot 2.
+- Monitor `task-20791` for V48 score. If V48 $\ge 0.9610$, select in Slot 2.
 - Next candidate: **V49 OOF-Calibrated Quad-Arm** (`submissions/v49_oof_calibrated_quad_arm` — not yet built; build it using `tools/optimize_pathology_stacking_oof.py` OOF weights).
