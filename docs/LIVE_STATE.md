@@ -1,11 +1,11 @@
 # LIVE STATE (auto-generated — do not hand-edit)
 
-- **Generated:** 2026-10-20 14:02 UTC by `tools/state_snapshot.py`
-- **Deadline:** 2026-10-22 23:59 UTC — **57.9 h remaining**
+- **Generated:** 2026-10-20 15:42 UTC by `tools/state_snapshot.py`
+- **Deadline:** 2026-10-22 23:59 UTC — **56.3 h remaining**
 
 ## Leaderboard
 
-- **Our rank:** 728 / 6270 — score **0.958** (36 subs)
+- **Our rank:** 735 / 6271 — score **0.958** (36 subs)
 - **#1:** RB & Matheus & Tucker & Tony — 0.969
 - **Rank 10 cutoff:** 0.967
 - **Rank 15 cutoff:** 0.966
@@ -16,16 +16,17 @@
 - Teams ≥ 0.966: 15
 - Teams ≥ 0.964: 33
 - Teams ≥ 0.962: 66
-- Teams ≥ 0.96: 136
-- Teams ≥ 0.958: 1591
+- Teams ≥ 0.96: 137
+- Teams ≥ 0.958: 1600
 
 ## Submissions
 
-- **Used today (UTC 2026-10-20):** 3 / 5 — **2 remaining** (team-wide quota)
+- **Used today (UTC 2026-10-20):** 4 / 5 — **1 remaining** (team-wide quota)
 - **Best public score:** 0.958
 
 | Ref | UTC | Status | Public | Description |
 |---|---|---|---|---|
+| 57443706 | 2026-10-20 15:22 | PENDING | — | Candidate V48 Apex Quad-Arm Sovereign Ensemble (Engine 12 384px + Swin |
 | 57429824 | 2026-10-20 08:32 | COMPLETE | 0.953 | Candidate V47 Apex Tri-Arm Sovereign Ensemble (Engine 12 ConvNeXt-Larg |
 | 57426806 | 2026-10-20 06:55 | COMPLETE | 0.957 | Candidate V46 Cross-View Rank Master (Multi-Planar Spatial Decoupling) |
 | 57415889 | 2026-10-20 01:01 | COMPLETE | 0.958 | Candidate V45 Sovereign Rank Master (Percentile Rank Ensembling & Biom |
@@ -45,7 +46,6 @@
 | 57298964 | 2026-10-17 06:25 | COMPLETE | 0.956 | Candidate V24 (384px R7 MultiScale + Raptor Dual-Crop + ADR-024 Unifor |
 | 57293215 | 2026-10-17 03:21 | COMPLETE | 0.957 | Candidate V23 (384px R7 MultiScale + Raptor Dual-Crop + ADR-022 Decoup |
 | 57280117 | 2026-10-16 18:58 | COMPLETE | 0.957 | Candidate V22 Decoupled Compartmental Blend (ADR-022 Resolving Spearma |
-| 57273256 | 2026-10-16 15:02 | COMPLETE | 0.949 |  |
 
 ## Manual checks this script CANNOT do (verify in Kaggle UI)
 

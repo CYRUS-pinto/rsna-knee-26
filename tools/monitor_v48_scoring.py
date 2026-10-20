@@ -21,14 +21,17 @@ def poll_kernel_until_complete(timeout=3*3600):
     """Wait for V48 kernel to finish running (QUEUED -> RUNNING -> COMPLETE/ERROR)."""
     t0 = time.time()
     last_status = None
+    last_heartbeat = 0
     print(f"[*] Polling kernel {KERNEL_SLUG} for completion (timeout {timeout//3600}h)...", flush=True)
     while time.time() - t0 < timeout:
         try:
             resp = kaggle.api.kernels_status(KERNEL_SLUG)
             status = str(getattr(resp, 'status', '')).upper()
-            if status != last_status:
-                print(f"  [kernel] Status -> {status}", flush=True)
+            elapsed = int(time.time() - t0)
+            if status != last_status or (time.time() - last_heartbeat) >= 60:
+                print(f"  [{elapsed}s] Kernel Status -> {status}", flush=True)
                 last_status = status
+                last_heartbeat = time.time()
             if 'COMPLETE' in status:
                 print(f"[+] Kernel COMPLETE!", flush=True)
                 return True
@@ -50,7 +53,8 @@ def submit_kernel():
             file_name='submission.csv',
             message=LABEL,
             competition=COMPETITION,
-            kernel=KERNEL_SLUG
+            kernel=KERNEL_SLUG,
+            kernel_version=1
         )
         print(f"[+] Competition submit successful: {res}", flush=True)
         ref = getattr(res, 'ref', None)

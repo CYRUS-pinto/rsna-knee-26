@@ -112,8 +112,21 @@
 | F3 | Winner obligations (open-source licence, write-up, reproducibility). | Keep training scripts, seeds, versions committed. |
 | F4 | Unapproved external data/models. | ADR-017; check forum rulings before using any new pretrained medical weights. |
 
+## G. Advanced Architectural & Grandmaster Failure Modes (Obsidian & Post-Mortem Audit)
+
+| # | Risk | Detection | Prevention |
+|---|---|---|---|
+| G1 | **Post-processing leakage / over-calibration on public LB**: Tuning decision thresholds or probability calibration curves to public LB scores causes catastrophic shakeup on private LB. | Public LB improves by +0.001 but OOF CV drops. | Strictly forbid manual threshold tuning or probability calibration on LB. Use monotone rank-percentile transformation only. |
+| G2 | **Pseudo-orthogonality & Hidden Feature Colinearity**: Ensembling models that share identical inductive biases (e.g. ConvNeXt-B + ConvNeXt-L + ResNet) yields vanishing ensemble returns while increasing inference latency. | Pairwise OOF Spearman rank correlation $\rho > 0.96$. | Enforce structural diversity: pair Vision Transformers (Swin/MaxViT/DINOv2) with Modern CNNs (ConvNeXt-Large) and Attention-MIL multi-scale heads. |
+| G3 | **Slice Aggregation Information Bottleneck**: Simple mean or max pooling across 44–96 slices washes out tiny focal pathology (subtle meniscal root tears or undisplaced hairline fractures). | Per-class OOF fracture/meniscus recall remains depressed despite higher backbone capacity. | Use learnable Attention-MIL with gated multi-head self-attention; preserve top-k anomalous slice activations before global aggregation. |
+| G4 | **Series Selection Heuristic Failure across Scanner Vendors**: Discrepancies in DICOM metadata (`SeriesDescription`, `ProtocolName`) across GE, Siemens, and Philips machines cause wrong plane selection (e.g., misclassifying sagittal as coronal). | Plane prediction confidence $< 0.85$ or unexpected series count distribution. | Use robust multi-factor series classification combining ImageOrientationPatient vectors, FOV geometry, and slice spacing with fail-soft fallback. |
+| G5 | **Teammate Collision & Deadline Fatigue Error**: Overwriting submission selections or burning quota due to lack of coordination or sleep deprivation during the final 6 hours. | Conflicting submissions or unlogged quota consumption in LIVE_STATE. | Strict single-operator lock: follow `docs/FINAL_DAY_CHECKLIST.md` mechanically; announce every planned submission in team log 30 minutes in advance. |
+| G6 | **Noisy Soft-Label Drift from Report Extractors**: Fine-tuning backbones on clinical report-extracted labels that contain radiology ambiguity hallucinations. | Validation loss diverges or plateau occurs at high loss on complex ambiguous categories. | Apply label smoothing ($\alpha = 0.05$) and multi-prompt consensus verification when generating supervision targets from free-text reports. |
+| G7 | **Hidden-Test Scale Memory Leak**: Code that runs smoothly on the 3 interactive test samples runs out of memory or temp disk space after processing 500+ hidden test cases. | Kaggle kernel status "Notebook Exceeded Memory Limit" or silent worker crash. | Aggressively invoke `gc.collect()` and `torch.cuda.empty_cache()` every 10 studies; stream slice reading without retaining historical tensors in memory. |
+
 ---
 
 ## Update protocol
 - New risk discovered → add a row (next ID in its section) + log a `FAILURE` or `DECISION` step.
 - Risk materialized → mark ✅ and add the incident to the Encyclopedia timeline.
+
