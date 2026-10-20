@@ -247,3 +247,9 @@ Earlier history (Oct 12–19) is in `docs/competition_live_log.md`, `MASTER_HAND
 - **Result:** Created docs/FINAL_DAY_CHECKLIST.md with hour-by-hour operational timeline; finalized MODEL_REGISTRY.md; added Section G (G1-G7) to RISK_REGISTER_TOP10.md; verified V48 (57443706) actively evaluating
 - **Evidence:** docs/FINAL_DAY_CHECKLIST.md; docs/MODEL_REGISTRY.md; docs/RISK_REGISTER_TOP10.md; Kaggle Ref 57443706
 - **Next:** Monitor Candidate V48 (57443706) for evaluation completion and score
+
+### [2026-10-20 15:54 UTC] DECISION — Codified ADR-049 and Comprehensive Ceiling Engineering Manual
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Documented deep forensics of V47/V42/V34-V36/V12/plateau failures, established 10 permanent assets to reach top 1 (0.969), codified ADR-049 and docs/CEILING_ENGINEERING_AND_FAILURE_PREVENTION_MANUAL.md
+- **Evidence:** decisions/ADR-049-ceiling-engineering-forensics-and-top1-limitations.md; docs/CEILING_ENGINEERING_AND_FAILURE_PREVENTION_MANUAL.md
+- **Next:** Monitor V48 evaluation score on Kaggle and prepare V49 multi-fold OOF rank blend
