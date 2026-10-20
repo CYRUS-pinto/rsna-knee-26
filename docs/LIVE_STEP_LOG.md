@@ -103,3 +103,9 @@ Earlier history (Oct 12–19) is in `docs/competition_live_log.md`, `MASTER_HAND
 - **Result:** Candidate V47 kernel (cyruspinto/rsna-knee-v47-apex-tri-arm-ensemble) is actively RUNNING on Kaggle (elapsed: 460s); Candidate V46 (57426806) remains PENDING on scoring queue; refreshed LIVE_STATE.md; 3 daily submissions remaining
 - **Evidence:** task-20232; task-19900; docs/LIVE_STATE.md
 - **Next:** task-20232 submits V47 upon kernel completion
+
+### [2026-10-20 08:33 UTC] SUBMIT — Submitted Candidate V47 (Apex Tri-Arm Sovereign Ensemble) to Kaggle Competition
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Submission Ref 57429824 successfully created via Kaggle API (Submission 3/5 today); incorporates 788MB ConvNeXt-Large-384 Gated MIL (0.8808 Gold AUC) + Raptor 384/224 + ConvNeXt R6; status PENDING; score watcher task-20369 launched
+- **Evidence:** Ref: 57429824; task-20369; cyruspinto/rsna-knee-v47-apex-tri-arm-ensemble
+- **Next:** Monitor Kaggle scoring worker for V47 public leaderboard score

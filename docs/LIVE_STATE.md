@@ -1,7 +1,7 @@
 # LIVE STATE (auto-generated — do not hand-edit)
 
-- **Generated:** 2026-10-20 08:30 UTC by `tools/state_snapshot.py`
-- **Deadline:** 2026-10-22 23:59 UTC — **63.5 h remaining**
+- **Generated:** 2026-10-20 08:33 UTC by `tools/state_snapshot.py`
+- **Deadline:** 2026-10-22 23:59 UTC — **63.4 h remaining**
 
 > Submission fetch failed: 401 Client Error: Unauthorized for url: https://api.kaggle.com/v1/competitions.CompetitionApiService/ListSubmissions
 ## Manual checks this script CANNOT do (verify in Kaggle UI)
