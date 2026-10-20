@@ -1,11 +1,11 @@
 # LIVE STATE (auto-generated — do not hand-edit)
 
-- **Generated:** 2026-10-20 11:30 UTC by `tools/state_snapshot.py`
-- **Deadline:** 2026-10-22 23:59 UTC — **60.5 h remaining**
+- **Generated:** 2026-10-20 12:00 UTC by `tools/state_snapshot.py`
+- **Deadline:** 2026-10-22 23:59 UTC — **60.0 h remaining**
 
 ## Leaderboard
 
-- **Our rank:** 716 / 6267 — score **0.958** (34 subs)
+- **Our rank:** 718 / 6268 — score **0.958** (35 subs)
 - **#1:** RB & Matheus & Tucker & Tony — 0.969
 - **Rank 10 cutoff:** 0.967
 - **Rank 15 cutoff:** 0.966
@@ -17,7 +17,7 @@
 - Teams ≥ 0.964: 32
 - Teams ≥ 0.962: 66
 - Teams ≥ 0.96: 135
-- Teams ≥ 0.958: 1579
+- Teams ≥ 0.958: 1583
 
 ## Submissions
 
@@ -27,7 +27,7 @@
 | Ref | UTC | Status | Public | Description |
 |---|---|---|---|---|
 | 57429824 | 2026-10-20 08:32 | PENDING | — | Candidate V47 Apex Tri-Arm Sovereign Ensemble (Engine 12 ConvNeXt-Larg |
-| 57426806 | 2026-10-20 06:55 | PENDING | — | Candidate V46 Cross-View Rank Master (Multi-Planar Spatial Decoupling) |
+| 57426806 | 2026-10-20 06:55 | COMPLETE | 0.957 | Candidate V46 Cross-View Rank Master (Multi-Planar Spatial Decoupling) |
 | 57415889 | 2026-10-20 01:01 | COMPLETE | 0.958 | Candidate V45 Sovereign Rank Master (Percentile Rank Ensembling & Biom |
 | 57409858 | 2026-10-19 21:25 | COMPLETE | 0.954 | Candidate V44 Sovereign Pinnacle Master (Biomechanical Interaction & T |
 | 57409533 | 2026-10-19 21:11 | COMPLETE | 0.954 | Candidate V43 Sovereign Apex Master (12-Model Ensemble: 5x ConvNeXt-Ba |
