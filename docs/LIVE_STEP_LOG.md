@@ -67,3 +67,9 @@ Earlier history (Oct 12–19) is in `docs/competition_live_log.md`, `MASTER_HAND
 - **Result:** Engine 12 ConvNeXt-Large and Engine 13 Swin-Base embedded into high-speed Raptor consumer loop; eliminates redundant DICOM I/O; validated by kernel guardrail (zero fatal asserts, N=1500 simulation PASSED)
 - **Evidence:** tools/embed_concurrent_engines_in_v47.py; submissions/v47_apex_tri_arm_ensemble
 - **Next:** Monitor Colab training completion and V46 submission score
+
+### [2026-10-20 07:39 UTC] STEP — Generated and pre-created Fold 1 master notebooks and Kaggle datasets
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Created and initialized cyruspinto/rsna-knee-engine12-fold1-weights and engine13-fold1-weights on Kaggle (both verified 'ready'); compiled colab_engine12_fold1_master.ipynb and colab_engine13_fold1_master.ipynb with 80/20 stratified split and dual OOF/Gold-58 validation; copied to C:/Users/Cyrus/Downloads
+- **Evidence:** tools/build_exact_fold1_notebooks.py; C:/Users/Cyrus/Downloads/colab_engine12_fold1_master.ipynb; C:/Users/Cyrus/Downloads/colab_engine13_fold1_master.ipynb
+- **Next:** Monitor Colab Tab 2 completion of Epoch 8 and push V47 to Kaggle
