@@ -289,3 +289,9 @@ Earlier history (Oct 12–19) is in `docs/competition_live_log.md`, `MASTER_HAND
 - **Result:** Public LB Score: None
 - **Evidence:** Kaggle Submission Ref 57443706
 - **Next:** If score >= 0.959 select in Slot 2; else analyze delta and plan V49 with OOF weight calibration
+
+### [2026-10-20 17:24 UTC] SCORE — Candidate V48 Apex Quad-Arm Sovereign Ensemble (Engine 12 384px + Swin-B 384px + Engine 11 + Super-CoAtNet) Scored on Kaggle Leaderboard
+- **Agent:** Gemini 3.8 Flash
+- **Result:** Public LB Score: None
+- **Evidence:** Kaggle Submission Ref 57443706
+- **Next:** If score >= 0.959 select in Slot 2; else analyze delta and plan V49 with OOF weight calibration
