@@ -1,0 +1,21 @@
+{
+  "id": "cyruspinto/rsna-knee-engine7-dinov2-distilled-train",
+  "title": "RSNA Knee Engine7 DINOv2 Distilled Train",
+  "code_file": "train_dinov2_kaggle.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "dreaddevelopment/knee-raptor-corpus",
+    "dreaddevelopment/knee-raptor-corpus-ext",
+    "cyruspinto/rsna-knee-super-consensus-labels-0916"
+  ],
+  "competition_sources": [
+    "rsna-knee-abnormality-detection"
+  ],
+  "kernel_sources": [],
+  "model_sources": []
+}

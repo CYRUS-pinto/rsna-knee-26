@@ -1,0 +1,38 @@
+{
+  "id": "cyruspinto/rsna-knee-v43-sovereign-apex",
+  "title": "RSNA Knee V43 Sovereign Apex Master",
+  "code_file": "rsna-knee-v43-sovereign-apex.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "keywords": [
+    "gpu"
+  ],
+  "dataset_sources": [
+    "heliosli/rsna-knee-compact-r7cnxfsss",
+    "nartaa/rsna-knee-publication-swa-weights-20261007",
+    "heliosli/rsna-orthofoundation-fold0-epoch7-20261004",
+    "cyruspinto/rsna-knee-colab-super-weights",
+    "cyruspinto/rsna-knee-engine11-weights",
+    "cyruspinto/rsna-knee-engine11-fold2-weights",
+    "cyruspinto/rsna-knee-engine11-fold3-weights",
+    "cyruspinto/rsna-knee-engine11-fold4-weights",
+    "cyruspinto/rsna-knee-engine10-fold0-weights",
+    "cyruspinto/rsna-knee-engine10-fold1-weights",
+    "cyruspinto/rsna-knee-engine10-fold2-weights",
+    "cyruspinto/rsna-knee-engine10-fold3-weights",
+    "cyruspinto/rsna-knee-engine10-fold4-weights",
+    "cyruspinto/rsna-knee-engine9-fold0-weights",
+    "cyruspinto/rsna-knee-engine9-fold1-weights",
+    "cyruspinto/rsna-knee-engine9-fold2-weights"
+  ],
+  "kernel_sources": [],
+  "competition_sources": [
+    "rsna-knee-abnormality-detection"
+  ],
+  "model_sources": [],
+  "machine_shape": "NvidiaTeslaT4"
+}

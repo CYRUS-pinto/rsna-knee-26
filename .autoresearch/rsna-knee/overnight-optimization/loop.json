@@ -1,0 +1,7 @@
+{
+  "cron_id": "local-loop-overnight-optimization",
+  "interval": "hourly",
+  "started": "2026-10-20T20:38:00Z",
+  "experiment": "rsna-knee/overnight-optimization",
+  "status": "running"
+}

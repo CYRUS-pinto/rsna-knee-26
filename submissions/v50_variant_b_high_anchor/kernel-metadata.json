@@ -1,0 +1,26 @@
+{
+  "title": "RSNA Knee V50 Variant B High Anchor",
+  "id": "cyruspinto/rsna-knee-v50-variant_b_high_anchor",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": false,
+  "dataset_sources": [
+    "cyruspinto/rsna-knee-engine12-convnext-large-weights",
+    "cyruspinto/rsna-knee-engine13-swin-base-weights",
+    "cyruspinto/rsna-knee-engine13-fold4-weights",
+    "cyruspinto/rsna-knee-engine10-fold0-weights",
+    "cyruspinto/rsna-knee-engine10-fold1-weights",
+    "cyruspinto/rsna-knee-engine10-fold2-weights",
+    "cyruspinto/rsna-knee-engine10-fold3-weights",
+    "cyruspinto/rsna-knee-engine10-fold4-weights",
+    "dreaddevelopment/knee-raptor-corpus",
+    "dreaddevelopment/knee-raptor-corpus-ext",
+    "cyruspinto/rsna-knee-super-consensus-labels-0916",
+    "cyruspinto/rsna-knee-engine12-all-folds-oof",
+    "cyruspinto/rsna-knee-engine13-all-folds-oof"
+  ],
+  "keywords": [],
+  "code_file": "rsna-knee-v50-variant-b.ipynb"
+}

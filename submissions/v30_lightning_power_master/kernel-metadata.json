@@ -1,0 +1,25 @@
+{
+  "id": "cyruspinto/rsna-knee-v30-lightning-power-master",
+  "title": "RSNA Knee V30 Lightning Power Master",
+  "code_file": "rsna-knee-v30-lightning-power-master.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "keywords": [
+    "gpu"
+  ],
+  "dataset_sources": [
+    "heliosli/rsna-knee-compact-r7cnxfsss",
+    "nartaa/rsna-knee-publication-swa-weights-20261007",
+    "heliosli/rsna-orthofoundation-fold0-epoch7-20261004"
+  ],
+  "kernel_sources": [],
+  "competition_sources": [
+    "rsna-knee-abnormality-detection"
+  ],
+  "model_sources": [],
+  "machine_shape": "NvidiaTeslaT4"
+}

@@ -331,3 +331,9 @@ Earlier history (Oct 12–19) is in `docs/competition_live_log.md`, `MASTER_HAND
 - **Result:** All 11 critical tests PASS: guardrail (4/4), ensemble logic, process checks (3/3), submission integrity (3/3). V48 submission valid and PENDING. Ready for V49 submission at 00:00 UTC.
 - **Evidence:** tools/ceiling_verification_suite.py --quick; tools/ceiling_verification_suite.py full run
 - **Next:** User runs OOF extraction on Colab (engine12_13_fold0_oof_extraction.ipynb); at 00:00 UTC run OOF optimizer and submit V49
+
+### [2026-10-21 04:45 UTC] STEP — Fixed V48 double-rank bug (ADR-048 follow-up); removed re-ranking of already-ranked anchor_preds blend; guardrail PASSED
+- **Agent:** Claude Opus 4.6
+- **Result:** V48 double-rank bug fixed; guardrail validation PASSED; V48 now uses direct rank blend like V45
+- **Evidence:** submissions/v48_apex_quad_arm_ensemble/rsna-knee-v48-apex-quad-arm-ensemble.ipynb; tools/validate_kernel_guardrail.py PASS
+- **Next:** Run OOF extraction on Colab (engine12_13_fold0_oof_extraction.ipynb); then run OOF optimization and build V49

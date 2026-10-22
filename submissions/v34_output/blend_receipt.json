@@ -1,0 +1,37 @@
+{
+ "weights": {
+  "raptor": 0.5,
+  "ours": 0.5,
+  "raptor_per_class": {
+   "Lateral OA": 0.2,
+   "Synovitis": 0.8,
+   "PF OA": 0.6,
+   "Baker's": 0.35,
+   "ACL": 0.6,
+   "MCL": 0.5,
+   "Medial Meniscus": 0.5,
+   "Lateral Meniscus": 0.5,
+   "Medial OA": 0.5,
+   "Effusion": 0.5,
+   "Contusion": 0.5,
+   "Fracture": 0.5
+  },
+  "a224": 0.3
+ },
+ "rows": 3,
+ "raptor_failed": 0,
+ "raptor384_failed": 0,
+ "raptor224_failed": 0,
+ "raptor224_seconds": 23.7,
+ "spearman_raptor224_raw_vs_sub": {},
+ "spearman_raptor224_vs_raptor384": {},
+ "raptor_half": "(1 - A224) rank(384) + A224 rank(224), each over its own non-failed rows",
+ "ours_failed": 0,
+ "raptor_seconds": 59.6,
+ "total_seconds": 957.6,
+ "spearman_raptor_raw_vs_sub": {},
+ "spearman_raptor_vs_ours": {},
+ "mode": "Candidate V34 Quad-Grandmaster Sovereign Fusion (Raptor-384 + Cyrus Super-CoAtNet-384 + Raptor-224 + ConvNeXt-R7)",
+ "both_failed": 0,
+ "rank_basis": "each model over its own non-failed rows"
+}

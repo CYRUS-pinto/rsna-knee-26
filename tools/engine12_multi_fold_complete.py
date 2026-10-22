@@ -1,0 +1,278 @@
+import json
+from pathlib import Path
+
+src = Path(r'C:\Users\Cyrus\Downloads\colab_engine12_fold1_master.ipynb')
+dst = Path(r'C:\Users\Cyrus\Downloads\colab_engine12_multi_fold_master.ipynb')
+
+with open(src) as f:
+    nb = json.load(f)
+
+# The original notebook has these cells in order:
+# 0: Environment & GPU Diagnostic
+# 1: Authenticate Kaggle & Download Assets
+# 2: Generate Fold 0 Validation Indices
+# 3: Load Labels & Corpus Data
+# 4: Build val_labels & id2row
+# 5: Engine 12 Inference (Fold 1)
+# 6: Train Engine 12 Fold 1
+# 7: Publish Fold 1 weights
+
+# We need: Cells 0, 1, 2, 3, 4 (prerequisites) + Multi-fold loop for folds 2,3,4
+
+new_cells = [nb['cells'][0], nb['cells'][1], nb['cells'][2], nb['cells'][3], nb['cells'][4]]
+
+# Multi-fold loop for folds 2,3,4
+multi_fold_source = '''# Multi-Fold Loop: Folds 2, 3, 4
+for FOLD in [2, 3, 4]:
+    print(f"=== Starting Fold {FOLD} ===", flush=True)
+    
+    # Write training script for this fold
+    with open(f"train_engine12_fold{FOLD}.py", "w", encoding="utf-8") as f:
+        f.write(f"""
+RSNA Knee Engine 12 - ConvNeXt-Large-384 Gated MIL (Fold {FOLD} of 5)
+5-Fold Stratified Cross-Validation + Official 58 Gold Radiologist Anchoring
+"""
+import os, sys, time, math, random
+import numpy as np, pandas as pd
+import torch, torch.nn as nn, torch.nn.functional as F
+from torch.utils.data import Dataset, DataLoader
+from sklearn.metrics import roc_auc_score
+import timm
+
+TARGETS = [
+    'ACL', 'MCL', 'Medial Meniscus', 'Lateral Meniscus',
+    'Medial OA', 'Lateral OA', 'PF OA', 'Effusion',
+    'Synovitis', "Baker's", 'Contusion', 'Fracture'
+]
+
+class TwoPartVols:
+    def __init__(self, a, b):
+        self.a, self.b = a, b
+        self.n_a = a.shape[0]
+        self.shape = (a.shape[0] + (b.shape[0] if b is not None else 0),) + tuple(a.shape[1:])
+    def __len__(self): return self.shape[0]
+    def __getitem__(self, row):
+        return self.a[row] if row < self.n_a else self.b[row - self.n_a]
+
+class StudyWindowsDataset(Dataset):
+    def __init__(self, ids, id2row, labels, vols, masks, res=384, k=16, train=False):
+        self.ids = ids
+        self.id2row = id2row
+        self.labels = labels
+        self.vols = vols
+        self.masks = masks
+        self.res = res
+        self.k = k
+        self.train = train
+
+    def __len__(self): return len(self.ids)
+
+    def _centers(self, valid, count, d_len):
+        lo, hi = int(valid.min()), int(valid.max())
+        cs = [c for c in range(lo + 1, hi) if c - 1 >= lo and c + 1 <= hi]
+        if not cs:
+            cs = [max(1, min((lo + hi) // 2, d_len - 2))]
+        if self.train:
+            reps = count // len(cs) + 1
+            pool = (cs * reps)
+            random.shuffle(pool)
+            return sorted(pool[:count])
+        idx = np.linspace(0, len(cs) - 1, count).round().astype(int)
+        return sorted([cs[i] for i in idx])
+
+    def __getitem__(self, i):
+        uid = self.ids[i]
+        row = self.id2row[uid]
+        vol = self.vols[row]
+        mask = self.masks[row] if self.masks is not None else None
+        
+        # Get valid slice indices
+        if mask is not None:
+            valid = np.where(mask)[0]
+        else:
+            valid = np.arange(vol.shape[0])
+        
+        centers = self._centers(valid, self.k, vol.shape[0])
+        
+        windows = []
+        for c in centers:
+            if c - 1 >= 0 and c + 1 < vol.shape[0]:
+                window = vol[c-1:c+2]  # 3 slices
+            else:
+                window = np.zeros((3, vol.shape[1], vol.shape[2]), dtype=vol.dtype)
+                mid = min(max(c, 1), vol.shape[0] - 2)
+                window = vol[mid-1:mid+2]
+            # Resize to 384x384
+            from skimage.transform import resize
+            window = np.stack([resize(w, (self.res, self.res), order=1, preserve_range=True, anti_aliasing=True) for w in window])
+            windows.append(window)
+        
+        windows = np.stack(windows)  # (k, 3, H, W)
+        windows = torch.from_numpy(windows).float() / 255.0
+        
+        # Labels
+        y = self.labels.loc[self.labels['StudyInstanceUID'] == uid, TARGETS].values
+        if len(y) == 0:
+            y = np.zeros(len(TARGETS), dtype=np.float32)
+        else:
+            y = y[0].astype(np.float32)
+        
+        return windows, torch.from_numpy(y), uid
+
+
+class ConvNeXtMILClassifier(nn.Module):
+    def __init__(self, backbone, feat_dim=1536, num_targets=12, drop=0.2):
+        super().__init__()
+        self.backbone = backbone
+        self.feat_dim = feat_dim
+        self.norm = nn.LayerNorm(feat_dim)
+        self.att = nn.Sequential(
+            nn.Linear(feat_dim, 256),
+            nn.Tanh(),
+            nn.Dropout(drop),
+            nn.Linear(256, num_targets)
+        )
+        self.clsW = nn.Parameter(torch.zeros(num_targets, feat_dim))
+        self.clsb = nn.Parameter(torch.zeros(num_targets))
+
+    def encode(self, x):
+        B, K, C, H, W = x.shape
+        flat_x = x.view(B * K, C, H, W)
+        chunk_size = 4
+        feats = []
+        for i in range(0, flat_x.size(0), chunk_size):
+            f = self.backbone(flat_x[i:i + chunk_size])
+            feats.append(f)
+        feats = torch.cat(feats, dim=0)
+        return feats.view(B, K, -1)
+
+    def forward(self, x):
+        feats = self.encode(x)
+        h = self.norm(feats)
+        a = torch.softmax(self.att(h), dim=1)
+        pooled = torch.einsum('bkn,bkf->bnf', a, h)
+        logits = (pooled * self.clsW).sum(-1) + self.clsb
+        return logits
+
+def run_engine12_inference():
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    
+    # Find weight file
+    weight_paths = [
+        Path(f'/content/weights/engine12_convnext_large_fold{FOLD}_best.pt'),
+        Path(f'/content/weights/engine12_convnext_large_fold{FOLD}_best.pt'),
+        Path('/kaggle/input/rsna-knee-engine12-convnext-large-weights/engine12_convnext_large_best.pt'),
+    ]
+    weight_file = next((p for p in weight_paths if p.is_file()), None)
+    
+    if weight_file is None:
+        print(f'[!] Engine 12 weights not found for Fold {FOLD}')
+        return None
+    
+    print(f'[+] Loading Engine 12 Fold {FOLD} from: {weight_file}', flush=True)
+    
+    bb = timm.create_model('convnext_large.fb_in22k_ft_in1k_384', pretrained=False, num_classes=0)
+    bb.set_grad_checkpointing(True)
+    model = ConvNeXtMILClassifier(bb, feat_dim=1536, num_targets=12).to(device)
+    
+    ckpt = torch.load(weight_file, map_location=device, weights_only=False)
+    state_dict = ckpt['model'] if 'model' in ckpt else ckpt
+    model.load_state_dict(state_dict, strict=False)
+    model.eval()
+    
+    # Run inference on validation set
+    val_dataset = StudyWindowsDataset(
+        ids=list(id2row.keys()),
+        id2row=id2row,
+        labels=val_labels,
+        vols=all_vols,
+        masks=None,  # Will be loaded from corpus if available
+        res=384,
+        k=16,
+        train=False
+    )
+    
+    val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False, num_workers=2)
+    
+    predictions = []
+    uids = []
+    
+    print(f'[*] Running Engine 12 Fold {FOLD} inference on {len(val_dataset)} validation studies...', flush=True)
+    with torch.no_grad():
+        for windows, _, uid in val_loader:
+            windows = windows.to(device)
+            logits = model(windows)
+            probs = torch.sigmoid(logits).cpu().numpy()[0]
+            predictions.append(probs)
+            uids.append(uid)
+    
+    pred_df = pd.DataFrame(predictions, columns=TARGETS)
+    pred_df.insert(0, 'StudyInstanceUID', uids)
+    pred_df.to_csv(f'/content/engine12_fold{FOLD}_oof.csv', index=False)
+    print(f'[+] Engine 12 Fold {FOLD} OOF saved: {pred_df.shape}', flush=True)
+    return pred_df
+
+    # Train this fold
+    print(f'=== Starting Engine 12 Fold {FOLD} Training ===', flush=True)
+    exec(open(f'train_engine12_fold{FOLD}.py').read())
+    
+    # Publish weights
+    import os, json, subprocess, shutil
+    os.makedirs(f'/content/engine12_fold{FOLD}_upload', exist_ok=True)
+    shutil.copy(f'/content/engine12_convnext_large_fold{FOLD}_best.pt', f'/content/engine12_fold{FOLD}_upload/')
+    
+    meta = {
+        'title': f'RSNA Knee Engine 12 ConvNeXt-Large Fold {FOLD} Weights',
+        'id': f'cyruspinto/rsna-knee-engine12-fold{FOLD}-weights',
+        'licenses': [{'name': 'CC0-1.0'}]
+    }
+    with open(f'/content/engine12_fold{FOLD}_upload/dataset-metadata.json', 'w') as f:
+        json.dump(meta, f, indent=2)
+    
+    subprocess.run(['kaggle', 'datasets', 'create', '-p', f'/content/engine12_fold{FOLD}_upload', '-r', 'zip'], capture_output=True)
+    print(f'[+] Engine 12 Fold {FOLD} weights pushed to Kaggle', flush=True)
+    
+    # Clear GPU memory for next fold
+    import torch, gc
+    torch.cuda.empty_cache()
+    gc.collect()
+    print(f'=== Fold {FOLD} Complete ===', flush=True)
+
+print('=== All Engine 12 Folds Complete ===')
+"""
+
+# Build new notebook
+new_cells = nb['cells'][:5]  # Cells 0-4 (env, auth, folds, labels, id2row)
+
+# Add multi-fold loop cell
+new_cells.append({
+    'cell_type': 'code',
+    'metadata': {},
+    'execution_count': None,
+    'outputs': [],
+    'source': [multi_fold_source]
+})
+
+# Final completion cell
+final_cell = {
+    'cell_type': 'code',
+    'metadata': {},
+    'execution_count': None,
+    'outputs': [],
+    'source': ['print("=== All Engine 12 Folds 2,3,4 Complete ===")']
+}
+
+new_nb = {
+    'cells': new_cells + [{'cell_type': 'code', 'metadata': {}, 'execution_count': None, 'outputs': [], 'source': ['# Run inference for folds 2,3,4']}] + [
+        {'cell_type': 'code', 'metadata': {}, 'execution_count': None, 'outputs': [], 'source': ['for FOLD in [2, 3, 4]:\n    print(f"=== Running inference for Fold {FOLD} ===")\n    run_engine12_inference()\n    print(f"Fold {FOLD} OOF saved")\n', 'print("=== All Engine 12 Folds 2,3,4 OOF Complete ===")']},
+        {'cell_type': 'code', 'metadata': {}, 'execution_count': None, 'outputs': [], 'source': ['print("=== All Engine 12 Folds 2,3,4 Complete ===")']}
+    ],
+    'metadata': nb['metadata'],
+    'nbformat': nb['nbformat'],
+    'nbformat_minor': nb['nbformat_minor']
+}
+
+with open(r'C:\Users\Cyrus\Downloads\colab_engine12_multi_fold_master.ipynb', 'w') as f:
+    json.dump(new_nb, f, indent=1)
+print('Created Engine 12 multi-fold notebook')
+"
