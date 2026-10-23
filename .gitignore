@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+venv/
+
+# Data & Large Weights
+*.dcm
+*.npy
+*.pt
+*.pth
+train_series/
+test_series/
